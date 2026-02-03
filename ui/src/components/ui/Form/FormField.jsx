@@ -1,60 +1,61 @@
-import { User, Mail, Phone, MapPin, FileText } from "lucide-react";
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  FileText,
+  Calendar,
+  Hash,
+  Clock,
+} from "lucide-react";
+import TextInput from "./Inputs/TextInput";
+import EmailInput from "./Inputs/EmailInput";
+import NumberInput from "./Inputs/NumberInput";
+import TextArea from "./Inputs/TextArea";
+import Select from "./Inputs/Select";
+import Checkbox from "./Inputs/Checkbox";
+import RadioButton from "./Inputs/RadioButton";
+import DateInput from "./Inputs/DateInput"; // <- import DateInput
+import TimeInput from "./Inputs/TimeInput";
 
+// Default icons for types
 const icons = {
   text: User,
   email: Mail,
   number: FileText,
   textarea: FileText,
+  phone: Phone,
+  address: MapPin,
+  date: Calendar,
+  time: Clock,
+  id: Hash,
+};
+
+// Map type to input component
+const inputMap = {
+  text: TextInput,
+  email: EmailInput,
+  number: NumberInput,
+  textarea: TextArea,
+  select: Select,
+  checkbox: Checkbox,
+  radio: RadioButton,
+  time: TimeInput,
+  date: DateInput, // <- add date type
 };
 
 const FormField = ({ field, value, onChange }) => {
-  const { name, label, type, placeholder, options } = field;
-  const Icon = field.icon || icons[type];
+  const { type } = field;
+  const Component = inputMap[type];
+
+  if (!Component) return null; // skip if type is unknown
 
   return (
-    <div className="flex flex-col gap-1">
-      <label className="text-sm font-medium text-gray-700">{label}</label>
-
-      <div className="relative">
-        {Icon && (
-          <Icon size={16} className="absolute left-3 top-3 text-gray-400" />
-        )}
-
-        {type === "select" && (
-          <select
-            value={value}
-            onChange={(e) => onChange(name, e.target.value)}
-            className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
-          >
-            <option value="">Select</option>
-            {options.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        )}
-
-        {type === "textarea" && (
-          <textarea
-            value={value}
-            placeholder={placeholder}
-            onChange={(e) => onChange(name, e.target.value)}
-            className="w-full pl-10 pr-3 py-2 border rounded-lg min-h-[100px] focus:ring-2 focus:ring-orange-500 outline-none"
-          />
-        )}
-
-        {type !== "select" && type !== "textarea" && (
-          <input
-            type={type}
-            value={value}
-            placeholder={placeholder}
-            onChange={(e) => onChange(name, e.target.value)}
-            className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
-          />
-        )}
-      </div>
-    </div>
+    <Component
+      {...field}
+      value={value}
+      onChange={(val) => onChange(field.name, val)}
+    />
   );
 };
 
