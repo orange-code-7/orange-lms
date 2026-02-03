@@ -1,21 +1,26 @@
 import React, { useEffect, useState } from "react";
 import Table from "@/components/ui/Table";
 import TableControls from "@/components/ui/TableControls";
-import useSearch from "@/hooks/useSearch";
-import useFilter from "@/hooks/useFilter";
-import useSort from "@/hooks/useSort";
-import useBreadcrumbs from "@/hooks/useBreadcrumbs";
-import usePagination from "@/hooks/usePagination";
+
+import {
+  useBreadcrumbs,
+  useFilter,
+  useSearch,
+  usePagination,
+  useSort,
+} from "@/hooks";
+
 import MeetingService from "@/services/meetings.service";
 import { Trash2, Edit2, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const columns = [
-  { key: "topic", label: "Meeting" },
-  { key: "className", label: "Class" },
-  { key: "date", label: "Date" },
-  { key: "mentorName", label: "Mentor" },
-  { key: "attendanceCount", label: "Attendance" },
+  { key: "name", label: "Topic" },
+  { key: "description", label: "Description" },
+  { key: "meetingDate", label: "Date" },
+  { key: "startHour", label: "Start Hour" },
+  { key: "finishHour", label: "Finish Hour" },
+  { key: "meeting", label: "Class Code", render: (row) => row.class?.code },
   { key: "actions", label: "Actions" },
 ];
 
@@ -40,15 +45,15 @@ const List = () => {
 
   // SEARCH
   const { query, setQuery, searchedData } = useSearch(data, [
-    "topic",
-    "className",
-    "mentorName",
+    "name",
+    "description",
+    "category",
   ]);
 
   // FILTER (by class)
   const { filterValue, setFilterValue, filteredData } = useFilter(
     searchedData,
-    "className",
+    "category",
   );
 
   // SORT
@@ -56,7 +61,7 @@ const List = () => {
 
   // PAGINATION
   const { paginatedData, currentPage, totalPages, nextPage, prevPage } =
-    usePagination(sortedData, 5);
+    usePagination(sortedData, 10);
 
   if (loading)
     return <div className="p-4 text-gray-500">Loading meetings...</div>;
@@ -81,12 +86,12 @@ const List = () => {
         >
           <Eye size={16} /> Details
         </Link>
-        <button
-          onClick={() => handleEdit(row.id)}
+        <Link
+          to={`/meetings/update/${row.id}`}
           className="text-green-600 hover:text-green-800 flex items-center gap-1"
         >
           <Edit2 size={16} /> Edit
-        </button>
+        </Link>
         <button
           onClick={() => handleRemove(row.id)}
           className="text-red-600 hover:text-red-800 flex items-center gap-1"

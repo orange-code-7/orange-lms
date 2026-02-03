@@ -12,9 +12,14 @@ const TaskSubmissionController = require("./TaskSubmissionController");
 const NoteController = require("./NoteController");
 const MaterialController = require("./MaterialController");
 
+const MentorController = require("./MentorController.js");
+const MenteeController = require("./MenteeController.js");
+
 module.exports = {
   UserController,
   ProfileController,
+  MentorController,
+  MenteeController,
   ClassController,
   MeetingController,
   TaskController,

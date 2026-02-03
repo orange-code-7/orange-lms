@@ -2,7 +2,7 @@ import api from "./api";
 
 const NoteService = {
   getAll: async () => {
-    const res = await api.get("/notes"); // GET /notes
+    const res = await api.get("/notes/all"); // GET /notes
     return res.data;
   },
 

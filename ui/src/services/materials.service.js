@@ -2,7 +2,7 @@ import api from "./api";
 
 const MaterialService = {
   getAll: async () => {
-    const res = await api.get("/materials"); // GET /materials
+    const res = await api.get("/materials/all"); // GET /materials
     return res.data;
   },
 

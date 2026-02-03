@@ -7,6 +7,8 @@ const meetingRoutes = require("./meeting");
 const taskRoutes = require("./task");
 const noteRoutes = require("./note");
 const materialRoutes = require("./material");
+const mentorRoutes = require("./mentor");
+const menteeRoutes = require("./mentee");
 
 /**
  * =====================
@@ -35,6 +37,10 @@ router.use("/meetings", meetingRoutes);
 router.use("/tasks", taskRoutes);
 router.use("/notes", noteRoutes);
 router.use("/materials", materialRoutes);
+
+// Mentor and Mentee
+router.use("/mentors", mentorRoutes);
+router.use("/mentees", menteeRoutes);
 
 /**
  * =====================

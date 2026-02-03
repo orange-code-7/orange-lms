@@ -2,7 +2,7 @@ import api from "./api";
 
 const TaskService = {
   getAll: async () => {
-    const res = await api.get("/tasks"); // GET /tasks
+    const res = await api.get("/tasks/all"); // GET /tasks
     return res.data;
   },
 

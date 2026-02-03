@@ -2,7 +2,7 @@ import api from "./api";
 
 const MeetingService = {
   getAll: async () => {
-    const res = await api.get("/meetings"); // GET /meetings
+    const res = await api.get("/meetings/all"); // GET /meetings
     return res.data;
   },
 

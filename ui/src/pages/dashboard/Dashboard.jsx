@@ -97,11 +97,11 @@ const Dashboard = () => {
 
   // CHART DATA (progress)
   const chartData = classes.map((cls) => {
-    const heldMeetings = cls.meetings?.length || 0;
-    const progress = (heldMeetings / cls.totalMeetings) * 100;
+    const heldMeetings = cls.meeting?.length || 0;
+    const progress = (heldMeetings / cls.meeting.length) * 100;
 
     return {
-      name: cls.name,
+      name: cls.code,
       progress: Math.round(progress),
     };
   });
@@ -149,9 +149,9 @@ const Dashboard = () => {
             <ul className="space-y-2">
               {activeClasses.map((cls) => (
                 <li key={cls.id} className="flex justify-between">
-                  <span>{cls.name}</span>
+                  <span className="">{cls.title}</span>
                   <span className="text-sm text-gray-500">
-                    Meetings: {cls.meetings?.length || 0}/{cls.totalMeetings}
+                    Meetings: {cls.meeting?.length || 0}/{cls.meeting.length}
                   </span>
                 </li>
               ))}
@@ -167,7 +167,7 @@ const Dashboard = () => {
             <ul className="space-y-2">
               {upcomingClasses.map((cls) => (
                 <li key={cls.id} className="flex justify-between">
-                  <span>{cls.name}</span>
+                  <span>{cls.title}</span>
                   <span className="text-sm text-gray-500">
                     Starts: {cls.startDate}
                   </span>

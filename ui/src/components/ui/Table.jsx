@@ -1,3 +1,4 @@
+import { getNestedValue } from "@/helpers";
 import React from "react";
 
 const Table = ({ columns, data }) => {
@@ -35,7 +36,9 @@ const Table = ({ columns, data }) => {
                     key={col.key}
                     className="border px-3 py-2 whitespace-nowrap"
                   >
-                    {row[col.key]}
+                    {col.render
+                      ? col.render(row)
+                      : getNestedValue(row, col.key)}
                   </td>
                 ))}
               </tr>
