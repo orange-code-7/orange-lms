@@ -31,7 +31,8 @@ const Edit = () => {
   }, [id, setValues]); // <- setValues is stable, no loop
 
   const handleSubmit = async (payload) => {
-    await MentorService.update(id, payload);
+    // await MentorService.update(id, payload);
+    alert(JSON.stringify(payload));
   };
 
   if (loading) return <div>Loading...</div>;

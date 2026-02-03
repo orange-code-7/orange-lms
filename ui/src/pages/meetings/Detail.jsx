@@ -51,7 +51,8 @@ const Details = () => {
           <h2 className="text-xl font-bold">{meeting.name}</h2>
           <p className="text-gray-600">{meeting.description}</p>
           <p className="text-gray-500 text-sm">
-            {meeting.meetingDate} | {meeting.startHour} - {meeting.finishHour}
+            {formatDate(meeting.meetingDate)} | {meeting.startHour} -{" "}
+            {meeting.finishHour}
           </p>
           <p className="text-gray-500 text-sm">
             Mentor: {meeting.mentor?.name ?? "-"}
