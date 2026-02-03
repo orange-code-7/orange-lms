@@ -1,16 +1,11 @@
 // src/pages/classes/Detail.jsx
 import React, { useEffect, useState } from "react";
-
 import { useParams } from "react-router-dom";
 import TabTable from "@/components/ui/TabTable";
-import TableControls from "@/components/ui/TableControls";
-import useSearch from "@/hooks/useSearch";
-import useFilter from "@/hooks/useFilter";
-import useSort from "@/hooks/useSort";
-import usePagination from "@/hooks/usePagination";
 import useBreadcrumbs from "@/hooks/useBreadcrumbs";
 import ClassService from "@/services/class.service";
 import { Trash2, Edit2, Eye } from "lucide-react";
+import { formatDate } from "@/helpers";
 
 const tabs = ["Meetings", "Mentees", "Notes", "Tasks", "Materials"];
 
@@ -57,7 +52,7 @@ const Detail = () => {
           <h2 className="text-xl font-bold mb-2">{classData.name}</h2>
           <p className="text-gray-600 mb-2">{classData.description}</p>
           <p className="text-gray-500 text-sm mb-2">
-            {classData.startDate} | {classData.startHour} -{" "}
+            {formatDate(classData.startDate)} | {classData.startHour} -{" "}
             {classData.finishHour}
           </p>
           <p className="text-gray-500 text-sm font-semibold">

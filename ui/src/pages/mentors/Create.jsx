@@ -7,7 +7,8 @@ const Create = () => {
   const { values, handleChange } = useForm(mentorSchema);
 
   const handleSubmit = async (payload) => {
-    await MentorService.create(payload);
+    // await MentorService.create(payload);
+    alert(JSON.stringify(payload));
   };
 
   return (

@@ -7,13 +7,14 @@ const Create = () => {
   const { values, handleChange } = useForm(menteeSchema);
 
   const handleSubmit = async (payload) => {
-    await MentorService.create(payload);
+    // await MentorService.create(payload);
+    alert(JSON.stringify(payload));
   };
 
   return (
     <Form
       title="Create Mentee"
-      description="Fill mentor personal information"
+      description="Fill mentee personal information"
       schema={menteeSchema}
       values={values}
       onChange={handleChange}

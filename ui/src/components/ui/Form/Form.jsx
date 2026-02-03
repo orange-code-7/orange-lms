@@ -39,7 +39,7 @@ const Form = ({
             key={field.name}
             field={field}
             value={values[field.name]}
-            onChange={onChange}
+            onChange={(name, val) => onChange(name, val)}
           />
         ))}
       </div>
