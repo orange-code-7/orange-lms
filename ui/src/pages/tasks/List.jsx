@@ -9,6 +9,7 @@ import usePagination from "@/hooks/usePagination";
 import TasksService from "@/services/tasks.service";
 import { Trash2, Edit2, Eye, Download } from "lucide-react";
 import TasksDetail from "./Detail";
+import { Link } from "react-router-dom";
 
 const columns = [
   { key: "name", label: "Name" },
@@ -109,12 +110,12 @@ const List = () => {
           <Eye size={16} /> Detail
         </button>
 
-        <button
-          onClick={() => handleEdit(row.id)}
+        <Link
+          to={`/tasks/update/${row.id}`}
           className="text-green-600 hover:text-green-800 flex items-center gap-1"
         >
           <Edit2 size={16} /> Edit
-        </button>
+        </Link>
 
         <button
           onClick={() => handleRemove(row.id)}
