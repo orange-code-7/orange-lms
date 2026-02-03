@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
 import Table from "@/components/ui/Table";
 import TableControls from "@/components/ui/TableControls";
-import useSearch from "@/hooks/useSearch";
-import useFilter from "@/hooks/useFilter";
-import useSort from "@/hooks/useSort";
-import useBreadcrumbs from "@/hooks/useBreadcrumbs";
-import usePagination from "@/hooks/usePagination";
+
+import {
+  useBreadcrumbs,
+  useFilter,
+  useSearch,
+  usePagination,
+  useSort,
+} from "@/hooks";
+
 import MenteeService from "@/services/mentees.service";
 import { Trash2, Edit2, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -80,17 +84,17 @@ const List = () => {
     actions: (
       <div className="flex gap-3">
         <Link
-          to={`/mentors/${row.id}`}
+          to={`/mentees/${row.id}`}
           className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
         >
           <Eye size={16} /> Details
         </Link>
-        <button
-          onClick={() => handleEdit(row.id)}
+        <Link
+          to={`/mentees/update/${row.id}`}
           className="text-green-600 hover:text-green-800 flex items-center gap-1"
         >
           <Edit2 size={16} /> Edit
-        </button>
+        </Link>
         <button
           onClick={() => handleRemove(row.id)}
           className="text-red-600 hover:text-red-800 flex items-center gap-1"
