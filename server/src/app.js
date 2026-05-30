@@ -3,24 +3,51 @@ const cors = require("cors");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
 
+const routes = require("./routes");
+
+const { ErrorHandling } = require("./middlewares");
+
 const app = express();
 
-// Middleware
+/**
+ * =========================
+ * Global Middlewares
+ * =========================
+ */
 app.use(cors());
-app.use(morgan("dev")); // logging HTTP request
+app.use(morgan("dev"));
+
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  }),
+);
 
-const routes = require("./routes");
-app.use(routes);
+/**
+ * =========================
+ * API Routes
+ * =========================
+ */
+app.use("/api", routes);
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(err.status || 500).json({
+/**
+ * =========================
+ * 404 Handler
+ * =========================
+ */
+app.use((req, res) => {
+  res.status(404).json({
     error: true,
-    message: err.message || "Internal Server Error",
+    message: "Route not found",
   });
 });
+
+/**
+ * =========================
+ * Global Error Handler
+ * =========================
+ */
+app.use(ErrorHandling.handle);
 
 module.exports = app;

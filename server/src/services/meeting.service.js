@@ -3,13 +3,12 @@ const { Class, Meeting, Task, Note, Material } = require("../models");
 class MeetingService {
   static async findAllByClass(classId) {
     return Meeting.findAll({
-      where: { id: classId },
+      where: { classId },
       include: [
         {
           model: Class,
           as: "class",
         },
-
         Task,
         Note,
         Material,
@@ -19,7 +18,6 @@ class MeetingService {
 
   static async getAll() {
     return Meeting.findAll({
-      // where: { id: classId },
       include: [
         {
           model: Class,
@@ -47,24 +45,28 @@ class MeetingService {
   }
 
   static async create(currentUser, classId, data) {
-    if (!["admin", "owner"].includes(currentUser.role))
-      throw new Error("Permission denied");
-    return Meeting.create({ classId, ...data });
+    return Meeting.create({
+      classId,
+      ...data,
+    });
   }
 
-  static async update(id, data, currentUser) {
+  static async update(id, data) {
     const meeting = await Meeting.findByPk(id);
-    if (!meeting) throw new Error("Meeting not found");
+
+    if (!meeting) {
+      throw new Error("Meeting not found");
+    }
+
     return meeting.update(data);
   }
 
-  static async delete(id, currentUser) {
+  static async delete(id) {
     const meeting = await Meeting.findByPk(id);
-    if (!meeting) throw new Error("Meeting not found");
 
-    await Task.destroy({ where: { meetingId: id } });
-    await Note.destroy({ where: { meetingId: id } });
-    await Material.destroy({ where: { meetingId: id } });
+    if (!meeting) {
+      throw new Error("Meeting not found");
+    }
 
     return meeting.destroy();
   }

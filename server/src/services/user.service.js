@@ -1,25 +1,16 @@
 const { User, Profile } = require("../models");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+const { bcrypt } = require("../helpers");
 
 class UserService {
   static async create({ email, password, role, name }) {
-    const hashed = await bcrypt.hash(password, 10);
-    return User.create({ email, password: hashed, role, name });
-  }
+    const hashedPassword = await bcrypt.hashPassword(password);
 
-  static async login(email, password) {
-    const user = await User.findOne({ where: { email } });
-    if (!user) throw new Error("User not found");
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) throw new Error("Invalid credentials");
-
-    const token = jwt.sign(
-      { id: user.id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" },
-    );
-    return { user, token };
+    return User.create({
+      email,
+      password: hashedPassword,
+      role,
+      name,
+    });
   }
 
   static async findAll() {
@@ -28,6 +19,9 @@ class UserService {
       include: {
         model: Profile,
         as: "profile",
+      },
+      attributes: {
+        exclude: ["password"],
       },
     });
   }
@@ -38,24 +32,39 @@ class UserService {
         model: Profile,
         as: "profile",
       },
+      attributes: {
+        exclude: ["password"],
+      },
     });
   }
 
   static async update(id, data, currentUser) {
-    // Admin can update anyone, non-admin can only update self
     const user = await User.findByPk(id);
+
     if (!user) throw new Error("User not found");
-    if (user.role === "owner" && currentUser.role !== "owner")
+
+    if (user.role === "Owner" && currentUser.role !== "Owner") {
       throw new Error("Cannot update owner");
+    }
+
     return user.update(data);
   }
 
   static async delete(id, currentUser) {
     const user = await User.findByPk(id);
+
     if (!user) throw new Error("User not found");
-    if (user.role === "owner") throw new Error("Cannot delete owner");
-    await Profile.destroy({ where: { userId: id } });
+
+    if (user.role === "Owner" && currentUser.role !== "Owner") {
+      throw new Error("Cannot delete owner");
+    }
+
+    await Profile.destroy({
+      where: { userId: id },
+    });
+
     await user.destroy();
+
     return true;
   }
 }

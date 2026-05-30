@@ -1,16 +1,21 @@
 const { User, Profile } = require("../models");
-const bcrypt = require("bcrypt");
+const { bcrypt } = require("../helpers");
 
 class MenteeService {
   static async create({ email, password, name }) {
-    const hashed = await bcrypt.hash(password, 10);
-    return User.create({ email, password: hashed, role: "mentee", name });
+    const hashedPassword = await bcrypt.hashPassword(password);
+
+    return User.create({
+      email,
+      password: hashedPassword,
+      role: "Mentee",
+      name,
+    });
   }
 
   static async findAll() {
     return User.findAll({
-      where: { role: "mentee" },
-      order: [["id", "ASC"]],
+      where: { role: "Mentee" },
       include: {
         model: Profile,
         as: "profile",
@@ -19,8 +24,11 @@ class MenteeService {
   }
 
   static async findById(id) {
-    return User.findByPk(id, {
-      where: { role: "mentee" },
+    return User.findOne({
+      where: {
+        id,
+        role: "Mentee",
+      },
       include: {
         model: Profile,
         as: "profile",
@@ -28,21 +36,25 @@ class MenteeService {
     });
   }
 
-  static async update(id, data, currentUser) {
-    // Admin can update anyone, non-admin can only update self
+  static async update(id, data) {
     const user = await User.findByPk(id);
-    if (!user) throw new Error("User not found");
-    if (user.role === "owner" && currentUser.role !== "owner")
-      throw new Error("Cannot update owner");
+
+    if (!user) throw new Error("Mentee not found");
+
     return user.update(data);
   }
 
-  static async delete(id, currentUser) {
+  static async delete(id) {
     const user = await User.findByPk(id);
-    if (!user) throw new Error("User not found");
-    if (user.role === "owner") throw new Error("Cannot delete owner");
-    await Profile.destroy({ where: { userId: id } });
+
+    if (!user) throw new Error("Mentee not found");
+
+    await Profile.destroy({
+      where: { userId: id },
+    });
+
     await user.destroy();
+
     return true;
   }
 }

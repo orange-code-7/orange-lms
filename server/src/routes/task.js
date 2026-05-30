@@ -1,26 +1,31 @@
 const express = require("express");
 const router = express.Router({ mergeParams: true });
+
 const { TaskController } = require("../controllers");
+const { authorization } = require("../middlewares");
 
-/**
- * Nested (by meeting)
- * /meetings/:meetingId/tasks
- */
-router.get("/", TaskController.getByMeeting);
-router.post("/", TaskController.create);
+router.get("/", authorization("task", "read"), TaskController.getByMeeting);
 
-/**
- * Task detail
- */
-router.get("/all", TaskController.getAll);
-router.get("/:id", TaskController.getById);
-router.put("/:id", TaskController.update);
-router.delete("/:id", TaskController.delete);
+router.post("/", authorization("task", "create"), TaskController.create);
 
-/**
- * Task Submissions (pivot)
- */
-router.post("/:id/submit", TaskController.submitTask);
-router.get("/:id/submissions", TaskController.getSubmissions);
+router.get("/all", authorization("task", "read"), TaskController.getAll);
+
+router.get("/:id", authorization("task", "read"), TaskController.getById);
+
+router.put("/:id", authorization("task", "update"), TaskController.update);
+
+router.delete("/:id", authorization("task", "delete"), TaskController.delete);
+
+router.post(
+  "/:id/submit",
+  authorization("task", "submit"),
+  TaskController.submitTask,
+);
+
+router.get(
+  "/:id/submissions",
+  authorization("task", "read"),
+  TaskController.getSubmissions,
+);
 
 module.exports = router;

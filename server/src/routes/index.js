@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const userRoutes = require("./user");
+const authRoutes = require("./auth");
 const classRoutes = require("./class");
 const meetingRoutes = require("./meeting");
 const taskRoutes = require("./task");
@@ -10,45 +10,54 @@ const materialRoutes = require("./material");
 const mentorRoutes = require("./mentor");
 const menteeRoutes = require("./mentee");
 
+const { authentication } = require("../middlewares");
+
 /**
- * =====================
- * Core Resources
- * =====================
+ * Health Check
  */
+router.get("/", (req, res) => {
+  res.json({
+    message: "Orange LMS Server is running 🚀",
+  });
+});
+
+/**
+ * Public
+ */
+router.use("/auth", authRoutes);
+
+/**
+ * Protected
+ */
+router.use(authentication);
+
+/**
+ * User routes for testing
+ */
+
+const userRoutes = require("./user");
 router.use("/users", userRoutes);
-router.use("/classes", classRoutes);
 
 /**
- * =====================
- * Relation-Aware Nested Routes
- * =====================
+ * User Domains
  */
-router.use("/classes/:classId/meetings", meetingRoutes);
-router.use("/meetings/:meetingId/tasks", taskRoutes);
-router.use("/meetings/:meetingId/notes", noteRoutes);
-router.use("/meetings/:meetingId/materials", materialRoutes);
-
-/**
- * =====================
- * Optional Flat Access
- * =====================
- */
-router.use("/meetings", meetingRoutes);
-router.use("/tasks", taskRoutes);
-router.use("/notes", noteRoutes);
-router.use("/materials", materialRoutes);
-
-// Mentor and Mentee
 router.use("/mentors", mentorRoutes);
 router.use("/mentees", menteeRoutes);
 
 /**
- * =====================
- * Health Check
- * =====================
+ * Learning Resources
  */
-router.get("/", (req, res) => {
-  res.json({ message: "Orange LMS Server is running 🚀" });
-});
+router.use("/classes", classRoutes);
+
+router.use("/classes/:classId/meetings", meetingRoutes);
+
+router.use("/meetings/:meetingId/tasks", taskRoutes);
+router.use("/meetings/:meetingId/notes", noteRoutes);
+router.use("/meetings/:meetingId/materials", materialRoutes);
+
+router.use("/meetings", meetingRoutes);
+router.use("/tasks", taskRoutes);
+router.use("/notes", noteRoutes);
+router.use("/materials", materialRoutes);
 
 module.exports = router;

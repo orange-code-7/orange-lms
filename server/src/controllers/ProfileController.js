@@ -4,9 +4,10 @@ class ProfileController {
   static async getByUser(req, res, next) {
     try {
       const profile = await profileService.findByUserId(req.params.id);
-      res.json(profile);
-    } catch (err) {
-      next(err);
+
+      res.status(200).json(profile);
+    } catch (error) {
+      next(error);
     }
   }
 
@@ -16,9 +17,10 @@ class ProfileController {
         req.params.id,
         req.body,
       );
-      res.json(profile);
-    } catch (err) {
-      next(err);
+
+      res.status(200).json(profile);
+    } catch (error) {
+      next(error);
     }
   }
 }

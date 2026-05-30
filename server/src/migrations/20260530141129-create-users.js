@@ -1,55 +1,59 @@
 "use strict";
-/** @type {import('sequelize-cli').Migration} */
+
+/** @type {import("sequelize-cli").Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Classes", {
+    await queryInterface.createTable("Users", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      code: {
-        type: Sequelize.STRING,
-      },
+
       name: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
-      description: {
-        type: Sequelize.TEXT,
+
+      email: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
       },
-      category: {
+
+      password: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+
+      role: {
+        type: Sequelize.ENUM("Owner", "Admin", "Mentor", "Mentee"),
+        allowNull: false,
+      },
+
+      avatarUrl: {
         type: Sequelize.STRING,
       },
-      mentorId: {
-        type: Sequelize.INTEGER,
+
+      isActive: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: true,
       },
-      level: {
-        type: Sequelize.STRING,
-      },
-      startDate: {
-        type: Sequelize.DATE,
-      },
-      endDate: {
-        type: Sequelize.DATE,
-      },
-      status: {
-        type: Sequelize.STRING,
-      },
-      imageUrl: {
-        type: Sequelize.STRING,
-      },
+
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
       },
+
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
       },
     });
   },
-  async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Classes");
+
+  async down(queryInterface) {
+    await queryInterface.dropTable("Users");
   },
 };
