@@ -33,7 +33,7 @@ module.exports = {
       MentorId: {
         type: Sequelize.INTEGER,
         references: {
-          model: "User",
+          model: "Users",
           key: "id",
         },
         onUpdate: "CASCADE",
@@ -44,7 +44,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "User",
+          model: "Users",
           key: "id",
         },
         onUpdate: "CASCADE",
