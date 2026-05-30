@@ -1,7 +1,6 @@
 {
    "tasks": [
       {
-         "id": 1,
          "ClassId": 1,
          "MeetingId": 1,
          "name": "JavaScript Array Challenge",
@@ -11,7 +10,6 @@
          "status": "Published"
       },
       {
-         "id": 2,
          "ClassId": 1,
          "MeetingId": 2,
          "name": "Build MVC CLI App",
@@ -21,7 +19,6 @@
          "status": "Published"
       },
       {
-         "id": 3,
          "ClassId": 2,
          "MeetingId": 3,
          "name": "React Hooks Dashboard",
@@ -31,7 +28,6 @@
          "status": "Published"
       },
       {
-         "id": 4,
          "ClassId": 2,
          "MeetingId": 4,
          "name": "Redux Toolkit Todo App",
@@ -41,7 +37,6 @@
          "status": "Published"
       },
       {
-         "id": 5,
          "ClassId": 3,
          "MeetingId": 5,
          "name": "SQL Query Practice",
@@ -51,7 +46,6 @@
          "status": "Published"
       },
       {
-         "id": 6,
          "ClassId": 3,
          "MeetingId": 6,
          "name": "Database Schema Design",
