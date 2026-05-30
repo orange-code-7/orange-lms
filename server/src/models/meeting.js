@@ -1,33 +1,34 @@
 "use strict";
 const { Model } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
   class Meeting extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
-      Meeting.belongsTo(models.Class, { foreignKey: "classId", as: "class" });
+      Meeting.belongsTo(models.Class, {
+        foreignKey: "ClassId",
+        as: "class",
+      });
 
       Meeting.hasMany(models.Task, {
-        foreignKey: "meetingId",
+        foreignKey: "MeetingId",
         onDelete: "CASCADE",
       });
+
       Meeting.hasMany(models.Note, {
-        foreignKey: "meetingId",
+        foreignKey: "MeetingId",
         onDelete: "CASCADE",
       });
+
       Meeting.hasMany(models.Material, {
-        foreignKey: "meetingId",
+        foreignKey: "MeetingId",
         onDelete: "CASCADE",
       });
     }
   }
+
   Meeting.init(
     {
-      classId: DataTypes.INTEGER,
+      ClassId: DataTypes.INTEGER,
       meetingNumber: DataTypes.INTEGER,
       name: DataTypes.STRING,
       description: DataTypes.TEXT,
@@ -41,5 +42,6 @@ module.exports = (sequelize, DataTypes) => {
       modelName: "Meeting",
     },
   );
+
   return Meeting;
 };

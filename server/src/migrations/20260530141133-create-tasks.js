@@ -1,5 +1,6 @@
 "use strict";
-/** @type {import('sequelize-cli').Migration} */
+
+/** @type {import("sequelize-cli").Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("Tasks", {
@@ -9,41 +10,80 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      classId: {
+
+      ClassId: {
         type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "Class",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
-      meetingId: {
+
+      MeetingId: {
         type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "Meeting",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
+
       name: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
+
       description: {
         type: Sequelize.TEXT,
       },
+
       createdBy: {
         type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "User",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "RESTRICT",
       },
+
       dueDate: {
         type: Sequelize.DATE,
       },
+
       maxScore: {
         type: Sequelize.INTEGER,
+        defaultValue: 100,
       },
+
+      status: {
+        type: Sequelize.ENUM("Draft", "Published", "Closed", "Archived"),
+        defaultValue: "Draft",
+      },
+
       fileUrl: {
         type: Sequelize.STRING,
       },
+
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
       },
+
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
       },
     });
   },
-  async down(queryInterface, Sequelize) {
+
+  async down(queryInterface) {
     await queryInterface.dropTable("Tasks");
   },
 };
