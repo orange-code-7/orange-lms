@@ -14,6 +14,14 @@ const MaterialController = require("./MaterialController");
 const MentorController = require("./MentorController");
 const MenteeController = require("./MenteeController");
 
+// V3
+
+const AttendanceController = require("./AttendanceController");
+const TaskCriteriaController = require("./TaskCriteriaController");
+const HistoryClassController = require("./HistoryClassController");
+const AssessmentResultController = require("./AssessmentResultController");
+const SubmissionCriteriaScoreController = require("./SubmissionCriteriaScoreController");
+
 module.exports = {
   AuthController,
   UserController,
@@ -30,4 +38,10 @@ module.exports = {
 
   NoteController,
   MaterialController,
+
+  AttendanceController,
+  TaskCriteriaController,
+  HistoryClassController,
+  AssessmentResultController,
+  SubmissionCriteriaScoreController,
 };

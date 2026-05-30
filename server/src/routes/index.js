@@ -2,18 +2,33 @@ const express = require("express");
 const router = express.Router();
 
 const authRoutes = require("./auth");
+const userRoutes = require("./user");
+
+const mentorRoutes = require("./mentor");
+const menteeRoutes = require("./mentee");
+
 const classRoutes = require("./class");
 const meetingRoutes = require("./meeting");
+
 const taskRoutes = require("./task");
 const noteRoutes = require("./note");
 const materialRoutes = require("./material");
-const mentorRoutes = require("./mentor");
-const menteeRoutes = require("./mentee");
+
+/**
+ * V3 Assessment Routes
+ */
+const attendanceRoutes = require("./attendance");
+const taskCriteriaRoutes = require("./taskCriteria");
+const assessmentResultRoutes = require("./assessmentResult");
+const submissionCriteriaScoreRoutes = require("./submissionCriteriaScore");
+const historyClassRoutes = require("./historyClass");
 
 const { authentication } = require("../middlewares");
 
 /**
+ * =====================================
  * Health Check
+ * =====================================
  */
 router.get("/", (req, res) => {
   res.json({
@@ -22,42 +37,64 @@ router.get("/", (req, res) => {
 });
 
 /**
- * Public
+ * =====================================
+ * Public Routes
+ * =====================================
  */
 router.use("/auth", authRoutes);
 
 /**
- * Protected
+ * =====================================
+ * Protected Routes
+ * =====================================
  */
 router.use(authentication);
 
 /**
- * User routes for testing
+ * =====================================
+ * Core User Management
+ * =====================================
  */
-
-const userRoutes = require("./user");
 router.use("/users", userRoutes);
-
-/**
- * User Domains
- */
 router.use("/mentors", mentorRoutes);
 router.use("/mentees", menteeRoutes);
 
 /**
- * Learning Resources
+ * =====================================
+ * Learning Management
+ * =====================================
  */
 router.use("/classes", classRoutes);
 
+/**
+ * Nested Meeting Routes
+ */
 router.use("/classes/:classId/meetings", meetingRoutes);
 
+/**
+ * Nested Learning Resources
+ */
 router.use("/meetings/:meetingId/tasks", taskRoutes);
 router.use("/meetings/:meetingId/notes", noteRoutes);
 router.use("/meetings/:meetingId/materials", materialRoutes);
 
+/**
+ * Flat Access
+ */
 router.use("/meetings", meetingRoutes);
 router.use("/tasks", taskRoutes);
 router.use("/notes", noteRoutes);
 router.use("/materials", materialRoutes);
+
+/**
+ * =====================================
+ * V3 Assessment Engine
+ * =====================================
+ */
+router.use("/attendances", attendanceRoutes);
+router.use("/task-criteria", taskCriteriaRoutes);
+router.use("/assessment-results", assessmentResultRoutes);
+router.use("/submission-scores", submissionCriteriaScoreRoutes);
+router.use("/history-classes", historyClassRoutes);
 
 module.exports = router;

@@ -9,6 +9,11 @@ module.exports = (sequelize, DataTypes) => {
         as: "class",
       });
 
+      Meeting.belongsTo(models.User, {
+        foreignKey: "createdBy",
+        as: "creator",
+      });
+
       Meeting.hasMany(models.Task, {
         foreignKey: "MeetingId",
         onDelete: "CASCADE",
@@ -36,6 +41,7 @@ module.exports = (sequelize, DataTypes) => {
       startHour: DataTypes.TIME,
       finishHour: DataTypes.TIME,
       imageUrl: DataTypes.STRING,
+      createdBy: DataTypes.INTEGER,
     },
     {
       sequelize,

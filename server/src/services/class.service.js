@@ -16,7 +16,7 @@ class ClassService {
       throw new Error("Permission denied");
     }
 
-    return Class.create(data);
+    return Class.create({ ...data, createdBy: currentUser.id });
   }
 
   static async update(id, data, currentUser) {

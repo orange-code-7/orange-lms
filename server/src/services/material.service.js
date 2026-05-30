@@ -1,4 +1,4 @@
-const { Material } = require("../models");
+const { Material, Meeting } = require("../models");
 
 class MaterialService {
   static async findAllByMeeting(MeetingId) {
@@ -15,12 +15,23 @@ class MaterialService {
     return Material.findByPk(id);
   }
 
-  static async create(currentUser, data) {
+  static async create(currentUser, meetingId, data) {
     if (!["Admin", "Owner", "Mentor"].includes(currentUser.role)) {
       throw new Error("Permission denied");
     }
 
-    return Material.create(data);
+    const meeting = await Meeting.findByPk(meetingId);
+
+    if (!meeting) {
+      throw new Error("Meeting not found");
+    }
+
+    return Material.create({
+      ...data,
+      MeetingId: Number(meetingId),
+      ClassId: meeting.ClassId,
+      uploadedBy: currentUser.id,
+    });
   }
 
   static async update(id, data) {

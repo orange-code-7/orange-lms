@@ -1,4 +1,4 @@
-const { Note } = require("../models");
+const { Note, Meeting } = require("../models");
 
 class NoteService {
   static async findAllByMeeting(MeetingId) {
@@ -15,12 +15,23 @@ class NoteService {
     return Note.findByPk(id);
   }
 
-  static async create(currentUser, data) {
+  static async create(currentUser, meetingId, data) {
     if (!["Admin", "Owner", "Mentor"].includes(currentUser.role)) {
       throw new Error("Permission denied");
     }
 
-    return Note.create(data);
+    const meeting = await Meeting.findByPk(meetingId);
+
+    if (!meeting) {
+      throw new Error("Meeting not found");
+    }
+
+    return Note.create({
+      ...data,
+      MeetingId: Number(meetingId),
+      ClassId: meeting.ClassId,
+      createdBy: currentUser.id,
+    });
   }
 
   static async update(id, data, currentUser) {

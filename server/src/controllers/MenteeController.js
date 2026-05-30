@@ -26,7 +26,7 @@ class MenteeController {
       const mentee = await menteeService.create(req.body);
 
       const profile = await profileService.create({
-        userId: mentee.id,
+        UserId: mentee.id,
       });
 
       res.status(201).json({

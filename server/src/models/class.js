@@ -9,6 +9,11 @@ module.exports = (sequelize, DataTypes) => {
         as: "mentor",
       });
 
+      Class.belongsTo(models.User, {
+        foreignKey: "createdBy",
+        as: "creator",
+      });
+
       Class.belongsToMany(models.User, {
         through: models.ClassUser,
         foreignKey: "ClassId",
@@ -49,6 +54,7 @@ module.exports = (sequelize, DataTypes) => {
       description: DataTypes.TEXT,
       category: DataTypes.STRING,
       MentorId: DataTypes.INTEGER,
+      createdBy: DataTypes.INTEGER,
       level: DataTypes.STRING,
       startDate: DataTypes.DATE,
       endDate: DataTypes.DATE,

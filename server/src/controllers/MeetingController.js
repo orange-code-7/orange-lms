@@ -3,25 +3,27 @@ const { meetingService } = require("../services");
 class MeetingController {
   static async getByClass(req, res, next) {
     try {
-      const classId = Number(req.params.classId);
+      const ClassId = Number(req.params.classId);
 
-      if (Number.isNaN(classId)) {
-        throw { name: "BadRequest", message: "Invalid classId" };
+      if (Number.isNaN(ClassId)) {
+        throw new Error("Invalid ClassId");
       }
 
-      const meetings = await meetingService.findAllByClass(classId);
-      res.json(meetings);
-    } catch (err) {
-      next(err);
+      const meetings = await meetingService.findAllByClass(ClassId);
+
+      res.status(200).json(meetings);
+    } catch (error) {
+      next(error);
     }
   }
 
   static async getAll(req, res, next) {
     try {
       const meetings = await meetingService.getAll();
-      res.json(meetings);
-    } catch (err) {
-      next(err);
+
+      res.status(200).json(meetings);
+    } catch (error) {
+      next(error);
     }
   }
 
@@ -32,18 +34,20 @@ class MeetingController {
         req.params.classId,
         req.body,
       );
+
       res.status(201).json(meeting);
-    } catch (err) {
-      next(err);
+    } catch (error) {
+      next(error);
     }
   }
 
   static async getById(req, res, next) {
     try {
       const meeting = await meetingService.findById(req.params.id);
-      res.json(meeting);
-    } catch (err) {
-      next(err);
+
+      res.status(200).json(meeting);
+    } catch (error) {
+      next(error);
     }
   }
 
@@ -54,18 +58,22 @@ class MeetingController {
         req.body,
         req.user,
       );
-      res.json(meeting);
-    } catch (err) {
-      next(err);
+
+      res.status(200).json(meeting);
+    } catch (error) {
+      next(error);
     }
   }
 
   static async delete(req, res, next) {
     try {
       await meetingService.delete(req.params.id, req.user);
-      res.json({ message: "Meeting deleted" });
-    } catch (err) {
-      next(err);
+
+      res.status(200).json({
+        message: "Meeting deleted",
+      });
+    } catch (error) {
+      next(error);
     }
   }
 }

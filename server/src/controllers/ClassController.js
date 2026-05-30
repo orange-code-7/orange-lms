@@ -49,8 +49,8 @@ class ClassController {
   static async enrollUser(req, res, next) {
     try {
       const enrollment = await classUserService.enrollMentee({
-        classId: req.params.id,
-        userId: req.body.userId,
+        ClassId: req.params.id,
+        UserId: req.body.UserId,
       });
       res.json(enrollment);
     } catch (err) {
@@ -61,8 +61,8 @@ class ClassController {
   static async assignMentor(req, res, next) {
     try {
       const result = await classUserService.assignMentor({
-        classId: req.params.id,
-        userId: req.body.userId,
+        ClassId: req.params.id,
+        UserId: req.body.UserId,
       });
       res.json(result);
     } catch (err) {

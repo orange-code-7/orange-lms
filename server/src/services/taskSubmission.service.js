@@ -2,6 +2,7 @@ const { TaskSubmission } = require("../models");
 
 class TaskSubmissionService {
   static async create(currentUser, data) {
+    console.log(currentUser);
     if (currentUser.role !== "Mentee") {
       throw new Error("Only mentee can submit task");
     }

@@ -15,14 +15,15 @@ class MeetingService {
     return Meeting.findByPk(id);
   }
 
-  static async create(currentUser, ClassId, data) {
-    if (!["Admin", "Owner"].includes(currentUser.role)) {
+  static async create(currentUser, classId, data) {
+    if (!["Admin", "Owner", "Mentor"].includes(currentUser.role)) {
       throw new Error("Permission denied");
     }
 
     return Meeting.create({
-      ClassId,
       ...data,
+      ClassId: classId,
+      createdBy: currentUser.id,
     });
   }
 
