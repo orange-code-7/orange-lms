@@ -23,10 +23,11 @@ class MaterialController {
 
   static async create(req, res, next) {
     try {
-      const material = await materialService.create(req.user, {
-        ...req.body,
-        meetingId: req.params.meetingId,
-      });
+      const material = await materialService.create(
+        req.user,
+        req.params.meetingId,
+        req.body,
+      );
       res.status(201).json(material);
     } catch (err) {
       next(err);

@@ -26,7 +26,7 @@ class MentorController {
       const mentor = await mentorService.create(req.body);
 
       const profile = await profileService.create({
-        userId: mentor.id,
+        UserId: mentor.id,
       });
 
       res.status(201).json({

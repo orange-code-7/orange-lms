@@ -20,18 +20,21 @@ class MentorService {
         model: Profile,
         as: "profile",
       },
+      attributes: {
+        exclude: ["password"],
+      },
     });
   }
 
   static async findById(id) {
     return User.findOne({
-      where: {
-        id,
-        role: "Mentor",
-      },
+      where: { id, role: "Mentor" },
       include: {
         model: Profile,
         as: "profile",
+      },
+      attributes: {
+        exclude: ["password"],
       },
     });
   }
@@ -50,7 +53,7 @@ class MentorService {
     if (!user) throw new Error("Mentor not found");
 
     await Profile.destroy({
-      where: { userId: id },
+      where: { UserId: id },
     });
 
     await user.destroy();

@@ -26,7 +26,7 @@ class UserController {
       const user = await userService.create(req.body);
 
       const profile = await profileService.create({
-        userId: user.id,
+        UserId: user.id,
       });
 
       res.status(201).json({

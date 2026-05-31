@@ -21,10 +21,12 @@ class TaskController {
 
   static async create(req, res, next) {
     try {
-      const task = await taskService.create(req.user, {
-        ...req.body,
-        meetingId: req.params.meetingId,
-      });
+      const task = await taskService.create(
+        req.user,
+        req.params.meetingId,
+        req.body,
+      );
+
       res.status(201).json(task);
     } catch (err) {
       next(err);
@@ -60,11 +62,12 @@ class TaskController {
 
   static async submitTask(req, res, next) {
     try {
-      const submission = await taskSubmissionService.create({
-        taskId: req.params.id,
-        userId: req.user.id,
+      const submission = await taskSubmissionService.create(req.user, {
+        TaskId: req.params.id,
+        UserId: req.user.id,
         submissionUrl: req.body.submissionUrl,
       });
+
       res.status(201).json(submission);
     } catch (err) {
       next(err);

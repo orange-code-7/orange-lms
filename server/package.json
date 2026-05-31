@@ -8,6 +8,7 @@
     "dev": "nodemon servers.js",
     "createDB": "npx sequelize-cli db:create",
     "migrateDB": "npx sequelize-cli db:migrate",
+    "seedDB": "npx sequelize-cli db:seed:all",
     "undoMigrateDB": "npx sequelize-cli db:migrate:undo",
     "startDB": "npm run createDB && npm run migrateDB"
   },

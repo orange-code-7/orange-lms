@@ -4,75 +4,46 @@ class ClassService {
   static async findAll() {
     return Class.findAll({
       order: [["id", "ASC"]],
-      include: [
-        {
-          model: Meeting,
-          as: "meeting",
-        },
-        {
-          model: User,
-          as: "mentor",
-          attributes: ["id", "name", "email", "avatarUrl"],
-        },
-        {
-          model: User,
-          attributes: ["id", "name", "email", "avatarUrl"],
-          through: {
-            attributes: ["roleInClass", "progressPercentage", "joinedAt"],
-            where: { roleInClass: "mentee" },
-          },
-        },
-      ],
     });
   }
 
   static async findById(id) {
-    return Class.findAll({
-      where: { id },
-      order: [["id", "ASC"]],
-      include: [
-        {
-          model: Meeting,
-          as: "meeting",
-        },
-        {
-          model: User,
-          as: "mentor",
-          attributes: ["id", "name", "email", "avatarUrl"],
-        },
-        {
-          model: User,
-          attributes: ["id", "name", "email", "avatarUrl"],
-          through: {
-            attributes: ["roleInClass", "progressPercentage", "joinedAt"],
-            where: { roleInClass: "mentee" },
-          },
-        },
-      ],
-    });
+    return Class.findByPk(id);
   }
 
   static async create(data, currentUser) {
-    if (!["admin", "owner"].includes(currentUser.role))
+    if (!["Admin", "Owner"].includes(currentUser.role)) {
       throw new Error("Permission denied");
-    return Class.create(data);
+    }
+
+    return Class.create({ ...data, createdBy: currentUser.id });
   }
 
   static async update(id, data, currentUser) {
+    if (!["Admin", "Owner"].includes(currentUser.role)) {
+      throw new Error("Permission denied");
+    }
+
     const cls = await Class.findByPk(id);
+
     if (!cls) throw new Error("Class not found");
+
     return cls.update(data);
   }
 
   static async delete(id, currentUser) {
+    if (!["Admin", "Owner"].includes(currentUser.role)) {
+      throw new Error("Permission denied");
+    }
+
     const cls = await Class.findByPk(id);
+
     if (!cls) throw new Error("Class not found");
 
-    // Cascade delete related meetings, tasks, notes, materials
-    await Meeting.destroy({ where: { classId: id } });
-    await Task.destroy({ where: { classId: id } });
-    await Note.destroy({ where: { classId: id } });
-    await Material.destroy({ where: { classId: id } });
+    await Meeting.destroy({ where: { ClassId: id } });
+    await Task.destroy({ where: { ClassId: id } });
+    await Note.destroy({ where: { ClassId: id } });
+    await Material.destroy({ where: { ClassId: id } });
 
     return cls.destroy();
   }
