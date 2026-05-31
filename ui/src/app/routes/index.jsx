@@ -3,59 +3,59 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
 
 // Layouts
-import MainLayout from "../layouts/MainLayout";
-import AuthLayout from "../layouts/AuthLayout";
+import MainLayout from "../../layouts/MainLayout";
+import AuthLayout from "../../layouts/AuthLayout";
 
 // Auth
-import Login from "../pages/auth/Login";
-import Register from "../pages/auth/Register";
+import Login from "../../pages/auth/Login";
+import Register from "../../pages/auth/Register";
 
 // Dashboard
-import Dashboard from "../pages/dashboard/Dashboard";
+import Dashboard from "../../pages/dashboard/Dashboard";
 
 // Pages by feature
-import ClassesList from "../pages/classes/List";
-import ClassesCreate from "../pages/classes/Create";
-import ClassesUpdate from "../pages/classes/Update";
-import ClassesDetail from "../pages/classes/Detail";
+import ClassesList from "../../pages/classes/List";
+import ClassesCreate from "../../pages/classes/Create";
+import ClassesUpdate from "../../pages/classes/Update";
+import ClassesDetail from "../../pages/classes/Detail";
 
-import MeetingsList from "../pages/meetings/List";
-import MeetingsCreate from "../pages/meetings/Create";
-import MeetingsUpdate from "../pages/meetings/Update";
-import MeetingsDetail from "../pages/meetings/Detail";
+import MeetingsList from "../../pages/meetings/List";
+import MeetingsCreate from "../../pages/meetings/Create";
+import MeetingsUpdate from "../../pages/meetings/Update";
+import MeetingsDetail from "../../pages/meetings/Detail";
 
-import NotesList from "../pages/notes/List";
-import NotesCreate from "../pages/notes/Create";
-import NotesUpdate from "../pages/notes/Update";
-import NotesDetail from "../pages/notes/Detail";
+import NotesList from "../../pages/notes/List";
+import NotesCreate from "../../pages/notes/Create";
+import NotesUpdate from "../../pages/notes/Update";
+import NotesDetail from "../../pages/notes/Detail";
 
-import TasksList from "../pages/tasks/List";
-import TasksCreate from "../pages/tasks/Create";
-import TasksUpdate from "../pages/tasks/Update";
-import TasksDetail from "../pages/tasks/Detail";
+import TasksList from "../../pages/tasks/List";
+import TasksCreate from "../../pages/tasks/Create";
+import TasksUpdate from "../../pages/tasks/Update";
+import TasksDetail from "../../pages/tasks/Detail";
 
-import MaterialsList from "../pages/materials/List";
-import MaterialsCreate from "../pages/materials/Create";
-import MaterialsUpdate from "../pages/materials/Update";
-import MaterialsDetail from "../pages/materials/Detail";
+import MaterialsList from "../../pages/materials/List";
+import MaterialsCreate from "../../pages/materials/Create";
+import MaterialsUpdate from "../../pages/materials/Update";
+import MaterialsDetail from "../../pages/materials/Detail";
 
 // Admin / Owner Only
-import MentorsList from "../pages/mentors/List";
-import MentorsCreate from "../pages/mentors/Create";
-import MentorsUpdate from "../pages/mentors/Update";
-import MentorsDetail from "../pages/mentors/Detail";
+import MentorsList from "../../pages/mentors/List";
+import MentorsCreate from "../../pages/mentors/Create";
+import MentorsUpdate from "../../pages/mentors/Update";
+import MentorsDetail from "../../pages/mentors/Detail";
 
-import MenteesList from "../pages/mentees/List";
-import MenteesCreate from "../pages/mentees/Create";
-import MenteesUpdate from "../pages/mentees/Update";
-import MenteesDetail from "../pages/mentees/Detail";
+import MenteesList from "../../pages/mentees/List";
+import MenteesCreate from "../../pages/mentees/Create";
+import MenteesUpdate from "../../pages/mentees/Update";
+import MenteesDetail from "../../pages/mentees/Detail";
 
 // Profile & Setting
-import Profile from "../pages/profile/Profile";
-import Setting from "../pages/setting/Setting";
+import Profile from "../../pages/profile/Profile";
+import Setting from "../../pages/setting/Setting";
 
 // Not Found
-import NotFound from "../pages/NotFound/NotFound";
+import NotFound from "../../pages/NotFound/NotFound";
 
 const router = createBrowserRouter([
   {

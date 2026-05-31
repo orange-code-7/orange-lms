@@ -1,0 +1,23 @@
+@utility flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@utility page-padding {
+  padding-inline: 2rem;
+}
+
+@utility page-section {
+  padding: 2rem;
+}
+
+@utility surface {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+@utility content-width {
+  max-width: 1600px;
+  margin-inline: auto;
+}

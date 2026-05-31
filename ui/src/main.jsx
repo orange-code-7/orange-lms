@@ -1,11 +1,11 @@
 import React, { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
-import "@/styles/tailwind.css";
-import "@/styles/global.css";
-import "@/styles/theme.css";
+import "react-loading-skeleton/dist/skeleton.css";
 
-import App from "./App.jsx";
+import "@/styles/global.css";
+
+import App from "./app/App.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

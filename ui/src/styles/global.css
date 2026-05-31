@@ -1,4 +1,28 @@
-html,
+@import "tailwindcss";
+
+@import "./variables.css";
+@import "./utilities.css";
+@import "./components.css";
+@import "./animations.css";
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: Inter, system-ui, sans-serif;
+}
+
 body {
-  height: 100%;
+  margin: 0;
+  background: var(--color-background);
+  color: var(--color-text);
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  text-decoration: none;
 }
