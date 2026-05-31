@@ -10,17 +10,17 @@ import {
   useSort,
 } from "@/hooks";
 
-import MentorService from "@/services/mentors.service";
+import MenteeService from "@/services/modules/mentee.service";
 import { Trash2, Edit2, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const columns = [
   { key: "name", label: "Name" },
   { key: "email", label: "Email" },
-  { key: "mentor", label: "Age", render: (row) => row.profile?.age },
-  { key: "mentor", label: "Address", render: (row) => row.profile?.address },
+  { key: "mentee", label: "Age", render: (row) => row.profile?.age },
+  { key: "mentee", label: "Address", render: (row) => row.profile?.address },
   {
-    key: "mentor",
+    key: "mentee",
     label: "Background",
     render: (row) => row.profile?.background,
   },
@@ -35,7 +35,7 @@ const List = () => {
   useEffect(() => {
     const fetchMeetings = async () => {
       try {
-        const res = await MentorService.getAll();
+        const res = await MenteeService.getAll();
         setData(res);
       } catch (err) {
         console.error(err);
@@ -67,10 +67,10 @@ const List = () => {
     usePagination(sortedData, 10);
 
   if (loading)
-    return <div className="p-4 text-gray-500">Loading mentors...</div>;
+    return <div className="p-4 text-gray-500">Loading mentees...</div>;
 
   const handleRemove = (id) => {
-    if (confirm("Are you sure you want to remove this mentor?")) {
+    if (confirm("Are you sure you want to remove this mentee?")) {
       setData(data.filter((item) => item.id !== id));
     }
   };
@@ -84,13 +84,13 @@ const List = () => {
     actions: (
       <div className="flex gap-3">
         <Link
-          to={`/mentors/${row.id}`}
+          to={`/mentees/${row.id}`}
           className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
         >
           <Eye size={16} /> Details
         </Link>
         <Link
-          to={`/mentors/update/${row.id}`}
+          to={`/mentees/update/${row.id}`}
           className="text-green-600 hover:text-green-800 flex items-center gap-1"
         >
           <Edit2 size={16} /> Edit

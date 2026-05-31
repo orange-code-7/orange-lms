@@ -9,11 +9,11 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-import ClassService from "@/services/class.service";
-import MeetingService from "@/services/meetings.service";
-import TaskService from "@/services/tasks.service";
-import NoteService from "@/services/notes.service";
-import MaterialService from "@/services/materials.service";
+import ClassService from "@/services/modules/class.service";
+import MeetingService from "@/services/modules/meeting.service";
+import TaskService from "@/services/modules/task.service";
+import NoteService from "@/services/modules/note.service";
+import MaterialService from "@/services/modules/material.service";
 
 const Dashboard = () => {
   const [classes, setClasses] = useState([]);

@@ -10,17 +10,20 @@ import {
   useSort,
 } from "@/hooks";
 
-import MeetingService from "@/services/meetings.service";
+import MentorService from "@/services/modules/mentor.service";
 import { Trash2, Edit2, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const columns = [
-  { key: "name", label: "Topic" },
-  { key: "description", label: "Description" },
-  { key: "meetingDate", label: "Date" },
-  { key: "startHour", label: "Start Hour" },
-  { key: "finishHour", label: "Finish Hour" },
-  { key: "meeting", label: "Class Code", render: (row) => row.class?.code },
+  { key: "name", label: "Name" },
+  { key: "email", label: "Email" },
+  { key: "mentor", label: "Age", render: (row) => row.profile?.age },
+  { key: "mentor", label: "Address", render: (row) => row.profile?.address },
+  {
+    key: "mentor",
+    label: "Background",
+    render: (row) => row.profile?.background,
+  },
   { key: "actions", label: "Actions" },
 ];
 
@@ -32,7 +35,7 @@ const List = () => {
   useEffect(() => {
     const fetchMeetings = async () => {
       try {
-        const res = await MeetingService.getAll();
+        const res = await MentorService.getAll();
         setData(res);
       } catch (err) {
         console.error(err);
@@ -46,14 +49,14 @@ const List = () => {
   // SEARCH
   const { query, setQuery, searchedData } = useSearch(data, [
     "name",
-    "description",
-    "category",
+    "background",
+    "mentorName",
   ]);
 
   // FILTER (by class)
   const { filterValue, setFilterValue, filteredData } = useFilter(
     searchedData,
-    "category",
+    "name",
   );
 
   // SORT
@@ -64,16 +67,16 @@ const List = () => {
     usePagination(sortedData, 10);
 
   if (loading)
-    return <div className="p-4 text-gray-500">Loading meetings...</div>;
+    return <div className="p-4 text-gray-500">Loading mentors...</div>;
 
   const handleRemove = (id) => {
-    if (confirm("Are you sure you want to remove this meeting?")) {
+    if (confirm("Are you sure you want to remove this mentor?")) {
       setData(data.filter((item) => item.id !== id));
     }
   };
 
   const handleEdit = (id) => {
-    alert(`Edit meeting with ID: ${id}`);
+    alert(`Edit mentor with ID: ${id}`);
   };
 
   const dataWithActions = paginatedData.map((row) => ({
@@ -81,13 +84,13 @@ const List = () => {
     actions: (
       <div className="flex gap-3">
         <Link
-          to={`/meetings/${row.id}`}
+          to={`/mentors/${row.id}`}
           className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
         >
           <Eye size={16} /> Details
         </Link>
         <Link
-          to={`/meetings/update/${row.id}`}
+          to={`/mentors/update/${row.id}`}
           className="text-green-600 hover:text-green-800 flex items-center gap-1"
         >
           <Edit2 size={16} /> Edit
@@ -126,7 +129,7 @@ const List = () => {
         filterValue={filterValue}
         setFilterValue={setFilterValue}
         sortOptions={[
-          { key: "title", label: "Meeting Title" },
+          { key: "name", label: "Name" },
           { key: "date", label: "Date" },
         ]}
         sortKey={sortKey}
@@ -134,7 +137,7 @@ const List = () => {
       />
 
       <div className="text-sm text-gray-600">
-        Total: {sortedData.length} meetings
+        Total: {sortedData.length} mentors
       </div>
 
       <Table columns={columns} data={dataWithActions} />

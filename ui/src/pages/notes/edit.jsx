@@ -1,11 +1,11 @@
 // src/pages/Notes/Edit.jsx
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import Form from "@/components/ui/Form/Form";
+import Form from "@/components/ui/forms/Form";
 import useForm from "@/hooks/useForm";
 import useClassMeetingOptions from "@/hooks/useClassMeetingOptions";
-import { noteSchema } from "@/schema/";
-import NoteService from "@/services/notes.service";
+import { noteSchema } from "@/schemas/";
+import NoteService from "@/services/modules/note.service";
 
 const Edit = () => {
   const { id } = useParams();

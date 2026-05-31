@@ -10,9 +10,9 @@ import {
   useSort,
 } from "@/hooks";
 
-import MaterialService from "@/services/materials.service";
+import MaterialService from "@/services/modules/material.service";
 import { Trash2, Edit2, Eye, Download } from "lucide-react";
-import MaterialDetail from "./Detail";
+import MaterialDetail from "./detail";
 import { Link } from "react-router-dom";
 
 const columns = [

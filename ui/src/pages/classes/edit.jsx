@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import Form from "@/components/ui/Form/Form";
+import Form from "@/components/ui/forms/Form";
 import useForm from "@/hooks/useForm";
-import { classSchema } from "@/schema";
-import ClassService from "@/services/class.service";
-import MentorService from "@/services/mentors.service";
+import { classSchema } from "@/schemas";
+import ClassService from "@/services/modules/class.service";
+import MentorService from "@/services/modules/mentor.service";
 
 const Edit = () => {
   const { id } = useParams();

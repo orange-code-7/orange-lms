@@ -1,23 +1,23 @@
 // src/pages/Notes/Edit.jsx
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import Form from "@/components/ui/Form/Form";
+import Form from "@/components/ui/forms/Form";
 import useForm from "@/hooks/useForm";
 import useClassMeetingOptions from "@/hooks/useClassMeetingOptions";
-import { taskSchema } from "@/schema/";
-import TaskService from "@/services/tasks.service";
+import { materialSchema } from "@/schemas/";
+import MaterialService from "@/services/modules/material.service";
 
 const Edit = () => {
   const { id } = useParams();
-  const { values, handleChange, setValues } = useForm(taskSchema);
+  const { values, handleChange, setValues } = useForm(materialSchema);
   const [loading, setLoading] = useState(true);
 
-  const schema = useClassMeetingOptions(values, setValues, taskSchema);
+  const schema = useClassMeetingOptions(values, setValues, materialSchema);
 
   // load note data
   useEffect(() => {
     const fetchTask = async () => {
-      const note = await TaskService.getById(id);
+      const note = await MaterialService.getById(id);
       setValues(flattenNote(note));
       setLoading(false);
     };
@@ -44,13 +44,13 @@ const Edit = () => {
 
   return (
     <Form
-      title="Edit Task"
-      description="Update task information"
+      title="Edit Material"
+      description="Update material information"
       schema={schema}
       values={values}
       onChange={handleChange}
       onSubmit={handleSubmit}
-      submitLabel="Update Task"
+      submitLabel="Update Material"
     />
   );
 };
@@ -60,8 +60,6 @@ const flattenNote = (note) => ({
   meetingId: note?.meetingId || "",
   name: note?.name || "",
   description: note?.description || "",
-  dueDate: note?.dueDate || "",
-  maxScore: note?.maxScore || "",
   fileUrl: note?.fileUrl || "",
 });
 

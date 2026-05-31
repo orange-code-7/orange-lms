@@ -10,19 +10,39 @@ import {
   useSort,
 } from "@/hooks";
 
-import MenteeService from "@/services/mentees.service";
-import { Trash2, Edit2, Eye } from "lucide-react";
+import NotesService from "@/services/modules/note.service";
+import { Trash2, Edit2, Eye, Download } from "lucide-react";
+import NotesDetails from "./detail";
 import { Link } from "react-router-dom";
 
 const columns = [
   { key: "name", label: "Name" },
-  { key: "email", label: "Email" },
-  { key: "mentee", label: "Age", render: (row) => row.profile?.age },
-  { key: "mentee", label: "Address", render: (row) => row.profile?.address },
+  { key: "description", label: "Description" },
+  { key: "code", label: "Class Code", render: (row) => row.Class?.code },
   {
-    key: "mentee",
-    label: "Background",
-    render: (row) => row.profile?.background,
+    key: "meetingName",
+    label: "Meeting Name",
+    render: (row) => row.Meeting?.name,
+  },
+  {
+    key: "task",
+    label: "Created By",
+    render: (row) => row.NoteCreatedBy?.name,
+  },
+  {
+    key: "fileUrl",
+    label: "Link",
+    render: (row) => {
+      const url = row.fileUrl;
+      return (
+        <button className="p-2 bg-blue-800 text-white rounded">
+          <div className="flex justify-center items-center">
+            <Download size={16} className="mr-2"></Download>
+            Download
+          </div>
+        </button>
+      );
+    },
   },
   { key: "actions", label: "Actions" },
 ];
@@ -33,9 +53,9 @@ const List = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchMeetings = async () => {
+    const fetchNotes = async () => {
       try {
-        const res = await MenteeService.getAll();
+        const res = await NotesService.getAll();
         setData(res);
       } catch (err) {
         console.error(err);
@@ -43,13 +63,13 @@ const List = () => {
         setLoading(false);
       }
     };
-    fetchMeetings();
+    fetchNotes();
   }, []);
 
   // SEARCH
   const { query, setQuery, searchedData } = useSearch(data, [
     "name",
-    "background",
+    "createdAt",
     "mentorName",
   ]);
 
@@ -64,42 +84,48 @@ const List = () => {
 
   // PAGINATION
   const { paginatedData, currentPage, totalPages, nextPage, prevPage } =
-    usePagination(sortedData, 10);
+    usePagination(sortedData, 5);
 
-  if (loading)
-    return <div className="p-4 text-gray-500">Loading mentees...</div>;
+  if (loading) return <div className="p-4 text-gray-500">Loading notes...</div>;
 
+  // ACTION HANDLERS
   const handleRemove = (id) => {
-    if (confirm("Are you sure you want to remove this mentee?")) {
-      setData(data.filter((item) => item.id !== id));
+    if (confirm("Are you sure you want to delete this note?")) {
+      setData((prev) => prev.filter((item) => item.id !== id));
     }
   };
 
   const handleEdit = (id) => {
-    alert(`Edit mentor with ID: ${id}`);
+    alert(`Edit note with ID: ${id}`);
+  };
+
+  const handleDetails = (note) => {
+    NotesDetails(note);
   };
 
   const dataWithActions = paginatedData.map((row) => ({
     ...row,
     actions: (
-      <div className="flex gap-3">
-        <Link
-          to={`/mentees/${row.id}`}
+      <div className="flex gap-3 items-center">
+        <button
+          onClick={() => handleDetails(row)}
           className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
         >
-          <Eye size={16} /> Details
-        </Link>
+          <Eye size={16} /> Detail
+        </button>
+
         <Link
-          to={`/mentees/update/${row.id}`}
+          to={`/notes/update/${row.id}`}
           className="text-green-600 hover:text-green-800 flex items-center gap-1"
         >
           <Edit2 size={16} /> Edit
         </Link>
+
         <button
           onClick={() => handleRemove(row.id)}
           className="text-red-600 hover:text-red-800 flex items-center gap-1"
         >
-          <Trash2 size={16} /> Remove
+          <Trash2 size={16} /> Delete
         </button>
       </div>
     ),
@@ -121,25 +147,23 @@ const List = () => {
       <TableControls
         searchQuery={query}
         setSearchQuery={setQuery}
-        filterOptions={[
-          "Full Stack Development",
-          "Front End Development",
-          "Back End Development",
-        ]}
+        filterOptions={[...new Set(data.map((d) => d.className))]}
         filterValue={filterValue}
         setFilterValue={setFilterValue}
         sortOptions={[
-          { key: "name", label: "Name" },
-          { key: "date", label: "Date" },
+          { key: "name", label: "name" },
+          { key: "createdAt", label: "Created Date" },
         ]}
         sortKey={sortKey}
         toggleSort={toggleSort}
       />
 
+      {/* Count */}
       <div className="text-sm text-gray-600">
-        Total: {sortedData.length} mentors
+        Total: {sortedData.length} notes
       </div>
 
+      {/* Table */}
       <Table columns={columns} data={dataWithActions} />
 
       {/* Pagination */}

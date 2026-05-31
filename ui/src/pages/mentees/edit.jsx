@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import Form from "@/components/ui/Form/Form";
+import Form from "@/components/ui/forms/Form";
 import useForm from "@/hooks/useForm";
-import MenteeService from "@/services/mentees.service";
-import { menteeSchema } from "@/schema";
+import MenteeService from "@/services/modules/mentee.service";
+import { menteeSchema } from "@/schemas";
 
 const flattenData = (mentee) => ({
   name: mentee?.name || "",

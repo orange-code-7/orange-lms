@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useBreadcrumbs from "@/hooks/useBreadcrumbs";
-import MentorService from "@/services/mentors.service";
+import MentorService from "@/services/modules/mentor.service";
 import {
   Mail,
   Phone,
@@ -13,7 +13,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 
 const Detail = () => {
   const { id } = useParams();
@@ -50,12 +50,12 @@ const Detail = () => {
       {/* TOP : PROFILE */}
       <Card className="relative overflow-hidden">
         <div className="absolute right-4 top-4 flex gap-2">
-          <Button size="sm" variant="default">
+          {/* <Button size="sm" variant="default">
             <Pencil size={16} className="mr-1" /> Edit
           </Button>
           <Button size="sm" variant="default">
             <Trash2 size={16} className="mr-1" /> Delete
-          </Button>
+          </Button> */}
         </div>
 
         <CardContent className="flex gap-6 p-6">
