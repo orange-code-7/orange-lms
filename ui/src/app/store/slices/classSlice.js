@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const classesSlice = createSlice({
+const classSlice = createSlice({
   name: "classes",
   initialState: {
     data: [],
@@ -33,6 +33,6 @@ const classesSlice = createSlice({
 });
 
 export const { setLoading, setClasses, setError, resetClasses } =
-  classesSlice.actions;
+  classSlice.actions;
 
-export default classesSlice.reducer;
+export default classSlice.reducer;

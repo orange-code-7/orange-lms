@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const notesSlice = createSlice({
-  name: "notes",
+const mentorSlice = createSlice({
+  name: "mentors",
   initialState: {
     data: [],
     loading: false,
@@ -9,22 +9,23 @@ const notesSlice = createSlice({
   },
 
   reducers: {
-    setNotes: (state, action) => {
+    setMentors: (state, action) => {
       state.data = action.payload;
       state.loading = false;
     },
 
-    setNotesLoading: (state, action) => {
+    setMentorsLoading: (state, action) => {
       state.loading = action.payload;
     },
 
-    setNotesError: (state, action) => {
+    setMentorsError: (state, action) => {
       state.error = action.payload;
       state.loading = false;
     },
   },
 });
 
-export const { setNotes, setNotesLoading, setNotesError } = notesSlice.actions;
+export const { setMentors, setMentorsLoading, setMentorsError } =
+  mentorSlice.actions;
 
-export default notesSlice.reducer;
+export default mentorSlice.reducer;

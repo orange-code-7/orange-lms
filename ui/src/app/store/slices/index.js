@@ -1,8 +1,8 @@
 export { default as authReducer } from "./authSlice";
-export { default as classesReducer } from "./classesSlice";
-export { default as meetingsReducer } from "./meetingsSlice";
-export { default as materialsReducer } from "./materialsSlice";
-export { default as menteesReducer } from "./menteesSlice";
-export { default as mentorsReducer } from "./mentorsSlice";
-export { default as notesReducer } from "./notesSlice";
-export { default as tasksReducer } from "./taskSlice";
+export { default as classReducer } from "./classSlice";
+export { default as meetingReducer } from "./meetingSlice";
+export { default as materialReducer } from "./materialSlice";
+export { default as menteeReducer } from "./menteeSlice";
+export { default as mentorReducer } from "./mentorSlice";
+export { default as noteReducer } from "./noteSlice";
+export { default as taskReducer } from "./taskSlice";

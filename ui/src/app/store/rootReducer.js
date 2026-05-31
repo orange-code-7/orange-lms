@@ -2,24 +2,24 @@ import { combineReducers } from "@reduxjs/toolkit";
 
 import {
   authReducer,
-  classesReducer,
-  meetingsReducer,
-  materialsReducer,
-  menteesReducer,
-  mentorsReducer,
-  notesReducer,
-  tasksReducer,
+  classReducer,
+  meetingReducer,
+  materialReducer,
+  menteeReducer,
+  mentorReducer,
+  noteReducer,
+  taskReducer,
 } from "./slices";
 
 const rootReducer = combineReducers({
   auth: authReducer,
-  classes: classesReducer,
-  meetings: meetingsReducer,
-  materials: materialsReducer,
-  mentees: menteesReducer,
-  mentors: mentorsReducer,
-  notes: notesReducer,
-  tasks: tasksReducer,
+  classes: classReducer,
+  meetings: meetingReducer,
+  materials: materialReducer,
+  mentees: menteeReducer,
+  mentors: mentorReducer,
+  notes: noteReducer,
+  tasks: taskReducer,
 });
 
 export default rootReducer;

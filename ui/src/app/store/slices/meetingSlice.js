@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const meetingsSlice = createSlice({
+const meetingSlice = createSlice({
   name: "meetings",
   initialState: {
     data: [],
@@ -37,6 +37,6 @@ export const {
   setMeetings,
   setMeetingsError,
   resetMeetings,
-} = meetingsSlice.actions;
+} = meetingSlice.actions;
 
-export default meetingsSlice.reducer;
+export default meetingSlice.reducer;

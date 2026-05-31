@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const materialsSlice = createSlice({
+const materialSlice = createSlice({
   name: "materials",
   initialState: {
     data: [],
@@ -36,6 +36,6 @@ export const {
   setMaterials,
   setMaterialsError,
   resetMaterials,
-} = materialsSlice.actions;
+} = materialSlice.actions;
 
-export default materialsSlice.reducer;
+export default materialSlice.reducer;
