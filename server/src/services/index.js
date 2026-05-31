@@ -17,6 +17,13 @@ const taskSubmissionService = require("./taskSubmission.service");
 const noteService = require("./note.service");
 const materialService = require("./material.service");
 
+// V3
+const attendanceService = require("./attendance.service");
+const taskCriteriaService = require("./taskCriteria.service");
+const submissionCriteriaScoreService = require("./submissionCriteriaScore.service");
+const assesmentResultService = require("./assesmentResult.service");
+const historyClassService = require("./historyClass.service");
+
 module.exports = {
   authService,
 
@@ -36,4 +43,10 @@ module.exports = {
 
   noteService,
   materialService,
+
+  attendanceService,
+  taskCriteriaService,
+  submissionCriteriaScoreService,
+  assesmentResultService,
+  historyClassService,
 };

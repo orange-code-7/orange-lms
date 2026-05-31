@@ -21,7 +21,7 @@ class AuthService {
     });
 
     await Profile.create({
-      userId: user.id,
+      UserId: user.id,
     });
 
     return user;
@@ -37,7 +37,6 @@ class AuthService {
     }
 
     const valid = await bcrypt.comparePassword(password, user.password);
-    // const valid = password === user.password;
 
     if (!valid) {
       throw new Error("Invalid credentials");

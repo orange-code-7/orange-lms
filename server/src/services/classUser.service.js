@@ -1,40 +1,49 @@
 const { ClassUser, User } = require("../models");
 
 class ClassUserService {
-  static async enrollMentee({ classId, userId }) {
+  static async enrollMentee({ ClassId, UserId }) {
     return ClassUser.create({
-      classId,
-      userId,
-      roleInClass: "mentee",
+      ClassId,
+      UserId,
+      roleInClass: "Mentee",
       progressPercentage: 0,
-      status: "active",
+      status: "Active",
     });
   }
 
-  static async assignMentor({ classId, userId }) {
+  static async assignMentor({ ClassId, UserId }) {
     return ClassUser.create({
-      classId,
-      userId,
-      roleInClass: "mentor",
+      ClassId,
+      UserId,
+      roleInClass: "Mentor",
       progressPercentage: 0,
-      status: "active",
+      status: "Active",
     });
   }
 
-  static async getUsers(classId) {
-    return ClassUser.findAll({ where: { classId }, include: User });
-  }
-
-  static async getMentees(classId) {
+  static async getUsers(ClassId) {
     return ClassUser.findAll({
-      where: { classId, roleInClass: "mentee" },
+      where: { ClassId },
       include: User,
     });
   }
 
-  static async getMentor(classId) {
+  static async getMentees(ClassId) {
+    return ClassUser.findAll({
+      where: {
+        ClassId,
+        roleInClass: "Mentee",
+      },
+      include: User,
+    });
+  }
+
+  static async getMentor(ClassId) {
     return ClassUser.findOne({
-      where: { classId, roleInClass: "mentor" },
+      where: {
+        ClassId,
+        roleInClass: "Mentor",
+      },
       include: User,
     });
   }

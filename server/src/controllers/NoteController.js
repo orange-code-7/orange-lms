@@ -21,10 +21,11 @@ class NoteController {
 
   static async create(req, res, next) {
     try {
-      const note = await noteService.create(req.user, {
-        ...req.body,
-        meetingId: req.params.meetingId,
-      });
+      const note = await noteService.create(
+        req.user,
+        req.params.meetingId,
+        req.body,
+      );
       res.status(201).json(note);
     } catch (err) {
       next(err);

@@ -60,7 +60,7 @@ class UserService {
     }
 
     await Profile.destroy({
-      where: { userId: id },
+      where: { UserId: id },
     });
 
     await user.destroy();
