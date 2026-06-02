@@ -1,7 +1,7 @@
 // src/pages/classes/Detail.jsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import TabTable from "@/components/ui/TabTable";
+import TabTable from "@/components/ui/tables/TabTable";
 import useBreadcrumbs from "@/hooks/useBreadcrumbs";
 import ClassService from "@/services/modules/class.service";
 import { Trash2, Edit2, Eye } from "lucide-react";

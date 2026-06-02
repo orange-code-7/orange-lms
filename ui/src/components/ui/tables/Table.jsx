@@ -5,12 +5,12 @@ const Table = ({ columns, data }) => {
   return (
     <div className="w-full overflow-x-auto">
       <table className="min-w-full border border-gray-200 text-sm">
-        <thead className="bg-gray-100">
+        <thead className="bg-orange-100/50">
           <tr>
             {columns.map((col) => (
               <th
                 key={col.key}
-                className="border px-3 py-2 text-left font-medium whitespace-nowrap"
+                className="border border-gray-200 px-3 py-2 text-left font-medium whitespace-nowrap"
               >
                 {col.label}
               </th>
@@ -34,7 +34,7 @@ const Table = ({ columns, data }) => {
                 {columns.map((col) => (
                   <td
                     key={col.key}
-                    className="border px-3 py-2 whitespace-nowrap"
+                    className="border border-gray-200 px-3 py-2 whitespace-nowrap"
                   >
                     {col.render
                       ? col.render(row)

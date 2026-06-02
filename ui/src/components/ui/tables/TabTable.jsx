@@ -1,6 +1,6 @@
 import React from "react";
-import Table from "@/components/ui/Table";
-import TableControls from "@/components/ui/TableControls";
+import Table from "./Table";
+import TableControls from "./TableControls";
 import useSearch from "@/hooks/useSearch";
 import useFilter from "@/hooks/useFilter";
 import useSort from "@/hooks/useSort";
@@ -59,7 +59,7 @@ const TabTable = ({ data, columns, pageSize = 5 }) => {
         <button
           onClick={prevPage}
           disabled={currentPage === 1}
-          className="border px-3 py-1 rounded disabled:opacity-50"
+          className="border border-gray-200 px-3 py-1 rounded disabled:opacity-50"
         >
           Prev
         </button>
@@ -69,7 +69,7 @@ const TabTable = ({ data, columns, pageSize = 5 }) => {
         <button
           onClick={nextPage}
           disabled={currentPage === totalPages}
-          className="border px-3 py-1 rounded disabled:opacity-50"
+          className="border border-gray-200 px-3 py-1 rounded disabled:opacity-50"
         >
           Next
         </button>

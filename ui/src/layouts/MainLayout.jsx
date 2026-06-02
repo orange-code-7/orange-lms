@@ -1,8 +1,8 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 
-import Sidebar from "../components/ui/Sidebar";
-import TopBar from "../components/ui/TopBar";
+import Sidebar from "../components/common/Sidebar";
+import TopBar from "../components/common/TopBar";
 
 const MainLayout = () => {
   return (

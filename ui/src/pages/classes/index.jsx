@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import Table from "@/components/ui/Table";
-import TableControls from "@/components/ui/TableControls";
+import Table from "@/components/ui/tables/Table";
+import TableControls from "@/components/ui/tables/TableControls";
 
 import {
   useBreadcrumbs,
