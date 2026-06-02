@@ -1,9 +1,9 @@
 import api from "../api/api";
 import ENDPOINTS from "../api/endpoints";
 
-class ClassService {
+class MeetingService {
   static getAll(params) {
-    return api.get(ENDPOINTS.MEETINGS, { params });
+    return api.get(`${ENDPOINTS.MEETINGS}/all`, { params });
   }
 
   static getById(id) {
@@ -23,4 +23,4 @@ class ClassService {
   }
 }
 
-export default ClassService;
+export default MeetingService;

@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
         through: models.ClassUser,
         foreignKey: "UserId",
         otherKey: "ClassId",
+        as: "enrolledClasses",
       });
 
       User.hasMany(models.ClassUser, {

@@ -1,9 +1,9 @@
 import api from "../api/api";
 import ENDPOINTS from "../api/endpoints";
 
-class ClassService {
+class MaterialService {
   static getAll(params) {
-    return api.get(ENDPOINTS.MATERIALS, { params });
+    return api.get(`${ENDPOINTS.MATERIALS}/all`, { params });
   }
 
   static getById(id) {
@@ -23,4 +23,4 @@ class ClassService {
   }
 }
 
-export default ClassService;
+export default MaterialService;

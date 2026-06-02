@@ -92,62 +92,67 @@ const TopBar = () => {
           </button>
 
           {dropdownOpen && (
-            <div className="absolute left-0 mt-2 w-64 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-lg z-50">
-              <div className="p-2">
+            <div className="absolute left-0 mt-2 w-64 bg-white border rounded-md border-gray-300 shadow-lg z-50 divide-y divide-gray-200">
+              {/* Category 1: Class / Meeting */}
+              <div className="p-2 rounded-t-lg">
+                <p className="text-xs font-semibold text-orange-600 mb-1">
+                  Class / Meeting
+                </p>
                 <Link
                   to="/classes/create"
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-orange-50 dark:hover:bg-neutral-800"
+                  className="flex items-center gap-2 px-3 py-1 hover:bg-orange-100 rounded"
                 >
-                  <BookOpen size={16} />
-                  Class
+                  <BookOpen size={16} /> Class
                 </Link>
-
                 <Link
                   to="/meetings/create"
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-orange-50 dark:hover:bg-neutral-800"
+                  className="flex items-center gap-2 px-3 py-1 hover:bg-orange-100 rounded"
                 >
-                  <Calendar size={16} />
-                  Meeting
+                  <Calendar size={16} /> Meeting
                 </Link>
+              </div>
 
-                <Link
-                  to="/tasks/create"
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-orange-50 dark:hover:bg-neutral-800"
-                >
-                  <CheckSquare size={16} />
-                  Task
-                </Link>
-
-                <Link
-                  to="/notes/create"
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-orange-50 dark:hover:bg-neutral-800"
-                >
-                  <FileText size={16} />
-                  Note
-                </Link>
-
-                <Link
-                  to="/materials/create"
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-orange-50 dark:hover:bg-neutral-800"
-                >
-                  <Archive size={16} />
-                  Material
-                </Link>
-
+              {/* Category 2: Mentor / Mentee */}
+              <div className="p-2">
+                <p className="text-xs font-semibold text-green-600 mb-1">
+                  Mentor / Mentee
+                </p>
                 <Link
                   to="/mentors/create"
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-orange-50 dark:hover:bg-neutral-800"
+                  className="flex items-center gap-2 px-3 py-1 hover:bg-green-100 rounded"
                 >
-                  <UserPlus size={16} />
-                  Mentor
+                  <UserPlus size={16} /> Mentor
                 </Link>
-
                 <Link
                   to="/mentees/create"
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-orange-50 dark:hover:bg-neutral-800"
+                  className="flex items-center gap-2 px-3 py-1 hover:bg-green-100 rounded"
                 >
-                  <UserPlus size={16} />
-                  Mentee
+                  <UserPlus size={16} /> Mentee
+                </Link>
+              </div>
+
+              {/* Category 3: Task / Note / Material */}
+              <div className="p-2 rounded-b-lg">
+                <p className="text-xs font-semibold text-blue-600 mb-1">
+                  Task / Note / Material
+                </p>
+                <Link
+                  to="/tasks/create"
+                  className="flex items-center gap-2 px-3 py-1 hover:bg-blue-100 rounded"
+                >
+                  <CheckSquare size={16} /> Task
+                </Link>
+                <Link
+                  to="/notes/create"
+                  className="flex items-center gap-2 px-3 py-1 hover:bg-blue-100 rounded"
+                >
+                  <FileText size={16} /> Note
+                </Link>
+                <Link
+                  to="/materials/create"
+                  className="flex items-center gap-2 px-3 py-1 hover:bg-blue-100 rounded"
+                >
+                  <Archive size={16} /> Material
                 </Link>
               </div>
             </div>

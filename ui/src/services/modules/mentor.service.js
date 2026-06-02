@@ -1,7 +1,7 @@
 import api from "../api/api";
 import ENDPOINTS from "../api/endpoints";
 
-class ClassService {
+class MentorService {
   static getAll(params) {
     return api.get(ENDPOINTS.MENTORS, { params });
   }
@@ -23,4 +23,4 @@ class ClassService {
   }
 }
 
-export default ClassService;
+export default MentorService;
