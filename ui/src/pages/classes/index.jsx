@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
-import Table from "@/components/ui/Table";
-import TableControls from "@/components/ui/TableControls";
+import { Link } from "react-router-dom";
+
+import Table from "@/components/ui/tables/Table";
+import TableControls from "@/components/ui/tables/TableControls";
 
 import {
   useBreadcrumbs,
@@ -11,166 +13,234 @@ import {
 } from "@/hooks";
 
 import ClassService from "@/services/modules/class.service";
-import { Trash2, Edit2, Eye } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 
 const columns = [
-  { key: "code", label: "Class Code" },
-  { key: "name", label: "Class" },
-  { key: "startDate", label: "Date" },
-  { key: "mentor", label: "Mentor", render: (row) => row.mentor?.name },
   {
-    key: "mentee.length",
+    key: "code",
+    label: "Class Code",
+    render: (row) => (
+      <span className="inline-block rounded-sm bg-orange-100 px-2 py-1 text-xs font-medium text-orange-700">
+        {row.code || "-"}
+      </span>
+    ),
+  },
+  {
+    key: "name",
+    label: "Class Name",
+    render: (row) => (
+      <p className="font-semibold text-[var(--color-text)]">
+        {row.name || "-"}
+      </p>
+    ),
+  },
+  {
+    key: "category",
+    label: "Category",
+  },
+  {
+    key: "level",
+    label: "Level",
+  },
+  {
+    key: "mentor",
+    label: "Mentor",
+    render: (row) =>
+      row.Users?.find((u) => u.ClassUser?.roleInClass === "Mentor")?.name ||
+      "-",
+  },
+  {
+    key: "mentees",
     label: "Total Mentees",
     render: (row) =>
-      row.Users?.filter((u) => u.ClassUser.roleInClass === "mentee").length,
+      row.Users?.filter((u) => u.ClassUser?.roleInClass === "Mentee").length ||
+      0,
   },
-  { key: "meeting", label: "Meetings", render: (row) => row.meeting?.length },
-  { key: "actions", label: "Actions" },
+  {
+    key: "meetings",
+    label: "Meetings",
+    render: (row) => row.Meetings?.length || 0,
+  },
+  {
+    key: "actions",
+    label: "Actions",
+  },
 ];
 
 const List = () => {
   const breadcrumbs = useBreadcrumbs();
+
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchClasses = async () => {
-      try {
-        const res = await ClassService.getAll();
-        setData(res);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchClasses();
-  }, []);
-
-  // SEARCH
-  const { query, setQuery, searchedData } = useSearch(data, [
-    "name",
-    "subject",
-    "mentorName",
-  ]);
-
-  // FILTER
-  const { filterValue, setFilterValue, filteredData } = useFilter(
-    searchedData,
-    "subject",
-  );
-
-  // SORT
-  const { sortedData, sortKey, toggleSort } = useSort(filteredData);
-
-  // PAGINATION
-  const { paginatedData, currentPage, totalPages, nextPage, prevPage } =
-    usePagination(sortedData, 5);
-
-  if (loading)
-    return <div className="p-4 text-gray-500">Loading classes...</div>;
-
-  // Handler aksi
-  const handleRemove = (id) => {
-    if (confirm("Are you sure you want to remove this class?")) {
-      setData(data.filter((item) => item.id !== id));
+  const fetchClasses = async () => {
+    try {
+      const res = await ClassService.getAll();
+      setData(res.data || []);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleEdit = (id) => {
-    alert(`Edit class with ID: ${id}`);
+  useEffect(() => {
+    fetchClasses();
+  }, []);
+
+  const { query, setQuery, searchedData } = useSearch(data, [
+    "code",
+    "name",
+    "category",
+    "level",
+  ]);
+
+  const { filterValue, setFilterValue, filteredData } = useFilter(
+    searchedData,
+    "category",
+  );
+
+  const { sortedData, sortKey, toggleSort } = useSort(filteredData);
+
+  const { paginatedData, currentPage, totalPages, nextPage, prevPage } =
+    usePagination(sortedData, 5);
+
+  const handleRemove = async (id) => {
+    const confirmed = confirm("Are you sure you want to delete this class?");
+
+    if (!confirmed) return;
+
+    try {
+      await ClassService.delete(id);
+
+      setData((prev) => prev.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const handleDetails = (id) => {
-    alert(`View details for class ID: ${id}`);
-  };
-
-  // Tambahkan render aksi per row
   const dataWithActions = paginatedData.map((row) => ({
     ...row,
+
     actions: (
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
         <Link
-          to={`/classes/${row.id}`}
-          className="text-blue-600 hover:text-blue-800"
-          title="Details"
+          to={`/meetings/${row.id}`}
+          className="flex items-center gap-1 rounded-sm bg-sky-100 px-2 py-1 text-xs font-medium text-sky-700 hover:bg-sky-200"
         >
-          <Eye size={16} className="mr-2" /> Details
+          <Eye size={14} />
+          Details
         </Link>
+
         <Link
-          to={`/classes/update/${row.id}`}
-          className="text-green-600 hover:text-green-800"
-          title="Edit"
+          to={`/meetings/edit/${row.id}`}
+          className="flex items-center gap-1 rounded-sm bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-200"
         >
-          <Edit2 size={16} className="mr=2" /> Edit
+          <Pencil size={14} />
+          Edit
         </Link>
+
         <button
           onClick={() => handleRemove(row.id)}
-          className="text-red-600 hover:text-red-800"
-          title="Remove"
+          className="flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium text-[var(--color-text-muted)] transition-colors hover:bg-rose-50 hover:text-rose-600"
         >
-          <Trash2 size={16} className="mr-2" /> Remove
+          <Trash2 size={14} />
+          Remove
         </button>
       </div>
     ),
   }));
 
+  if (loading) {
+    return (
+      <div className="p-4 text-[var(--color-text-muted)]">
+        Loading classes...
+      </div>
+    );
+  }
+
   return (
-    <div className="p-4 space-y-4">
-      {/* Breadcrumbs */}
-      <div className="text-sm text-gray-500">
-        {breadcrumbs.map((b, i) => (
-          <span key={b.to}>
-            {b.label}
-            {i < breadcrumbs.length - 1 && " / "}
-          </span>
-        ))}
+    <div className="p-4 space-y-4 bg-[var(--color-background)] min-h-screen">
+      {/* Header */}
+      <div className="space-y-1">
+        <p className="text-xs text-[var(--color-text-muted)]">
+          {breadcrumbs.map((b, i) => (
+            <span key={b.to}>
+              {b.label}
+              {i < breadcrumbs.length - 1 && " / "}
+            </span>
+          ))}
+        </p>
+
+        <h1 className="text-2xl font-bold text-[var(--color-text)]">
+          Class Management
+        </h1>
+        <p className="max-w-3xl text-sm leading-6 text-[var(--color-text-muted)]">
+          Manage all Orange LMS classes, monitor learning progress, organize
+          mentor assignments, and oversee educational activities.
+        </p>
       </div>
 
       {/* Controls */}
-      <TableControls
-        searchQuery={query}
-        setSearchQuery={setQuery}
-        filterOptions={[
-          "Full Stack Development",
-          "Front End Development",
-          "Back End Development",
-        ]}
-        filterValue={filterValue}
-        setFilterValue={setFilterValue}
-        sortOptions={[
-          { key: "name", label: "Name" },
-          { key: "totalMeetings", label: "Meetings" },
-        ]}
-        sortKey={sortKey}
-        toggleSort={toggleSort}
-      />
-
-      {/* Count */}
-      <div className="text-sm text-gray-600">
-        Total: {sortedData.length} classes
+      <div className="rounded-sm border border-gray-200 bg-[var(--color-surface)] p-4">
+        <TableControls
+          searchQuery={query}
+          setSearchQuery={setQuery}
+          filterOptions={[
+            "Full Stack",
+            "Front End",
+            "Back End",
+            "JS Basic",
+            "Web Design",
+          ]}
+          filterValue={filterValue}
+          setFilterValue={setFilterValue}
+          sortOptions={[
+            {
+              key: "name",
+              label: "Name",
+            },
+            {
+              key: "level",
+              label: "Level",
+            },
+          ]}
+          sortKey={sortKey}
+          toggleSort={toggleSort}
+        />
       </div>
 
       {/* Table */}
-      <Table columns={columns} data={dataWithActions} />
+      <div className="overflow-hidden rounded-sm border border-gray-200 bg-[var(--color-surface)]">
+        <div className="border-b border-gray-200 px-4 py-3">
+          <p className="text-sm font-medium text-[var(--color-text-muted)]">
+            Total {sortedData.length} Classes
+          </p>
+        </div>
 
-      {/* Pagination Controls */}
-      <div className="flex gap-2 items-center mt-2">
+        <div className="p-4">
+          <Table columns={columns} data={dataWithActions} />
+        </div>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex items-center justify-end gap-1">
         <button
           onClick={prevPage}
           disabled={currentPage === 1}
-          className="border px-3 py-1 rounded disabled:opacity-50"
+          className="rounded-sm border border-gray-200 px-4 py-2 hover:bg-gray-50 disabled:opacity-50"
         >
           Prev
         </button>
-        <span>
-          Page {currentPage} / {totalPages}
+
+        <span className="px-3 text-sm text-[var(--color-text-muted)]">
+          {currentPage} / {totalPages || 1}
         </span>
+
         <button
           onClick={nextPage}
           disabled={currentPage === totalPages}
-          className="border px-3 py-1 rounded disabled:opacity-50"
+          className="rounded-sm bg-[var(--color-primary)] px-4 py-2 text-white hover:opacity-90 disabled:opacity-50"
         >
           Next
         </button>

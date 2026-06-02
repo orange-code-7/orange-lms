@@ -1,30 +1,26 @@
 import api from "../api/api";
+import ENDPOINTS from "../api/endpoints";
 
-const MeetingService = {
-  getAll: async () => {
-    const res = await api.get("/meetings/all"); // GET /meetings
-    return res.data;
-  },
+class MeetingService {
+  static getAll(params) {
+    return api.get(`${ENDPOINTS.MEETINGS}/all`, { params });
+  }
 
-  getById: async (id) => {
-    const res = await api.get(`/meetings/${id}`);
-    return res.data;
-  },
+  static getById(id) {
+    return api.get(`${ENDPOINTS.MEETINGS}/${id}`);
+  }
 
-  create: async (payload) => {
-    const res = await api.post("/meetings", payload);
-    return res.data;
-  },
+  static create(payload) {
+    return api.post(ENDPOINTS.MEETINGS, payload);
+  }
 
-  update: async (id, payload) => {
-    const res = await api.put(`/meetings/${id}`, payload);
-    return res.data;
-  },
+  static update(id, payload) {
+    return api.put(`${ENDPOINTS.MEETINGS}/${id}`, payload);
+  }
 
-  delete: async (id) => {
-    const res = await api.delete(`/meetings/${id}`);
-    return res.data;
-  },
-};
+  static delete(id) {
+    return api.delete(`${ENDPOINTS.MEETINGS}/${id}`);
+  }
+}
 
 export default MeetingService;

@@ -1,30 +1,26 @@
 import api from "../api/api";
+import ENDPOINTS from "../api/endpoints";
 
-const ClassService = {
-  getAll: async () => {
-    const res = await api.get("/classes"); // GET /classes
-    return res.data;
-  },
+class ClassService {
+  static getAll(params) {
+    return api.get(ENDPOINTS.CLASSES, { params });
+  }
 
-  getById: async (id) => {
-    const res = await api.get(`/classes/${id}`);
-    return res.data;
-  },
+  static getById(id) {
+    return api.get(`${ENDPOINTS.CLASSES}/${id}`);
+  }
 
-  create: async (payload) => {
-    const res = await api.post("/classes", payload);
-    return res.data;
-  },
+  static create(payload) {
+    return api.post(ENDPOINTS.CLASSES, payload);
+  }
 
-  update: async (id, payload) => {
-    const res = await api.put(`/classes/${id}`, payload);
-    return res.data;
-  },
+  static update(id, payload) {
+    return api.put(`${ENDPOINTS.CLASSES}/${id}`, payload);
+  }
 
-  delete: async (id) => {
-    const res = await api.delete(`/classes/${id}`);
-    return res.data;
-  },
-};
+  static delete(id) {
+    return api.delete(`${ENDPOINTS.CLASSES}/${id}`);
+  }
+}
 
 export default ClassService;

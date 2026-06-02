@@ -1,30 +1,26 @@
 import api from "../api/api";
+import ENDPOINTS from "../api/endpoints";
 
-const MentorService = {
-  getAll: async () => {
-    const res = await api.get("/mentors"); // GET /mentors
-    return res.data;
-  },
+class MentorService {
+  static getAll(params) {
+    return api.get(ENDPOINTS.MENTORS, { params });
+  }
 
-  getById: async (id) => {
-    const res = await api.get(`/mentors/${id}`);
-    return res.data;
-  },
+  static getById(id) {
+    return api.get(`${ENDPOINTS.MENTORS}/${id}`);
+  }
 
-  create: async (payload) => {
-    const res = await api.post("/mentors", payload);
-    return res.data;
-  },
+  static create(payload) {
+    return api.post(ENDPOINTS.MENTORS, payload);
+  }
 
-  update: async (id, payload) => {
-    const res = await api.put(`/mentors/${id}`, payload);
-    return res.data;
-  },
+  static update(id, payload) {
+    return api.put(`${ENDPOINTS.MENTORS}/${id}`, payload);
+  }
 
-  delete: async (id) => {
-    const res = await api.delete(`/mentors/${id}`);
-    return res.data;
-  },
-};
+  static delete(id) {
+    return api.delete(`${ENDPOINTS.MENTORS}/${id}`);
+  }
+}
 
 export default MentorService;

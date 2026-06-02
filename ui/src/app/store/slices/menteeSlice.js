@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const taskSlice = createSlice({
-  name: "tasks",
+const menteeSlice = createSlice({
+  name: "mentees",
   initialState: {
     data: [],
     loading: false,
@@ -9,22 +9,23 @@ const taskSlice = createSlice({
   },
 
   reducers: {
-    setTasks: (state, action) => {
+    setMentees: (state, action) => {
       state.data = action.payload;
       state.loading = false;
     },
 
-    setTasksLoading: (state, action) => {
+    setMenteesLoading: (state, action) => {
       state.loading = action.payload;
     },
 
-    setTasksError: (state, action) => {
+    setMenteesError: (state, action) => {
       state.error = action.payload;
       state.loading = false;
     },
   },
 });
 
-export const { setTasks, setTasksLoading, setTasksError } = taskSlice.actions;
+export const { setMentees, setMenteesLoading, setMenteesError } =
+  menteeSlice.actions;
 
-export default taskSlice.reducer;
+export default menteeSlice.reducer;

@@ -8,15 +8,15 @@ import {
   Hash,
   Clock,
 } from "lucide-react";
-import TextInput from "./Inputs/TextInput";
-import EmailInput from "./Inputs/EmailInput";
-import NumberInput from "./Inputs/NumberInput";
-import TextArea from "./Inputs/TextArea";
-import Select from "./Inputs/Select";
-import Checkbox from "./Inputs/Checkbox";
-import RadioButton from "./Inputs/RadioButton";
-import DateInput from "./Inputs/DateInput"; // <- import DateInput
-import TimeInput from "./Inputs/TimeInput";
+import TextInput from "../inputs/TextInput";
+import EmailInput from "../inputs/EmailInput";
+import NumberInput from "../inputs/NumberInput";
+import TextArea from "../inputs/TextArea";
+import Select from "../inputs/Select";
+import Checkbox from "../inputs/Checkbox";
+import RadioButton from "../inputs/RadioButton";
+import DateInput from "../inputs/DateInput"; // <- import DateInput
+import TimeInput from "../inputs/TimeInput";
 
 // Default icons for types
 const icons = {

@@ -1,30 +1,26 @@
 import api from "../api/api";
+import ENDPOINTS from "../api/endpoints";
 
-const NoteService = {
-  getAll: async () => {
-    const res = await api.get("/notes/all"); // GET /notes
-    return res.data;
-  },
+class NoteService {
+  static getAll(params) {
+    return api.get(`${ENDPOINTS.NOTES}/all`, { params });
+  }
 
-  getById: async (id) => {
-    const res = await api.get(`/notes/${id}`);
-    return res.data;
-  },
+  static getById(id) {
+    return api.get(`${ENDPOINTS.NOTES}/${id}`);
+  }
 
-  create: async (payload) => {
-    const res = await api.post("/notes", payload);
-    return res.data;
-  },
+  static create(payload) {
+    return api.post(ENDPOINTS.NOTES, payload);
+  }
 
-  update: async (id, payload) => {
-    const res = await api.put(`/notes/${id}`, payload);
-    return res.data;
-  },
+  static update(id, payload) {
+    return api.put(`${ENDPOINTS.NOTES}/${id}`, payload);
+  }
 
-  delete: async (id) => {
-    const res = await api.delete(`/notes/${id}`);
-    return res.data;
-  },
-};
+  static delete(id) {
+    return api.delete(`${ENDPOINTS.NOTES}/${id}`);
+  }
+}
 
 export default NoteService;

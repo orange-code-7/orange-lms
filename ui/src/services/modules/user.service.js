@@ -1,30 +1,26 @@
 import api from "../api/api";
+import ENDPOINTS from "../api/endpoints";
 
-const UserService = {
-  getAll: async () => {
-    const res = await api.get("/users");
-    return res.data;
-  },
+class UserService {
+  static getAll(params) {
+    return api.get(`${ENDPOINTS.USERS}/all`, { params });
+  }
 
-  getById: async (id) => {
-    const res = await api.get(`/users/${id}`);
-    return res.data;
-  },
+  static getById(id) {
+    return api.get(`${ENDPOINTS.USERS}/${id}`);
+  }
 
-  create: async (payload) => {
-    const res = await api.post("/users", payload);
-    return res.data;
-  },
+  static create(payload) {
+    return api.post(ENDPOINTS.USERS, payload);
+  }
 
-  update: async (id, payload) => {
-    const res = await api.put(`/users/${id}`, payload);
-    return res.data;
-  },
+  static update(id, payload) {
+    return api.put(`${ENDPOINTS.USERS}/${id}`, payload);
+  }
 
-  delete: async (id) => {
-    const res = await api.delete(`/users/${id}`);
-    return res.data;
-  },
-};
+  static delete(id) {
+    return api.delete(`${ENDPOINTS.USERS}/${id}`);
+  }
+}
 
 export default UserService;

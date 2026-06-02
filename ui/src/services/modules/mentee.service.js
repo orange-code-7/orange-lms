@@ -1,30 +1,26 @@
 import api from "../api/api";
+import ENDPOINTS from "../api/endpoints";
 
-const MenteeService = {
-  getAll: async () => {
-    const res = await api.get("/mentees"); // GET /mentees
-    return res.data;
-  },
+class MenteeService {
+  static getAll(params) {
+    return api.get(ENDPOINTS.MENTEES, { params });
+  }
 
-  getById: async (id) => {
-    const res = await api.get(`/mentees/${id}`);
-    return res.data;
-  },
+  static getById(id) {
+    return api.get(`${ENDPOINTS.MENTEES}/${id}`);
+  }
 
-  create: async (payload) => {
-    const res = await api.post("/mentees", payload);
-    return res.data;
-  },
+  static create(payload) {
+    return api.post(ENDPOINTS.MENTEES, payload);
+  }
 
-  update: async (id, payload) => {
-    const res = await api.put(`/mentees/${id}`, payload);
-    return res.data;
-  },
+  static update(id, payload) {
+    return api.put(`${ENDPOINTS.MENTEES}/${id}`, payload);
+  }
 
-  delete: async (id) => {
-    const res = await api.delete(`/mentees/${id}`);
-    return res.data;
-  },
-};
+  static delete(id) {
+    return api.delete(`${ENDPOINTS.MENTEES}/${id}`);
+  }
+}
 
 export default MenteeService;

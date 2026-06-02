@@ -1,30 +1,26 @@
 import api from "../api/api";
+import ENDPOINTS from "../api/endpoints";
 
-const TaskService = {
-  getAll: async () => {
-    const res = await api.get("/tasks/all"); // GET /tasks
-    return res.data;
-  },
+class TaskService {
+  static getAll(params) {
+    return api.get(`${ENDPOINTS.TASKS}/all`, { params });
+  }
 
-  getById: async (id) => {
-    const res = await api.get(`/tasks/${id}`);
-    return res.data;
-  },
+  static getById(id) {
+    return api.get(`${ENDPOINTS.TASKS}/${id}`);
+  }
 
-  create: async (payload) => {
-    const res = await api.post("/tasks", payload);
-    return res.data;
-  },
+  static create(payload) {
+    return api.post(ENDPOINTS.TASKS, payload);
+  }
 
-  update: async (id, payload) => {
-    const res = await api.put(`/tasks/${id}`, payload);
-    return res.data;
-  },
+  static update(id, payload) {
+    return api.put(`${ENDPOINTS.TASKS}/${id}`, payload);
+  }
 
-  delete: async (id) => {
-    const res = await api.delete(`/tasks/${id}`);
-    return res.data;
-  },
-};
+  static delete(id) {
+    return api.delete(`${ENDPOINTS.TASKS}/${id}`);
+  }
+}
 
 export default TaskService;

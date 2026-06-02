@@ -56,11 +56,16 @@ import Setting from "../../pages/setting";
 
 // Not Found
 import NotFound from "../../pages/NotFound";
+import PublicRoute from "./PublicRoute";
 
 const router = createBrowserRouter([
   {
     path: "/auth",
-    element: <AuthLayout />,
+    element: (
+      <PublicRoute>
+        <AuthLayout />
+      </PublicRoute>
+    ),
     children: [
       { path: "login", element: <Login /> },
       { path: "register", element: <Register /> },

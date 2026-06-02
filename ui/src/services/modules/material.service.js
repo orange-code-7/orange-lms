@@ -1,30 +1,26 @@
 import api from "../api/api";
+import ENDPOINTS from "../api/endpoints";
 
-const MaterialService = {
-  getAll: async () => {
-    const res = await api.get("/materials/all"); // GET /materials
-    return res.data;
-  },
+class MaterialService {
+  static getAll(params) {
+    return api.get(`${ENDPOINTS.MATERIALS}/all`, { params });
+  }
 
-  getById: async (id) => {
-    const res = await api.get(`/materials/${id}`);
-    return res.data;
-  },
+  static getById(id) {
+    return api.get(`${ENDPOINTS.MATERIALS}/${id}`);
+  }
 
-  create: async (payload) => {
-    const res = await api.post("/materials", payload);
-    return res.data;
-  },
+  static create(payload) {
+    return api.post(ENDPOINTS.MATERIALS, payload);
+  }
 
-  update: async (id, payload) => {
-    const res = await api.put(`/materials/${id}`, payload);
-    return res.data;
-  },
+  static update(id, payload) {
+    return api.put(`${ENDPOINTS.MATERIALS}/${id}`, payload);
+  }
 
-  delete: async (id) => {
-    const res = await api.delete(`/materials/${id}`);
-    return res.data;
-  },
-};
+  static delete(id) {
+    return api.delete(`${ENDPOINTS.MATERIALS}/${id}`);
+  }
+}
 
 export default MaterialService;

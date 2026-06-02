@@ -1,18 +1,44 @@
-const { Task, Meeting } = require("../models");
+const { Task, Meeting, Class, User } = require("../models");
 
 class TaskService {
   static async findAllByMeeting(MeetingId) {
     return Task.findAll({
       where: { MeetingId },
+      include: [
+        Meeting,
+        Class,
+        {
+          model: User,
+          as: "creator",
+        },
+      ],
     });
   }
 
   static async getAll() {
-    return Task.findAll();
+    return Task.findAll({
+      include: [
+        Meeting,
+        Class,
+        {
+          model: User,
+          as: "creator",
+        },
+      ],
+    });
   }
 
   static async findById(id) {
-    return Task.findByPk(id);
+    return Task.findByPk(id, {
+      include: [
+        Meeting,
+        Class,
+        {
+          model: User,
+          as: "creator",
+        },
+      ],
+    });
   }
 
   static async create(currentUser, meetingId, data) {
