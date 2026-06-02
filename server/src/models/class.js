@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
         through: models.ClassUser,
         foreignKey: "ClassId",
         otherKey: "UserId",
+        as: "students",
       });
 
       Class.hasMany(models.ClassUser, {

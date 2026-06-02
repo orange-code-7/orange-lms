@@ -26,9 +26,7 @@ const historyClassRoutes = require("./historyClass");
 const { authentication } = require("../middlewares");
 
 /**
- * =====================================
  * Health Check
- * =====================================
  */
 router.get("/", (req, res) => {
   res.json({
@@ -37,32 +35,24 @@ router.get("/", (req, res) => {
 });
 
 /**
- * =====================================
  * Public Routes
- * =====================================
  */
 router.use("/auth", authRoutes);
 
 /**
- * =====================================
  * Protected Routes
- * =====================================
  */
 router.use(authentication);
 
 /**
- * =====================================
  * Core User Management
- * =====================================
  */
 router.use("/users", userRoutes);
 router.use("/mentors", mentorRoutes);
 router.use("/mentees", menteeRoutes);
 
 /**
- * =====================================
  * Learning Management
- * =====================================
  */
 router.use("/classes", classRoutes);
 
@@ -87,9 +77,7 @@ router.use("/notes", noteRoutes);
 router.use("/materials", materialRoutes);
 
 /**
- * =====================================
  * V3 Assessment Engine
- * =====================================
  */
 router.use("/attendances", attendanceRoutes);
 router.use("/task-criteria", taskCriteriaRoutes);

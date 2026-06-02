@@ -1,7 +1,7 @@
-import Form from "@/components/ui/Form/Form";
+import Form from "@/components/ui/forms/Form";
 import useForm from "@/hooks/useForm";
-import { mentorSchema } from "@/schema";
-import MentorService from "@/services/mentors.service";
+import { mentorSchema } from "@/schemas";
+import MentorService from "@/services/modules/mentor.service";
 
 const Create = () => {
   const { values, handleChange } = useForm(mentorSchema);

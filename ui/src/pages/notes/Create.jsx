@@ -1,9 +1,9 @@
 // src/pages/Notes/Create.jsx
-import Form from "@/components/ui/Form/Form";
+import Form from "@/components/ui/forms/Form";
 import useForm from "@/hooks/useForm";
 import useClassMeetingOptions from "@/hooks/useClassMeetingOptions";
-import { noteSchema } from "@/schema";
-import NoteService from "@/services/notes.service";
+import { noteSchema } from "@/schemas";
+import NoteService from "@/services/modules/note.service";
 // import { useAuth } from "@/context/AuthContext";
 
 const Create = () => {

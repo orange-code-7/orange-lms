@@ -1,12 +1,12 @@
-// src/layouts/MainLayout.jsx
 import React from "react";
 import { Outlet } from "react-router-dom";
-import Sidebar from "../components/ui/Sidebar";
-import TopBar from "../components/ui/TopBar";
+
+import Sidebar from "../components/common/Sidebar";
+import TopBar from "../components/common/TopBar";
 
 const MainLayout = () => {
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen bg-app text-app transition-all">
       {/* Sidebar */}
       <Sidebar />
 
@@ -16,9 +16,9 @@ const MainLayout = () => {
         <TopBar username="Vincent" />
 
         {/* Main Content */}
-        <div className="flex-1 bg-gray-50 p-6 overflow-auto">
+        <main className="flex-1 bg-app p-6 overflow-auto transition-all">
           <Outlet />
-        </div>
+        </main>
       </div>
     </div>
   );

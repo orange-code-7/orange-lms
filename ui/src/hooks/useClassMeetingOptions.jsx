@@ -1,6 +1,6 @@
 // src/hooks/useClassMeetingOptions.js
 import { useEffect, useState } from "react";
-import ClassService from "@/services/class.service";
+import ClassService from "@/services/modules/class.service";
 
 const useClassMeetingOptions = (values, setValues, baseSchema) => {
   const [schema, setSchema] = useState(baseSchema);

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useBreadcrumbs from "@/hooks/useBreadcrumbs";
-import MeetingService from "@/services/meetings.service";
+import MeetingService from "@/services/modules/meeting.service";
 import { CheckCircle, XCircle, Edit2, Trash2 } from "lucide-react";
-import TabTable from "@/components/ui/TabTable";
+import TabTable from "@/components/ui/tables/TabTable";
 import { formatDate } from "@/helpers/index";
 
 const tabs = ["Attendance", "Notes", "Tasks", "Materials"];
