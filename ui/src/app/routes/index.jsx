@@ -1,62 +1,69 @@
 import React from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import ProtectedRoute from "./ProtectedRoute";
+
+import ProtectedRoute from "./guards/ProtectedRoute";
+import PublicRoute from "./guards/PublicRoute";
+import RoleGuard from "./guards/RoleGuard";
 
 // Layouts
-import MainLayout from "../../layouts/MainLayout";
-import AuthLayout from "../../layouts/AuthLayout";
+import MainLayout from "@/layouts/MainLayout";
+import AuthLayout from "@/layouts/AuthLayout";
 
 // Auth
-import Login from "../../pages/auth/login";
-import Register from "../../pages/auth/register";
+import Login from "@/pages/auth/login";
+import Register from "@/pages/auth/register";
 
 // Dashboard
-import Dashboard from "../../pages/dashboard";
+import Dashboard from "@/pages/dashboard";
 
-// Pages by feature
-import ClassesList from "../../pages/classes";
-import ClassesCreate from "../../pages/classes/create";
-import ClassesUpdate from "../../pages/classes/edit";
-import ClassesDetail from "../../pages/classes/detail";
+// Classes
+import ClassesList from "@/pages/classes";
+import ClassesCreate from "@/pages/classes/Create";
+import ClassesUpdate from "@/pages/classes/Edit";
+import ClassesDetail from "@/pages/classes/Detail";
 
-import MeetingsList from "../../pages/meetings";
-import MeetingsCreate from "../../pages/meetings/create";
-import MeetingsUpdate from "../../pages/meetings/edit";
-import MeetingsDetail from "../../pages/meetings/detail";
+// Meetings
+import MeetingsList from "@/pages/meetings";
+import MeetingsCreate from "@/pages/meetings/Create";
+import MeetingsUpdate from "@/pages/meetings/Edit";
+import MeetingsDetail from "@/pages/meetings/Detail";
 
-import NotesList from "../../pages/notes";
-import NotesCreate from "../../pages/notes/create";
-import NotesUpdate from "../../pages/notes/edit";
-import NotesDetail from "../../pages/notes/detail";
+// Notes
+import NotesList from "@/pages/notes";
+import NotesCreate from "@/pages/notes/Create";
+import NotesUpdate from "@/pages/notes/Edit";
+import NotesDetail from "@/pages/notes/Detail";
 
-import TasksList from "../../pages/tasks";
-import TasksCreate from "../../pages/tasks/create";
-import TasksUpdate from "../../pages/tasks/edit";
-import TasksDetail from "../../pages/tasks/detail";
+// Tasks
+import TasksList from "@/pages/tasks";
+import TasksCreate from "@/pages/tasks/Create";
+import TasksUpdate from "@/pages/tasks/Edit";
+import TasksDetail from "@/pages/tasks/Detail";
 
-import MaterialsList from "../../pages/materials";
-import MaterialsCreate from "../../pages/materials/create";
-import MaterialsUpdate from "../../pages/materials/edit";
-import MaterialsDetail from "../../pages/materials/detail";
+// Materials
+import MaterialsList from "@/pages/materials";
+import MaterialsCreate from "@/pages/materials/Create";
+import MaterialsUpdate from "@/pages/materials/Edit";
+import MaterialsDetail from "@/pages/materials/Detail";
 
-// Admin / Owner Only
-import MentorsList from "../../pages/mentors";
-import MentorsCreate from "../../pages/mentors/create";
-import MentorsUpdate from "../../pages/mentors/edit";
-import MentorsDetail from "../../pages/mentors/detail";
+// Mentors
+import MentorsList from "@/pages/mentors";
+import MentorsCreate from "@/pages/mentors/Create";
+import MentorsUpdate from "@/pages/mentors/Edit";
+import MentorsDetail from "@/pages/mentors/Detail";
 
-import MenteesList from "../../pages/mentees";
-import MenteesCreate from "../../pages/mentees/create";
-import MenteesUpdate from "../../pages/mentees/edit";
-import MenteesDetail from "../../pages/mentees/detail";
+// Mentees
+import MenteesList from "@/pages/mentees";
+import MenteesCreate from "@/pages/mentees/Create";
+import MenteesUpdate from "@/pages/mentees/Edit";
+import MenteesDetail from "@/pages/mentees/Detail";
 
-// Profile & Setting
-import Profile from "../../pages/profile/edit";
-import Setting from "../../pages/setting";
+// Profile & Settings
+import Profile from "@/pages/profile/Edit";
+import Settings from "@/pages/settings";
 
 // Not Found
-import NotFound from "../../pages/NotFound";
-import PublicRoute from "./PublicRoute";
+import NotFound from "@/pages/NotFound";
 
 const router = createBrowserRouter([
   {
@@ -67,11 +74,21 @@ const router = createBrowserRouter([
       </PublicRoute>
     ),
     children: [
-      { path: "login", element: <Login /> },
-      { path: "register", element: <Register /> },
-      { path: "", element: <Navigate to="login" replace /> },
+      {
+        path: "login",
+        element: <Login />,
+      },
+      {
+        path: "register",
+        element: <Register />,
+      },
+      {
+        index: true,
+        element: <Navigate to="login" replace />,
+      },
     ],
   },
+
   {
     path: "/",
     element: (
@@ -79,11 +96,21 @@ const router = createBrowserRouter([
         <MainLayout />
       </ProtectedRoute>
     ),
-    children: [
-      { path: "", element: <Navigate to="dashboard" replace /> },
-      { path: "dashboard", element: <Dashboard /> },
 
-      // Classes
+    children: [
+      {
+        index: true,
+        element: <Navigate to="dashboard" replace />,
+      },
+
+      {
+        path: "dashboard",
+        element: <Dashboard />,
+      },
+
+      // ========================================
+      // CLASSES
+      // ========================================
       {
         path: "classes",
         children: [
@@ -94,7 +121,9 @@ const router = createBrowserRouter([
         ],
       },
 
-      // Meetings
+      // ========================================
+      // MEETINGS
+      // ========================================
       {
         path: "meetings",
         children: [
@@ -105,7 +134,9 @@ const router = createBrowserRouter([
         ],
       },
 
-      // Notes
+      // ========================================
+      // NOTES
+      // ========================================
       {
         path: "notes",
         children: [
@@ -116,7 +147,9 @@ const router = createBrowserRouter([
         ],
       },
 
-      // Tasks
+      // ========================================
+      // TASKS
+      // ========================================
       {
         path: "tasks",
         children: [
@@ -127,7 +160,9 @@ const router = createBrowserRouter([
         ],
       },
 
-      // Materials
+      // ========================================
+      // MATERIALS
+      // ========================================
       {
         path: "materials",
         children: [
@@ -138,82 +173,101 @@ const router = createBrowserRouter([
         ],
       },
 
-      // Admin & Owner Only
+      // ========================================
+      // MENTORS (OWNER & ADMIN)
+      // ========================================
       {
         path: "mentors",
         element: (
-          <ProtectedRoute roles={["Admin", "Owner"]}>
+          <RoleGuard roles={["Owner", "Admin"]}>
             <MentorsList />
-          </ProtectedRoute>
+          </RoleGuard>
         ),
       },
       {
         path: "mentors/create",
         element: (
-          <ProtectedRoute roles={["Admin", "Owner"]}>
+          <RoleGuard roles={["Owner", "Admin"]}>
             <MentorsCreate />
-          </ProtectedRoute>
+          </RoleGuard>
         ),
       },
       {
         path: "mentors/:id",
         element: (
-          <ProtectedRoute roles={["Admin", "Owner"]}>
+          <RoleGuard roles={["Owner", "Admin"]}>
             <MentorsDetail />
-          </ProtectedRoute>
+          </RoleGuard>
         ),
       },
       {
         path: "mentors/update/:id",
         element: (
-          <ProtectedRoute roles={["Admin", "Owner"]}>
+          <RoleGuard roles={["Owner", "Admin"]}>
             <MentorsUpdate />
-          </ProtectedRoute>
+          </RoleGuard>
         ),
       },
 
+      // ========================================
+      // MENTEES (OWNER, ADMIN, MENTOR)
+      // ========================================
       {
         path: "mentees",
         element: (
-          <ProtectedRoute roles={["Admin", "Owner"]}>
+          <RoleGuard roles={["Owner", "Admin", "Mentor"]}>
             <MenteesList />
-          </ProtectedRoute>
+          </RoleGuard>
         ),
       },
       {
         path: "mentees/create",
         element: (
-          <ProtectedRoute roles={["Admin", "Owner"]}>
+          <RoleGuard roles={["Owner", "Admin"]}>
             <MenteesCreate />
-          </ProtectedRoute>
+          </RoleGuard>
         ),
       },
       {
         path: "mentees/:id",
         element: (
-          <ProtectedRoute roles={["Admin", "Owner"]}>
+          <RoleGuard roles={["Owner", "Admin", "Mentor"]}>
             <MenteesDetail />
-          </ProtectedRoute>
+          </RoleGuard>
         ),
       },
       {
         path: "mentees/update/:id",
         element: (
-          <ProtectedRoute roles={["Admin", "Owner"]}>
+          <RoleGuard roles={["Owner", "Admin"]}>
             <MenteesUpdate />
-          </ProtectedRoute>
+          </RoleGuard>
         ),
       },
 
-      // Profile & Setting (all roles)
-      { path: "profile", element: <Profile /> },
-      { path: "setting", element: <Setting /> },
-      { path: "*", element: <NotFound /> },
+      // ========================================
+      // PROFILE & SETTINGS
+      // ========================================
+      {
+        path: "profile",
+        element: <Profile />,
+      },
+      {
+        path: "settings",
+        element: <Settings />,
+      },
+
+      {
+        path: "*",
+        element: <NotFound />,
+      },
     ],
   },
 
-  // Catch all
-  { path: "*", element: <Navigate to="/" replace /> },
+  {
+    path: "*",
+    element: <Navigate to="/" replace />,
+  },
 ]);
 
 export default router;
