@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import Form from "@/components/ui/forms/Form";
 import useForm from "@/hooks/useForm";
 import MenteeService from "@/services/modules/mentee.service";
-import { menteeSchema } from "@/schemas";
+import { userSchema } from "@/schemas";
 
 const flattenData = (mentee) => ({
   name: mentee?.name || "",
@@ -19,7 +19,7 @@ const Edit = () => {
   const { id } = useParams();
   const [loading, setLoading] = useState(true);
 
-  const { values, handleChange, setValues } = useForm(menteeSchema);
+  const { values, handleChange, setValues } = useForm(userSchema);
 
   useEffect(() => {
     const fetchMentor = async () => {
@@ -41,7 +41,7 @@ const Edit = () => {
     <Form
       title="Edit Mentee"
       description="Update mentee information"
-      schema={menteeSchema}
+      schema={userSchema}
       values={values}
       onChange={handleChange}
       onSubmit={handleSubmit}

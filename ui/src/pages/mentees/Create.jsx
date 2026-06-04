@@ -1,10 +1,10 @@
 import Form from "@/components/ui/forms/Form";
 import useForm from "@/hooks/useForm";
-import { menteeSchema } from "@/schemas";
+import { userSchema } from "@/schemas";
 import MentorService from "@/services/modules/mentee.service";
 
 const Create = () => {
-  const { values, handleChange } = useForm(menteeSchema);
+  const { values, handleChange } = useForm(userSchema);
 
   const handleSubmit = async (payload) => {
     // await MentorService.create(payload);
@@ -15,7 +15,7 @@ const Create = () => {
     <Form
       title="Create Mentee"
       description="Fill mentee personal information"
-      schema={menteeSchema}
+      schema={userSchema}
       values={values}
       onChange={handleChange}
       onSubmit={handleSubmit}
