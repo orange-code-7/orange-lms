@@ -21,11 +21,15 @@ import { useSelector, useDispatch } from "react-redux";
 import { useThemeStore } from "@/features/theme/theme.store";
 import { logout } from "@/app/store/slices/authSlice";
 
+import { can } from "@/helpers/can";
+
 const TopBar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { user } = useSelector((state) => state.auth);
+
+  const role = user?.role;
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownOpenLogin, setDropdownOpenLogin] = useState(false);
@@ -69,6 +73,15 @@ const TopBar = () => {
     navigate("/auth/login");
   };
 
+  const hasCreateAccess =
+    can(role, "class", "create") ||
+    can(role, "meeting", "create") ||
+    can(role, "mentor", "create") ||
+    can(role, "mentee", "create") ||
+    can(role, "task", "create") ||
+    can(role, "note", "create") ||
+    can(role, "material", "create");
+
   return (
     <div className="flex items-center justify-between bg-[var(--color-surface)] border-b border-[var(--color-border)] px-6 h-16 transition-colors">
       {/* Left Side */}
@@ -82,89 +95,128 @@ const TopBar = () => {
         </button>
 
         {/* Create Dropdown */}
-        <div className="relative" ref={createRef}>
-          <button
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-2 px-4 py-2 rounded-sm bg-[var(--color-surface-muted)] hover:bg-orange-50 dark:hover:bg-neutral-800 transition-all"
-          >
-            <PlusCircle size={16} />
-            <span className="font-medium">Create</span>
-            <ChevronDown size={16} />
-          </button>
+        {hasCreateAccess && (
+          <div className="relative" ref={createRef}>
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="flex items-center gap-2 px-4 py-2 rounded-sm bg-[var(--color-surface-muted)] hover:bg-orange-50 dark:hover:bg-neutral-800 transition-all"
+            >
+              <PlusCircle size={16} />
+              <span className="font-medium">Create</span>
+              <ChevronDown size={16} />
+            </button>
 
-          {dropdownOpen && (
-            <div className="absolute left-0 mt-2 w-64 bg-white border rounded-md border-gray-300 shadow-lg z-50 divide-y divide-gray-200">
-              {/* Category 1: Class / Meeting */}
-              <div className="p-2 rounded-t-lg">
-                <p className="text-xs font-semibold text-orange-600 mb-1">
-                  Class / Meeting
-                </p>
-                <Link
-                  to="/classes/create"
-                  className="flex items-center gap-2 px-3 py-1 hover:bg-orange-100 rounded"
-                >
-                  <BookOpen size={16} /> Class
-                </Link>
-                <Link
-                  to="/meetings/create"
-                  className="flex items-center gap-2 px-3 py-1 hover:bg-orange-100 rounded"
-                >
-                  <Calendar size={16} /> Meeting
-                </Link>
-              </div>
+            {dropdownOpen && (
+              <div className="absolute left-0 mt-2 w-64 bg-white border rounded-md border-gray-300 shadow-lg z-50 divide-y divide-gray-200">
+                {/* Category 1: Class / Meeting */}
+                {(can(role, "class", "create") ||
+                  can(role, "meeting", "create")) && (
+                  <div className="p-2 rounded-t-lg">
+                    <p className="text-xs font-semibold text-orange-600 mb-1">
+                      Class / Meeting
+                    </p>
 
-              {/* Category 2: Mentor / Mentee */}
-              <div className="p-2">
-                <p className="text-xs font-semibold text-green-600 mb-1">
-                  Mentor / Mentee
-                </p>
-                <Link
-                  to="/mentors/create"
-                  className="flex items-center gap-2 px-3 py-1 hover:bg-green-100 rounded"
-                >
-                  <UserPlus size={16} /> Mentor
-                </Link>
-                <Link
-                  to="/mentees/create"
-                  className="flex items-center gap-2 px-3 py-1 hover:bg-green-100 rounded"
-                >
-                  <UserPlus size={16} /> Mentee
-                </Link>
-              </div>
+                    {can(role, "class", "create") && (
+                      <Link
+                        to="/classes/create"
+                        className="flex items-center gap-2 px-3 py-1 hover:bg-orange-100 rounded"
+                      >
+                        <BookOpen size={16} />
+                        Class
+                      </Link>
+                    )}
 
-              {/* Category 3: Task / Note / Material */}
-              <div className="p-2 rounded-b-lg">
-                <p className="text-xs font-semibold text-blue-600 mb-1">
-                  Task / Note / Material
-                </p>
-                <Link
-                  to="/tasks/create"
-                  className="flex items-center gap-2 px-3 py-1 hover:bg-blue-100 rounded"
-                >
-                  <CheckSquare size={16} /> Task
-                </Link>
-                <Link
-                  to="/notes/create"
-                  className="flex items-center gap-2 px-3 py-1 hover:bg-blue-100 rounded"
-                >
-                  <FileText size={16} /> Note
-                </Link>
-                <Link
-                  to="/materials/create"
-                  className="flex items-center gap-2 px-3 py-1 hover:bg-blue-100 rounded"
-                >
-                  <Archive size={16} /> Material
-                </Link>
+                    {can(role, "meeting", "create") && (
+                      <Link
+                        to="/meetings/create"
+                        className="flex items-center gap-2 px-3 py-1 hover:bg-orange-100 rounded"
+                      >
+                        <Calendar size={16} />
+                        Meeting
+                      </Link>
+                    )}
+                  </div>
+                )}
+
+                {/* Category 2: Mentor / Mentee */}
+                {(can(role, "mentor", "create") ||
+                  can(role, "mentee", "create")) && (
+                  <div className="p-2">
+                    <p className="text-xs font-semibold text-green-600 mb-1">
+                      Mentor / Mentee
+                    </p>
+
+                    {can(role, "mentor", "create") && (
+                      <Link
+                        to="/mentors/create"
+                        className="flex items-center gap-2 px-3 py-1 hover:bg-green-100 rounded"
+                      >
+                        <UserPlus size={16} />
+                        Mentor
+                      </Link>
+                    )}
+
+                    {can(role, "mentee", "create") && (
+                      <Link
+                        to="/mentees/create"
+                        className="flex items-center gap-2 px-3 py-1 hover:bg-green-100 rounded"
+                      >
+                        <UserPlus size={16} />
+                        Mentee
+                      </Link>
+                    )}
+                  </div>
+                )}
+
+                {/* Category 3: Task / Note / Material */}
+                {(can(role, "task", "create") ||
+                  can(role, "note", "create") ||
+                  can(role, "material", "create")) && (
+                  <div className="p-2 rounded-b-lg">
+                    <p className="text-xs font-semibold text-blue-600 mb-1">
+                      Task / Note / Material
+                    </p>
+
+                    {can(role, "task", "create") && (
+                      <Link
+                        to="/tasks/create"
+                        className="flex items-center gap-2 px-3 py-1 hover:bg-blue-100 rounded"
+                      >
+                        <CheckSquare size={16} />
+                        Task
+                      </Link>
+                    )}
+
+                    {can(role, "note", "create") && (
+                      <Link
+                        to="/notes/create"
+                        className="flex items-center gap-2 px-3 py-1 hover:bg-blue-100 rounded"
+                      >
+                        <FileText size={16} />
+                        Note
+                      </Link>
+                    )}
+
+                    {can(role, "material", "create") && (
+                      <Link
+                        to="/materials/create"
+                        className="flex items-center gap-2 px-3 py-1 hover:bg-blue-100 rounded"
+                      >
+                        <Archive size={16} />
+                        Material
+                      </Link>
+                    )}
+                  </div>
+                )}
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Right Side */}
       <div className="relative" ref={loginRef}>
         <div className="flex items-center gap-3">
-          {/* Role Badge */}
           <span
             className={`rounded-sm px-3 py-1 text-xs font-semibold ${
               roleStyles[user?.role] || "bg-gray-100 text-gray-700"
@@ -173,7 +225,6 @@ const TopBar = () => {
             {user?.role || "Guest"}
           </span>
 
-          {/* User Dropdown */}
           <button
             onClick={() => setDropdownOpenLogin(!dropdownOpenLogin)}
             className="flex items-center gap-2 rounded-sm px-3 py-2 transition hover:bg-gray-100 dark:hover:bg-neutral-800"
@@ -188,7 +239,6 @@ const TopBar = () => {
 
         {dropdownOpenLogin && (
           <div className="absolute right-0 z-50 mt-2 w-52 overflow-hidden rounded-sm border border-[var(--color-border)] bg-[var(--color-surface)] shadow-lg">
-            {/* Profile */}
             <button
               onClick={() => navigate("/profile")}
               className="flex w-full items-center gap-3 px-4 py-3 text-sm transition hover:bg-gray-50 dark:hover:bg-neutral-800"
@@ -199,7 +249,6 @@ const TopBar = () => {
 
             <div className="border-t border-gray-200" />
 
-            {/* Settings */}
             <button
               onClick={() => navigate("/settings")}
               className="flex w-full items-center gap-3 px-4 py-3 text-sm transition hover:bg-gray-50 dark:hover:bg-neutral-800"
@@ -210,7 +259,6 @@ const TopBar = () => {
 
             <div className="border-t border-gray-200" />
 
-            {/* Logout */}
             <button
               onClick={handleLogout}
               className="flex w-full items-center gap-3 px-4 py-3 text-sm text-red-500 transition hover:bg-red-50 dark:hover:bg-red-950/20"

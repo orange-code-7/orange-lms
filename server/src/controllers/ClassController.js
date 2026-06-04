@@ -3,7 +3,7 @@ const { classService, classUserService } = require("../services");
 class ClassController {
   static async getAll(req, res, next) {
     try {
-      const classes = await classService.findAll();
+      const classes = await classService.getAll(req.user);
       res.json(classes);
     } catch (err) {
       next(err);

@@ -1,4 +1,5 @@
 const { Task, Meeting, Class, User } = require("../models");
+const ROLES = require("../constants/roles");
 
 class TaskService {
   static async findAllByMeeting(MeetingId) {
@@ -15,17 +16,77 @@ class TaskService {
     });
   }
 
-  static async getAll() {
-    return Task.findAll({
-      include: [
-        Meeting,
-        Class,
-        {
-          model: User,
-          as: "creator",
-        },
-      ],
-    });
+  static async getAll(currentUser) {
+    /**
+     * Owner & Admin
+     */
+    if ([ROLES.OWNER, ROLES.ADMIN].includes(currentUser.role)) {
+      return Task.findAll({
+        include: [
+          Meeting,
+          Class,
+          {
+            model: User,
+            as: "creator",
+          },
+        ],
+      });
+    }
+
+    /**
+     * Mentor
+     */
+    if (currentUser.role === ROLES.MENTOR) {
+      return Task.findAll({
+        include: [
+          Meeting,
+          {
+            model: Class,
+            where: {
+              MentorId: currentUser.id,
+            },
+          },
+          {
+            model: User,
+            as: "creator",
+          },
+        ],
+      });
+    }
+
+    /**
+     * Mentee
+     */
+    if (currentUser.role === ROLES.MENTEE) {
+      return Task.findAll({
+        include: [
+          Meeting,
+          {
+            model: Class,
+            required: true,
+            include: [
+              {
+                model: User,
+                as: "mentees",
+                attributes: [],
+                through: {
+                  attributes: [],
+                },
+                where: {
+                  id: currentUser.id,
+                },
+              },
+            ],
+          },
+          {
+            model: User,
+            as: "creator",
+          },
+        ],
+      });
+    }
+
+    throw new Error("Unauthorized");
   }
 
   static async findById(id) {
@@ -42,7 +103,7 @@ class TaskService {
   }
 
   static async create(currentUser, meetingId, data) {
-    if (!["Admin", "Owner", "Mentor"].includes(currentUser.role)) {
+    if (![ROLES.ADMIN, ROLES.OWNER, ROLES.MENTOR].includes(currentUser.role)) {
       throw new Error("Permission denied");
     }
 
@@ -61,7 +122,7 @@ class TaskService {
   }
 
   static async update(id, data, currentUser) {
-    if (!["Admin", "Owner", "Mentor"].includes(currentUser.role)) {
+    if (![ROLES.ADMIN, ROLES.OWNER, ROLES.MENTOR].includes(currentUser.role)) {
       throw new Error("Permission denied");
     }
 
@@ -75,7 +136,7 @@ class TaskService {
   }
 
   static async delete(id, currentUser) {
-    if (!["Admin", "Owner", "Mentor"].includes(currentUser.role)) {
+    if (![ROLES.ADMIN, ROLES.OWNER, ROLES.MENTOR].includes(currentUser.role)) {
       throw new Error("Permission denied");
     }
 

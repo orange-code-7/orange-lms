@@ -14,7 +14,7 @@ class MaterialController {
 
   static async getAll(req, res, next) {
     try {
-      const materials = await materialService.getAll();
+      const materials = await materialService.getAll(req.user);
       res.json(materials);
     } catch (err) {
       next(err);

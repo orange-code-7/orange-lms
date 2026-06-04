@@ -12,7 +12,7 @@ class NoteController {
 
   static async getAll(req, res, next) {
     try {
-      const notes = await noteService.getAll();
+      const notes = await noteService.getAll(req.user);
       res.json(notes);
     } catch (err) {
       next(err);
