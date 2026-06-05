@@ -17,4 +17,5 @@ router.delete("/:id", UserController.delete);
  */
 router.get("/:id/profile", ProfileController.getByUser);
 router.put("/:id/profile", ProfileController.update);
+
 module.exports = router;

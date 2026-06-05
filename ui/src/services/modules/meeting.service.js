@@ -2,16 +2,20 @@ import api from "../api/api";
 import ENDPOINTS from "../api/endpoints";
 
 class MeetingService {
-  static getAll(params) {
-    return api.get(`${ENDPOINTS.MEETINGS}/all`, { params });
+  static getAll() {
+    return api.get(`${ENDPOINTS.MEETINGS}/all`);
   }
 
   static getById(id) {
     return api.get(`${ENDPOINTS.MEETINGS}/${id}`);
   }
 
-  static create(payload) {
-    return api.post(ENDPOINTS.MEETINGS, payload);
+  static getByClass(classId) {
+    return api.get(`${ENDPOINTS.CLASSES}/${classId}/meetings`);
+  }
+
+  static create(classId, payload) {
+    return api.post(`${ENDPOINTS.CLASSES}/${classId}/meetings`, payload);
   }
 
   static update(id, payload) {

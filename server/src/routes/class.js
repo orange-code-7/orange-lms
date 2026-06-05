@@ -15,11 +15,22 @@ router.put("/:id", authorization("class", "update"), ClassController.update);
 router.delete("/:id", authorization("class", "delete"), ClassController.delete);
 
 router.post(
-  "/:id/enroll",
+  "/:id/enrollMentee",
   authorization("class", "update"),
-  ClassController.enrollUser,
+  ClassController.enrollMentee,
+);
+// Bulk Insert Mentees
+router.post(
+  "/:id/enrollMentees",
+  authorization("class", "update"),
+  ClassController.enrollMentees,
 );
 
+router.delete(
+  "/:classId/mentees/:userId",
+  authorization("class", "update"),
+  ClassController.removeMentee,
+);
 router.post(
   "/:id/assign-mentor",
   authorization("class", "update"),

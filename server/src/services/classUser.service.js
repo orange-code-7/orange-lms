@@ -11,6 +11,42 @@ class ClassUserService {
     });
   }
 
+  // Bulk Insert Mentees
+  static async enrollMentees(ClassId, UserIds) {
+    const results = [];
+
+    for (const UserId of UserIds) {
+      const existing = await ClassUser.findOne({
+        where: {
+          ClassId,
+          UserId,
+        },
+      });
+
+      if (!existing) {
+        const enrollment = await ClassUser.create({
+          ClassId,
+          UserId,
+          roleInClass: "Mentee",
+          progressPercentage: 0,
+          status: "Active",
+        });
+
+        results.push(enrollment);
+      }
+    }
+
+    return results;
+  }
+  static async removeMentee(ClassId, UserId) {
+    return ClassUser.destroy({
+      where: {
+        ClassId,
+        UserId,
+        roleInClass: "Mentee",
+      },
+    });
+  }
   static async assignMentor({ ClassId, UserId }) {
     return ClassUser.create({
       ClassId,

@@ -46,7 +46,7 @@ class ClassController {
     }
   }
 
-  static async enrollUser(req, res, next) {
+  static async enrollMentee(req, res, next) {
     try {
       const enrollment = await classUserService.enrollMentee({
         ClassId: req.params.id,
@@ -58,6 +58,34 @@ class ClassController {
     }
   }
 
+  // Bulk Insert Mentees
+  static async enrollMentees(req, res, next) {
+    try {
+      const enrollments = await classUserService.enrollMentees(
+        req.params.id,
+        req.body.UserIds,
+      );
+
+      res.json(enrollments);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async removeMentee(req, res, next) {
+    try {
+      await classUserService.removeMentee(
+        req.params.classId,
+        req.params.userId,
+      );
+
+      res.json({
+        message: "Mentee removed successfully",
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
   static async assignMentor(req, res, next) {
     try {
       const result = await classUserService.assignMentor({

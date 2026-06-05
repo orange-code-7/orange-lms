@@ -101,7 +101,7 @@ export const classSchema = [
   },
 
   {
-    name: "mentorId",
+    name: "MentorId",
     label: "Mentor",
     type: "select",
     options: [],
@@ -165,7 +165,7 @@ export const meetingSchema = [
   },
 
   {
-    name: "classId",
+    name: "ClassId",
     label: "Class",
     type: "select",
     options: [],
@@ -217,14 +217,14 @@ export const taskSchema = [
   },
 
   {
-    name: "classId",
+    name: "ClassId",
     label: "Class",
     type: "select",
     options: [],
   },
 
   {
-    name: "meetingId",
+    name: "MeetingId",
     label: "Meeting",
     type: "select",
     options: [],
@@ -253,14 +253,14 @@ export const noteSchema = [
   },
 
   {
-    name: "classId",
+    name: "ClassId",
     label: "Class",
     type: "select",
     options: [],
   },
 
   {
-    name: "meetingId",
+    name: "MeetingId",
     label: "Meeting",
     type: "select",
     options: [],
@@ -301,14 +301,14 @@ export const materialSchema = [
   },
 
   {
-    name: "classId",
+    name: "ClassId",
     label: "Class",
     type: "select",
     options: [],
   },
 
   {
-    name: "meetingId",
+    name: "MeetingId",
     label: "Meeting",
     type: "select",
     options: [],
