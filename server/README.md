@@ -1,8 +1,61 @@
-# Orange LMS Backend
+# 🍊 Orange LMS Backend
 
-Orange LMS Backend is a Learning Management System (LMS) backend application built using Node.js, Express.js, PostgreSQL, and Sequelize ORM.
+Backend API for Orange LMS built with Node.js, Express.js, PostgreSQL, and Sequelize ORM.
 
-The system provides complete learning management functionality including authentication, class management, meetings, assignments, submissions, attendance tracking, grading, assessment rubrics, and class history archiving.
+---
+
+## Overview
+
+Orange LMS Backend provides authentication, authorization, class management, learning resources, assessments, submissions, and user management for the Orange Learning Management System.
+
+The system supports multiple user roles:
+
+- Owner
+- Admin
+- Mentor
+- Mentee
+
+---
+
+## Core Features
+
+### Authentication & Authorization
+
+- JWT Authentication
+- Role-Based Access Control (RBAC)
+- Protected Routes
+- Permission-Based Access
+
+### User Management
+
+- Manage Users
+- Manage Mentors
+- Manage Mentees
+- User Profiles
+
+### Learning Management
+
+- Classes
+- Meetings
+- Tasks
+- Notes
+- Materials
+
+### Assessment Engine
+
+- Attendance
+- Task Criteria
+- Assessment Results
+- Submission Scores
+- History Classes
+
+### Learning Workflow
+
+- Class Enrollment
+- Mentor Assignment
+- Task Submission
+- Assessment Tracking
+- Learning Progress
 
 ---
 
@@ -301,10 +354,12 @@ Can:
 
 ## Backend
 
+### Backend
+
 - Node.js
 - Express.js
 
-## Database
+### Database
 
 - PostgreSQL
 
@@ -312,117 +367,26 @@ Can:
 
 - Sequelize ORM
 
-## Security
+### Security
 
 - JWT
-- bcrypt
+- Bcrypt
 
-## Development Tools
+### Documentation
 
-- Nodemon
-- Sequelize CLI
-- dotenv
+- Swagger/OpenAPI
 
 ---
 
-# Architecture
-
-```txt
-Client
-   ↓
-Routes
-   ↓
-Controllers
-   ↓
-Services
-   ↓
-Models
-   ↓
-PostgreSQL
-```
-
----
-
-# Database Modules
-
-## Core Modules
-
-### Users
-
-### Profiles
-
-### Classes
-
-### ClassUsers
-
-### Meetings
-
-### Tasks
-
-### TaskSubmissions
-
-### Notes
-
-### Materials
-
----
-
-## Assessment Modules
-
-### Attendances
-
-### TaskCriterias
-
-### AssessmentResults
-
-### SubmissionCriteriaScores
-
-### HistoryClasses
-
----
-
-# API Workflow
-
-```txt
-Login
-↓
-Create Class
-↓
-Assign Mentor
-↓
-Enroll Mentees
-↓
-Create Meetings
-↓
-Upload Materials
-↓
-Create Tasks
-↓
-Mentee Submit Task
-↓
-Mentor Review Submission
-↓
-Create Assessment Result
-↓
-Create Criteria Scores
-↓
-Track Attendance
-↓
-Archive Class
-↓
-Store History
-```
-
----
-
-# Project Structure
+## Project Structure
 
 ```txt
 orange-lms-backend/
 │
 ├── package.json
-├── package-lock.json
+├── server.js
 ├── .env
+├── .env.example
 ├── .gitignore
 ├── .sequelizerc
 │
@@ -431,63 +395,84 @@ orange-lms-backend/
 ├── config/
 │   └── config.js
 │
-├── models/
-│   ├── index.js
-│   ├── user.js
-│   ├── profile.js
-│   ├── class.js
-│   ├── classUser.js
-│   ├── meeting.js
-│   ├── task.js
-│   ├── taskSubmission.js
-│   ├── note.js
-│   ├── material.js
-│   ├── attendance.js
-│   ├── taskCriteria.js
-│   ├── assessmentResult.js
-│   ├── submissionCriteriaScore.js
-│   └── historyClass.js
-│
-├── migrations/
-│
-├── seeders/
-│
 ├── controllers/
-│
-├── services/
+│   ├── auth.controller.js
+│   ├── user.controller.js
+│   ├── mentor.controller.js
+│   ├── mentee.controller.js
+│   ├── class.controller.js
+│   ├── meeting.controller.js
+│   ├── task.controller.js
+│   ├── note.controller.js
+│   ├── material.controller.js
+│   └── ...
 │
 ├── routes/
+│   ├── auth.js
+│   ├── user.js
+│   ├── mentor.js
+│   ├── mentee.js
+│   ├── class.js
+│   ├── meeting.js
+│   ├── task.js
+│   ├── note.js
+│   ├── material.js
+│   └── ...
+│
+├── services/
+│   ├── auth.service.js
+│   ├── user.service.js
+│   ├── mentor.service.js
+│   ├── mentee.service.js
+│   ├── class.service.js
+│   ├── meeting.service.js
+│   ├── task.service.js
+│   ├── note.service.js
+│   ├── material.service.js
+│   └── ...
 │
 ├── middlewares/
+│   ├── authentication.js
+│   ├── authorization.js
+│   ├── errorHandler.js
+│   └── ...
 │
 ├── helpers/
+│   ├── bcrypt.js
+│   ├── jwt.js
+│   └── ...
 │
-├── constants/
-│
-├── permissions/
-│
-├── validations/
-│
-├── app.js
-│
-└── server.js
+├── models/
+├── migrations/
+└── seeders/
 ```
 
 ---
 
-# Installation
+## Installation
 
-Install dependencies:
+### 1. Clone Repository
+
+```bash
+git clone <repository-url>
+cd orange-lms-backend
+```
+
+### 2. Install Dependencies
 
 ```bash
 npm install
 ```
 
----
+### 3. Configure Environment
 
-# Environment Variables
+Create:
 
-Create a `.env` file:
+```bash
+.env
+```
+
+Example:
 
 ```env
 PORT=3000
@@ -497,46 +482,28 @@ DB_PASSWORD=postgres
 DB_NAME=orange_lms_dev
 DB_HOST=127.0.0.1
 
-JWT_SECRET=your_secret_key
+JWT_SECRET=orange_lms_secret
 ```
 
----
-
-# Database Migration
-
-Run migrations:
+### 4. Run Migration
 
 ```bash
-npx sequelize-cli db:migrate
+npx sequelize db:migrate
 ```
 
----
-
-# Database Seeder
-
-Run seeders:
+### 5. Run Seeder
 
 ```bash
-npx sequelize-cli db:seed:all
+npx sequelize db:seed:all
 ```
 
----
-
-# Running the Application
-
-Development mode:
+### 6. Start Development Server
 
 ```bash
 npm run dev
 ```
 
-Production mode:
-
-```bash
-npm start
-```
-
-Server URL:
+Server:
 
 ```txt
 http://localhost:3000
@@ -544,89 +511,89 @@ http://localhost:3000
 
 ---
 
-# Current Status
+## API Routes
 
-## Branch
+### Authentication
 
 ```txt
-v3-server_phase2
+POST   /auth/register
+POST   /auth/login
 ```
 
-## Completed
+### Users
 
-### V1 — Foundation
+```txt
+GET    /users
+GET    /users/:id
+POST   /users
+PUT    /users/:id
+DELETE /users/:id
+```
 
-- Authentication
-- Authorization
+### Classes
+
+```txt
+GET    /classes
+POST   /classes
+GET    /classes/:id
+PUT    /classes/:id
+DELETE /classes/:id
+```
+
+### Meetings
+
+```txt
+GET    /meetings
+POST   /classes/:classId/meetings
+GET    /meetings/:id
+PUT    /meetings/:id
+DELETE /meetings/:id
+```
+
+### Learning Resources
+
+```txt
+POST /meetings/:meetingId/tasks
+POST /meetings/:meetingId/notes
+POST /meetings/:meetingId/materials
+```
+
+---
+
+## Development Status
+
+### Core CRUD
+
 - Users
-- Profiles
-
-### V2 — Learning Management
-
 - Mentors
 - Mentees
 - Classes
-- ClassUsers
 - Meetings
 - Tasks
-- Task Submissions
 - Notes
 - Materials
 
-### V3 — Assessment Engine
+Status:
+
+```txt
+✅ Completed
+```
+
+### Assessment Engine
 
 - Attendance
-- Task Criteria
 - Assessment Results
-- Submission Criteria Scores
+- Submission Scores
 - History Classes
 
----
-
-## Testing
-
-Integration Testing:
+Status:
 
 ```txt
-15 / 15 Tests Passed
+🚧 In Progress
 ```
 
 ---
 
-## Project Status
+## License
 
-```txt
-Backend MVP Completed
-Production-Structured Architecture
-Ready for Frontend Integration
-```
-
----
-
-# Roadmap
-
-## V4
-
-- Pagination
-- Filtering
-- Search
-- Validation Schema
-- Swagger Documentation Improvements
-
----
-
-## V5
-
-- Notification System
-- Deadline Reminder System
-- Dashboard Analytics
-- Certificate Generator
-- Export Reports
-
----
-
-# License
-
-Internal Project – Orange LMS
-
-Copyright © Orange LMS
+Private Project — Orange LMS
