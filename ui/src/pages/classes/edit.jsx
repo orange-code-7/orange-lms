@@ -1,83 +1,159 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+
 import Form from "@/components/ui/forms/Form";
+
+import SuccessPopup from "@/components/ui/popup/SuccessPopup";
+import ErrorPopup from "@/components/ui/popup/ErrorPopup";
+
 import useForm from "@/hooks/useForm";
+
 import { classSchema } from "@/schemas";
+
 import ClassService from "@/services/modules/class.service";
 import MentorService from "@/services/modules/mentor.service";
 
 const Edit = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+
   const [schema, setSchema] = useState(classSchema);
   const [loading, setLoading] = useState(true);
+
+  const [error, setError] = useState("");
+
+  const [openSuccess, setOpenSuccess] = useState(false);
+  const [openError, setOpenError] = useState(false);
 
   const { values, handleChange, setValues } = useForm(classSchema);
 
   useEffect(() => {
     const fetchData = async () => {
-      const [cls, mentors] = await Promise.all([
-        ClassService.getById(id),
-        MentorService.getAll(),
-      ]);
+      try {
+        setLoading(true);
 
-      const mentorOptions = mentors.map((m) => ({
-        label: m.name,
-        value: m.id,
-      }));
+        const [classRes, mentorRes] = await Promise.all([
+          ClassService.getById(id),
+          MentorService.getAll(),
+        ]);
 
-      setSchema((prev) =>
-        prev.map((field) =>
-          field.name === "mentorId"
-            ? { ...field, options: mentorOptions }
-            : field,
-        ),
-      );
+        const mentorOptions = (mentorRes.data || []).map((mentor) => ({
+          label: mentor.name,
+          value: mentor.id,
+        }));
 
-      setValues(flattenData(cls));
-      setLoading(false);
+        setSchema((prev) =>
+          prev.map((field) =>
+            field.name === "MentorId"
+              ? {
+                  ...field,
+                  options: mentorOptions,
+                }
+              : field,
+          ),
+        );
+
+        setValues(flattenData(classRes.data));
+      } catch (err) {
+        console.error(err);
+
+        setError(
+          err?.response?.data?.message ||
+            err?.message ||
+            "Failed to load class",
+        );
+
+        setOpenError(true);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchData();
   }, [id, setValues]);
 
-  const handleSubmit = async (payload) => {
-    // await ClassService.update(id, {
-    //   ...payload,
-    //   mentorId: Number(payload.mentorId),
-    // });
-    alert(
-      JSON.stringify({
-        ...payload,
-        mentorId: Number(),
-      }),
-    );
+  const handleSubmit = async (data) => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const payload = {
+        ...data,
+        MentorId: Number(data.MentorId),
+      };
+
+      await ClassService.update(id, payload);
+
+      setOpenSuccess(true);
+    } catch (err) {
+      console.error(err);
+
+      setError(
+        err?.response?.data?.message ||
+          err?.message ||
+          "Failed to update class",
+      );
+
+      setOpenError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (loading) return <div>Loading...</div>;
+  const handleCloseSuccess = () => {
+    setOpenSuccess(false);
+
+    navigate("/classes");
+  };
+
+  if (loading) {
+    return (
+      <div className="rounded-sm border border-gray-200 bg-white p-4">
+        Loading class...
+      </div>
+    );
+  }
 
   return (
-    <Form
-      title="Edit Class"
-      description="Update class information"
-      schema={schema}
-      values={values}
-      onChange={handleChange}
-      onSubmit={handleSubmit}
-      submitLabel="Update Class"
-    />
+    <>
+      <Form
+        title="Edit Class"
+        description="Update class information."
+        schema={schema}
+        values={values}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+        submitLabel="Update Class"
+      />
+
+      <SuccessPopup
+        open={openSuccess}
+        onClose={handleCloseSuccess}
+        title="Class Updated"
+        message="Class has been updated successfully."
+      />
+
+      <ErrorPopup
+        open={openError}
+        onClose={() => setOpenError(false)}
+        title="Update Class Failed"
+        message={error}
+      />
+    </>
   );
 };
 
 const flattenData = (cls) => ({
-  code: cls[0]?.code || "",
-  name: cls[0]?.name || "",
-  category: cls[0]?.category || "",
-  level: cls[0]?.level || "",
-  startDate: cls[0]?.startDate?.slice(0, 10) || "",
-  endDate: cls[0]?.endDate?.slice(0, 10) || "",
-  status: cls[0]?.status || "",
-  imageUrl: cls[0]?.imageUrl || "",
-  mentorId: cls[0]?.mentor?.id || cls?.mentorId || "",
+  code: cls?.code || "",
+  name: cls?.name || "",
+  description: cls?.description || "",
+  category: cls?.category || "",
+  level: cls?.level || "",
+  startDate: cls?.startDate?.slice(0, 10) || "",
+  endDate: cls?.endDate?.slice(0, 10) || "",
+  status: cls?.status || "",
+  imageUrl: cls?.imageUrl || "",
+  MentorId: cls?.MentorId || cls?.mentor?.id || "",
 });
 
 export default Edit;

@@ -14,6 +14,10 @@ import {
 } from "@/hooks";
 
 import NoteService from "@/services/modules/note.service";
+import PopUp from "../../components/ui/popup/PopUp";
+import NoteDetail from "./Detail";
+import { useSelector } from "react-redux";
+import { can } from "@/helpers";
 
 const columns = [
   {
@@ -79,6 +83,14 @@ const List = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const user = useSelector((state) => state.auth.user);
+
+  const role = user?.role;
+
+  // PopUp
+  const [selectedNote, setSelectedNote] = useState(null);
+  const [openDetail, setOpenDetail] = useState(false);
+
   const fetchTasks = async () => {
     try {
       const res = await NoteService.getAll();
@@ -128,36 +140,56 @@ const List = () => {
 
     actions: (
       <div className="flex items-center gap-2">
-        <Link
-          to={`/notes/${row.id}`}
+        <button
+          onClick={() => {
+            setSelectedNote(row);
+            setOpenDetail(true);
+          }}
           className="flex items-center gap-1 rounded-sm bg-sky-100 px-2 py-1 text-xs font-medium text-sky-700 hover:bg-sky-200"
         >
           <Eye size={14} />
           Details
-        </Link>
-
-        <Link
-          to={`/notes/edit/${row.id}`}
-          className="flex items-center gap-1 rounded-sm bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-200"
-        >
-          <Pencil size={14} />
-          Edit
-        </Link>
-
-        <button
-          onClick={() => handleRemove(row.id)}
-          className="flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium text-[var(--color-text-muted)] transition-colors hover:bg-rose-50 hover:text-rose-600"
-        >
-          <Trash2 size={14} />
-          Remove
         </button>
+        {can(role, "note", "update") && (
+          <Link
+            to={`/notes/edit/${row.id}`}
+            className="flex items-center gap-1 rounded-sm bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-200"
+          >
+            <Pencil size={14} />
+            Edit
+          </Link>
+        )}
+
+        {can(role, "note", "delete") && (
+          <button
+            onClick={() => handleRemove(row.id)}
+            className="flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium text-[var(--color-text-muted)] hover:bg-rose-50 hover:text-rose-600"
+          >
+            <Trash2 size={14} />
+            Remove
+          </button>
+        )}
       </div>
     ),
   }));
 
+  const pageTitle =
+    role === "Mentor"
+      ? "My Notes"
+      : role === "Mentee"
+        ? "Learning Notes"
+        : "Note Management";
+
+  const pageDescription =
+    role === "Mentor"
+      ? "Manage learning notes and documentation from your classes."
+      : role === "Mentee"
+        ? "View notes, summaries, and learning references from your enrolled classes."
+        : "Manage learning notes, meeting documentation, summaries, and educational references across all Orange LMS classes.";
+
   if (loading) {
     return (
-      <div className="p-4 text-[var(--color-text-muted)]">Loading tasks...</div>
+      <div className="p-4 text-[var(--color-text-muted)]">Loading notes...</div>
     );
   }
 
@@ -175,13 +207,44 @@ const List = () => {
         </p>
 
         <h1 className="text-2xl font-bold text-[var(--color-text)]">
-          Note Management
+          {pageTitle}
         </h1>
 
         <p className="max-w-3xl text-sm leading-6 text-[var(--color-text-muted)]">
-          Manage learning notes, mentor documentation, class summaries, and
-          knowledge resources across Orange LMS.
+          {pageDescription}
         </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div className="rounded-sm border border-gray-200 bg-white p-4">
+          <p className="text-xs text-gray-500">Tasks</p>
+
+          <h3 className="mt-1 text-2xl font-bold">{data.length}</h3>
+        </div>
+
+        <div className="rounded-sm border border-gray-200 bg-white p-4">
+          <p className="text-xs text-gray-500">Published</p>
+
+          <h3 className="mt-1 text-2xl font-bold">
+            {data.filter((item) => item.status === "Published").length}
+          </h3>
+        </div>
+
+        <div className="rounded-sm border border-gray-200 bg-white p-4">
+          <p className="text-xs text-gray-500">Draft</p>
+
+          <h3 className="mt-1 text-2xl font-bold">
+            {data.filter((item) => item.status === "Draft").length}
+          </h3>
+        </div>
+
+        <div className="rounded-sm border border-gray-200 bg-white p-4">
+          <p className="text-xs text-gray-500">Archived</p>
+
+          <h3 className="mt-1 text-2xl font-bold">
+            {data.filter((item) => item.status === "Archived").length}
+          </h3>
+        </div>
       </div>
 
       {/* Controls */}
@@ -246,6 +309,13 @@ const List = () => {
           Next
         </button>
       </div>
+      <PopUp
+        open={openDetail}
+        onClose={() => setOpenDetail(false)}
+        title={selectedNote?.name}
+      >
+        <NoteDetail note={selectedNote} role={role} />
+      </PopUp>
     </div>
   );
 };

@@ -6,7 +6,7 @@ const RadioButton = ({ label, name, value, selected, onChange }) => (
       value={value}
       checked={selected === value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-4 h-4 rounded-full border-gray-300 focus:ring-2 focus:ring-orange-500"
+      className="h-4 w-4 border-gray-300 text-orange-500 focus:ring-1 focus:ring-orange-300"
     />
     {label}
   </label>

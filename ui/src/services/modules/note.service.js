@@ -13,7 +13,9 @@ class NoteService {
   static create(payload) {
     return api.post(ENDPOINTS.NOTES, payload);
   }
-
+  static createNoteByMeeting(meetingId, payload) {
+    return api.post(`/meetings/${meetingId}/notes`, payload);
+  }
   static update(id, payload) {
     return api.put(`${ENDPOINTS.NOTES}/${id}`, payload);
   }

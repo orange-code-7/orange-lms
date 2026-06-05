@@ -12,8 +12,12 @@ import {
   usePagination,
   useSort,
 } from "@/hooks";
+import { can } from "@/helpers";
 
 import MaterialService from "@/services/modules/material.service";
+import PopUp from "../../components/ui/popup/PopUp";
+import { useSelector } from "react-redux";
+import MaterialDetail from "./Detail";
 
 const columns = [
   {
@@ -89,6 +93,14 @@ const List = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const user = useSelector((state) => state.auth.user);
+
+  const role = user?.role;
+
+  // PopUp
+  const [selectedMaterial, setSelectedMaterial] = useState(null);
+  const [openDetail, setOpenDetail] = useState(false);
+
   const fetchTasks = async () => {
     try {
       const res = await MaterialService.getAll();
@@ -140,36 +152,59 @@ const List = () => {
 
     actions: (
       <div className="flex items-center gap-2">
-        <Link
-          to={`/materials/${row.id}`}
+        <button
+          onClick={() => {
+            setSelectedMaterial(row);
+            setOpenDetail(true);
+          }}
           className="flex items-center gap-1 rounded-sm bg-sky-100 px-2 py-1 text-xs font-medium text-sky-700 hover:bg-sky-200"
         >
           <Eye size={14} />
           Details
-        </Link>
-
-        <Link
-          to={`/materials/edit/${row.id}`}
-          className="flex items-center gap-1 rounded-sm bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-200"
-        >
-          <Pencil size={14} />
-          Edit
-        </Link>
-
-        <button
-          onClick={() => handleRemove(row.id)}
-          className="flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium text-[var(--color-text-muted)] transition-colors hover:bg-rose-50 hover:text-rose-600"
-        >
-          <Trash2 size={14} />
-          Remove
         </button>
+
+        {can(role, "material", "update") && (
+          <Link
+            to={`/materials/edit/${row.id}`}
+            className="flex items-center gap-1 rounded-sm bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-200"
+          >
+            <Pencil size={14} />
+            Edit
+          </Link>
+        )}
+
+        {can(role, "material", "delete") && (
+          <button
+            onClick={() => handleRemove(row.id)}
+            className="flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium text-[var(--color-text-muted)] hover:bg-rose-50 hover:text-rose-600"
+          >
+            <Trash2 size={14} />
+            Remove
+          </button>
+        )}
       </div>
     ),
   }));
 
+  const pageTitle =
+    role === "Mentor"
+      ? "My Materials"
+      : role === "Mentee"
+        ? "Learning Materials"
+        : "Material Management";
+
+  const pageDescription =
+    role === "Mentor"
+      ? "Manage learning materials and resources from your classes."
+      : role === "Mentee"
+        ? "Access learning materials, documents, videos, and resources from your enrolled classes."
+        : "Manage learning materials, downloadable resources, links, documents, videos, and educational content across all Orange LMS classes.";
+
   if (loading) {
     return (
-      <div className="p-4 text-[var(--color-text-muted)]">Loading tasks...</div>
+      <div className="p-4 text-[var(--color-text-muted)]">
+        Loading materials...
+      </div>
     );
   }
 
@@ -187,13 +222,44 @@ const List = () => {
         </p>
 
         <h1 className="text-2xl font-bold text-[var(--color-text)]">
-          Material Management
+          {pageTitle}
         </h1>
 
         <p className="max-w-3xl text-sm leading-6 text-[var(--color-text-muted)]">
-          Manage learning materials, downloadable resources, presentation files,
-          videos, and supporting content across Orange LMS.
+          {pageDescription}
         </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div className="rounded-sm border border-gray-200 bg-white p-4">
+          <p className="text-xs text-gray-500">Tasks</p>
+
+          <h3 className="mt-1 text-2xl font-bold">{data.length}</h3>
+        </div>
+
+        <div className="rounded-sm border border-gray-200 bg-white p-4">
+          <p className="text-xs text-gray-500">Published</p>
+
+          <h3 className="mt-1 text-2xl font-bold">
+            {data.filter((item) => item.status === "Published").length}
+          </h3>
+        </div>
+
+        <div className="rounded-sm border border-gray-200 bg-white p-4">
+          <p className="text-xs text-gray-500">Draft</p>
+
+          <h3 className="mt-1 text-2xl font-bold">
+            {data.filter((item) => item.status === "Draft").length}
+          </h3>
+        </div>
+
+        <div className="rounded-sm border border-gray-200 bg-white p-4">
+          <p className="text-xs text-gray-500">Archived</p>
+
+          <h3 className="mt-1 text-2xl font-bold">
+            {data.filter((item) => item.status === "Archived").length}
+          </h3>
+        </div>
       </div>
 
       {/* Controls */}
@@ -254,6 +320,13 @@ const List = () => {
           Next
         </button>
       </div>
+      <PopUp
+        open={openDetail}
+        onClose={() => setOpenDetail(false)}
+        title={selectedMaterial?.name}
+      >
+        <MaterialDetail material={selectedMaterial} role={role} />
+      </PopUp>
     </div>
   );
 };

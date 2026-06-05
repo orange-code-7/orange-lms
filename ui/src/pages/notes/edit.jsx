@@ -1,63 +1,128 @@
-// src/pages/Notes/Edit.jsx
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+
 import Form from "@/components/ui/forms/Form";
+
+import SuccessPopup from "@/components/ui/popup/SuccessPopup";
+import ErrorPopup from "@/components/ui/popup/ErrorPopup";
+
 import useForm from "@/hooks/useForm";
 import useClassMeetingOptions from "@/hooks/useClassMeetingOptions";
-import { noteSchema } from "@/schemas/";
+
+import { noteSchema } from "@/schemas";
+
 import NoteService from "@/services/modules/note.service";
 
 const Edit = () => {
   const { id } = useParams();
-  const { values, handleChange, setValues } = useForm(noteSchema);
+
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(true);
 
-  const schema = useClassMeetingOptions(values, setValues, noteSchema);
+  const [error, setError] = useState("");
 
-  // load note data
+  const [openSuccess, setOpenSuccess] = useState(false);
+  const [openError, setOpenError] = useState(false);
+
+  const { values, handleChange, setValues } = useForm(noteSchema);
+
+  const schema = useClassMeetingOptions(values, setValues, noteSchema, true);
+
   useEffect(() => {
     const fetchNote = async () => {
-      const note = await NoteService.getById(id);
-      setValues(flattenNote(note));
-      setLoading(false);
+      try {
+        setLoading(true);
+
+        const res = await NoteService.getById(id);
+
+        setValues(flattenNote(res.data));
+      } catch (err) {
+        console.error(err);
+
+        setError(
+          err?.response?.data?.message || err?.message || "Failed to load note",
+        );
+
+        setOpenError(true);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchNote();
-  }, [id]);
+  }, [id, setValues]);
 
   const handleSubmit = async (payload) => {
-    // await NoteService.update(id, {
-    //   ...payload,
-    //   classId: Number(payload.classId),
-    //   meetingId: Number(payload.meetingId),
-    // });
-    alert(
-      JSON.stringify({
+    try {
+      setLoading(true);
+
+      await NoteService.update(id, {
         ...payload,
-        classId: Number(payload.classId),
-        meetingId: Number(payload.meetingId),
-      }),
-    );
+        ClassId: Number(payload.ClassId),
+        MeetingId: Number(payload.MeetingId),
+      });
+
+      setOpenSuccess(true);
+    } catch (err) {
+      console.error(err);
+
+      setError(
+        err?.response?.data?.message || err?.message || "Failed to update note",
+      );
+
+      setOpenError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (loading) return <div>Loading...</div>;
+  const handleCloseSuccess = () => {
+    setOpenSuccess(false);
+
+    navigate("/notes");
+  };
+
+  if (loading) {
+    return (
+      <div className="rounded-sm border border-gray-200 bg-white p-4">
+        Loading note...
+      </div>
+    );
+  }
 
   return (
-    <Form
-      title="Edit Note"
-      description="Update note information"
-      schema={schema}
-      values={values}
-      onChange={handleChange}
-      onSubmit={handleSubmit}
-      submitLabel="Update Note"
-    />
+    <>
+      <Form
+        title="Edit Note"
+        description="Update note information"
+        schema={schema}
+        values={values}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+        submitLabel="Update Note"
+      />
+
+      <SuccessPopup
+        open={openSuccess}
+        onClose={handleCloseSuccess}
+        title="Note Updated"
+        message="Note has been updated successfully."
+      />
+
+      <ErrorPopup
+        open={openError}
+        onClose={() => setOpenError(false)}
+        title="Update Note Failed"
+        message={error}
+      />
+    </>
   );
 };
 
 const flattenNote = (note) => ({
-  classId: note?.classId || "",
-  meetingId: note?.meetingId || "",
+  ClassId: note?.ClassId || note?.Class?.id || "",
+  MeetingId: note?.MeetingId || note?.Meeting?.id || "",
   name: note?.name || "",
   description: note?.description || "",
   fileUrl: note?.fileUrl || "",

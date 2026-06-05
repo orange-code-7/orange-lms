@@ -70,9 +70,32 @@ class MentorService {
   static async update(id, data) {
     const user = await User.findByPk(id);
 
-    if (!user) throw new Error("Mentor not found");
+    if (!user) {
+      throw new Error("Mentor not found");
+    }
 
-    return user.update(data);
+    await user.update({
+      name: data.name,
+      email: data.email,
+      avatarUrl: data.avatarUrl,
+    });
+
+    const profile = await Profile.findOne({
+      where: {
+        UserId: id,
+      },
+    });
+
+    if (profile) {
+      await profile.update({
+        age: data.age,
+        city: data.city,
+        background: data.background,
+        phoneNumber: data.phoneNumber,
+      });
+    }
+
+    return this.findById(id);
   }
 
   static async delete(id) {

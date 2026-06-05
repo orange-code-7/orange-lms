@@ -16,16 +16,19 @@ module.exports = (sequelize, DataTypes) => {
 
       Meeting.hasMany(models.Task, {
         foreignKey: "MeetingId",
+        as: "tasks",
         onDelete: "CASCADE",
       });
 
       Meeting.hasMany(models.Note, {
         foreignKey: "MeetingId",
+        as: "notes",
         onDelete: "CASCADE",
       });
 
       Meeting.hasMany(models.Material, {
         foreignKey: "MeetingId",
+        as: "materials",
         onDelete: "CASCADE",
       });
     }

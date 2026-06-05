@@ -13,7 +13,9 @@ class TaskService {
   static create(payload) {
     return api.post(ENDPOINTS.TASKS, payload);
   }
-
+  static createTaskByMeeting(meetingId, payload) {
+    return api.post(`/meetings/${meetingId}/tasks`, payload);
+  }
   static update(id, payload) {
     return api.put(`${ENDPOINTS.TASKS}/${id}`, payload);
   }

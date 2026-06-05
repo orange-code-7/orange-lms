@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import {
+  Eye,
+  Pencil,
+  Trash2,
+  CheckSquare,
+  FileText,
+  Archive,
+} from "lucide-react";
 
 import Table from "@/components/ui/tables/Table";
 import TableControls from "@/components/ui/tables/TableControls";
@@ -14,8 +21,27 @@ import {
 } from "@/hooks";
 
 import MeetingService from "@/services/modules/meeting.service";
+import { useSelector } from "react-redux";
+import { can } from "@/helpers/can";
 
 const columns = [
+  {
+    key: "classCode",
+    label: "Class Code",
+    render: (row) => (
+      <div className="space-y-1 max-w-md">
+        <p>
+          <span className="rounded-sm bg-orange-100 px-2 py-1 text-xs font-medium text-orange-700">
+            {row.class?.code || "-"}
+          </span>
+        </p>
+
+        <p className="line-clamp-2 text-xs text-[var(--color-text-muted)]">
+          {row.class?.name || "-"}
+        </p>
+      </div>
+    ),
+  },
   {
     key: "name",
     label: "Topic",
@@ -33,16 +59,6 @@ const columns = [
   },
 
   {
-    key: "classCode",
-    label: "Class Code",
-    render: (row) => (
-      <span className="rounded-sm bg-orange-100 px-2 py-1 text-xs font-medium text-orange-700">
-        {row.class?.code || "-"}
-      </span>
-    ),
-  },
-
-  {
     key: "meetingDate",
     label: "Date",
     render: (row) =>
@@ -50,7 +66,28 @@ const columns = [
         ? new Date(row.meetingDate).toLocaleDateString("id-ID")
         : "-",
   },
+  {
+    key: "resources",
+    label: "Resources",
+    render: (row) => (
+      <div className="space-y-1 text-xs">
+        <div className="flex items-center gap-2">
+          <CheckSquare size={14} className="text-blue-500" />
+          <span>Tasks: {row.tasks?.length || 0}</span>
+        </div>
 
+        <div className="flex items-center gap-2">
+          <FileText size={14} className="text-green-500" />
+          <span>Notes: {row.notes?.length || 0}</span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Archive size={14} className="text-orange-500" />
+          <span>Materials: {row.materials?.length || 0}</span>
+        </div>
+      </div>
+    ),
+  },
   {
     key: "startHour",
     label: "Start Hour",
@@ -72,15 +109,18 @@ const columns = [
 const List = () => {
   const breadcrumbs = useBreadcrumbs();
 
+  const user = useSelector((state) => state.auth.user);
+
+  const role = user?.role;
+
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const fetchMeetings = async () => {
     try {
       const res = await MeetingService.getAll();
       setData(res.data || []);
-    } catch (error) {
-      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -132,21 +172,25 @@ const List = () => {
           Details
         </Link>
 
-        <Link
-          to={`/meetings/edit/${row.id}`}
-          className="flex items-center gap-1 rounded-sm bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-200"
-        >
-          <Pencil size={14} />
-          Edit
-        </Link>
+        {can(role, "meeting", "update") && (
+          <Link
+            to={`/meetings/edit/${row.id}`}
+            className="flex items-center gap-1 rounded-sm bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-200"
+          >
+            <Pencil size={14} />
+            Edit
+          </Link>
+        )}
 
-        <button
-          onClick={() => handleRemove(row.id)}
-          className="flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium text-[var(--color-text-muted)] transition-colors hover:bg-rose-50 hover:text-rose-600"
-        >
-          <Trash2 size={14} />
-          Remove
-        </button>
+        {can(role, "meeting", "delete") && (
+          <button
+            onClick={() => handleRemove(row.id)}
+            className="flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium text-[var(--color-text-muted)] hover:bg-rose-50 hover:text-rose-600"
+          >
+            <Trash2 size={14} />
+            Remove
+          </button>
+        )}
       </div>
     ),
   }));
@@ -158,6 +202,20 @@ const List = () => {
       </div>
     );
   }
+
+  const pageTitle =
+    role === "Mentor"
+      ? "My Meetings"
+      : role === "Mentee"
+        ? "Learning Meetings"
+        : "Meeting Management";
+
+  const pageDescription =
+    role === "Mentor"
+      ? "View meetings from classes assigned to you."
+      : role === "Mentee"
+        ? "View your learning schedules, assignments, notes, and materials."
+        : "Manage all learning sessions, schedules, class meetings, and mentoring activities across Orange LMS.";
 
   return (
     <div className="p-4 space-y-4 bg-[var(--color-background)] min-h-screen">
@@ -173,13 +231,45 @@ const List = () => {
         </p>
 
         <h1 className="text-2xl font-bold text-[var(--color-text)]">
-          Meeting Management
+          {pageTitle}
         </h1>
 
         <p className="max-w-3xl text-sm leading-6 text-[var(--color-text-muted)]">
-          Manage all learning sessions, schedules, class meetings, and mentoring
-          activities across Orange LMS.
+          {pageDescription}
         </p>
+      </div>
+
+      {/* Summary */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div className="rounded-sm border border-gray-200 bg-white p-4">
+          <p className="text-xs text-gray-500">Meetings</p>
+
+          <h3 className="mt-1 text-2xl font-bold">{data.length}</h3>
+        </div>
+
+        <div className="rounded-sm border border-gray-200 bg-white p-4">
+          <p className="text-xs text-gray-500">Tasks</p>
+
+          <h3 className="mt-1 text-2xl font-bold">
+            {data.reduce((acc, item) => acc + (item.tasks?.length || 0), 0)}
+          </h3>
+        </div>
+
+        <div className="rounded-sm border border-gray-200 bg-white p-4">
+          <p className="text-xs text-gray-500">Notes</p>
+
+          <h3 className="mt-1 text-2xl font-bold">
+            {data.reduce((acc, item) => acc + (item.notes?.length || 0), 0)}
+          </h3>
+        </div>
+
+        <div className="rounded-sm border border-gray-200 bg-white p-4">
+          <p className="text-xs text-gray-500">Materials</p>
+
+          <h3 className="mt-1 text-2xl font-bold">
+            {data.reduce((acc, item) => acc + (item.materials?.length || 0), 0)}
+          </h3>
+        </div>
       </div>
 
       <div className="rounded-sm border border-gray-200 bg-[var(--color-surface)] p-4">

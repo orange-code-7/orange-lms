@@ -25,8 +25,11 @@ class MentorController {
     try {
       const mentor = await mentorService.create(req.body);
 
-      const profile = await profileService.create({
-        UserId: mentor.id,
+      const profile = await profileService.upsert(mentor.id, {
+        age: req.body.age,
+        city: req.body.city,
+        background: req.body.background,
+        phoneNumber: req.body.phoneNumber,
       });
 
       res.status(201).json({
@@ -43,11 +46,14 @@ class MentorController {
 
   static async update(req, res, next) {
     try {
-      const mentor = await mentorService.update(
-        req.params.id,
-        req.body,
-        req.user,
-      );
+      const mentor = await mentorService.update(req.params.id, req.body);
+
+      await profileService.upsert(req.params.id, {
+        age: req.body.age,
+        city: req.body.city,
+        background: req.body.background,
+        phoneNumber: req.body.phoneNumber,
+      });
 
       res.status(200).json(mentor);
     } catch (error) {

@@ -19,7 +19,7 @@ class MeetingController {
 
   static async getAll(req, res, next) {
     try {
-      const meetings = await meetingService.getAll();
+      const meetings = await meetingService.getAll(req.user);
 
       res.status(200).json(meetings);
     } catch (error) {

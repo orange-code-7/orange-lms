@@ -41,26 +41,55 @@ class UserService {
   static async update(id, data, currentUser) {
     const user = await User.findByPk(id);
 
-    if (!user) throw new Error("User not found");
+    if (!user) {
+      throw new Error("User not found");
+    }
 
     if (user.role === "Owner" && currentUser.role !== "Owner") {
       throw new Error("Cannot update owner");
     }
 
-    return user.update(data);
+    const payload = {
+      name: data.name,
+      email: data.email,
+      avatarUrl: data.avatarUrl,
+    };
+
+    if (["Owner", "Admin"].includes(currentUser.role)) {
+      payload.role = data.role;
+      payload.isActive = data.isActive;
+    }
+
+    if (data.password?.trim()) {
+      payload.password = await bcrypt.hashPassword(data.password);
+    }
+
+    Object.keys(payload).forEach((key) => {
+      if (payload[key] === undefined) {
+        delete payload[key];
+      }
+    });
+
+    await user.update(payload);
+
+    return this.findById(id);
   }
 
   static async delete(id, currentUser) {
     const user = await User.findByPk(id);
 
-    if (!user) throw new Error("User not found");
+    if (!user) {
+      throw new Error("User not found");
+    }
 
     if (user.role === "Owner" && currentUser.role !== "Owner") {
       throw new Error("Cannot delete owner");
     }
 
     await Profile.destroy({
-      where: { UserId: id },
+      where: {
+        UserId: id,
+      },
     });
 
     await user.destroy();

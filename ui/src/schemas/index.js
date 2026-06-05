@@ -1,39 +1,82 @@
-import { User, Mail, Phone, MapPin, FileText } from "lucide-react";
+// USER
 
-export const mentorSchema = [
-  { name: "name", label: "Full Name", type: "text", icon: User },
-  { name: "email", label: "Email", type: "email", icon: Mail },
-  { name: "avatarUrl", label: "Avatar URL", type: "text" },
-  { name: "age", label: "Age", type: "number" },
-  { name: "phoneNumber", label: "Phone Number", type: "text", icon: Phone },
-  { name: "city", label: "City", type: "text", icon: MapPin },
+export const userSchema = [
+  {
+    name: "name",
+    label: "Full Name",
+    type: "text",
+  },
+
+  {
+    name: "email",
+    label: "Email",
+    type: "email",
+  },
+
+  {
+    name: "password",
+    label: "Password",
+    type: "text",
+  },
+
+  {
+    name: "avatarUrl",
+    label: "Avatar URL",
+    type: "text",
+  },
+
+  {
+    name: "age",
+    label: "Age",
+    type: "number",
+  },
+
+  {
+    name: "phoneNumber",
+    label: "Phone Number",
+    type: "text",
+  },
+
+  {
+    name: "city",
+    label: "City",
+    type: "text",
+  },
+
   {
     name: "background",
-    label: "Background",
+    label: "Professional Background",
     type: "textarea",
-    icon: FileText,
   },
 ];
 
-export const menteeSchema = [
-  { name: "name", label: "Full Name", type: "text", icon: User },
-  { name: "email", label: "Email", type: "email", icon: Mail },
-  { name: "avatarUrl", label: "Avatar URL", type: "text" },
-  { name: "age", label: "Age", type: "number" },
-  { name: "phoneNumber", label: "Phone Number", type: "text", icon: Phone },
-  { name: "city", label: "City", type: "text", icon: MapPin },
-  {
-    name: "background",
-    label: "Background",
-    type: "textarea",
-    icon: FileText,
-  },
-];
-// schema/class.schema.js
+// CLASS
+
 export const classSchema = [
-  { name: "code", label: "Class Code", type: "text" },
-  { name: "name", label: "Class Name", type: "text" },
-  { name: "category", label: "Category", type: "text" },
+  {
+    name: "code",
+    label: "Class Code",
+    type: "text",
+  },
+
+  {
+    name: "name",
+    label: "Class Name",
+    type: "text",
+  },
+
+  {
+    name: "description",
+    label: "Description",
+    type: "textarea",
+  },
+
+  {
+    name: "category",
+    label: "Category",
+    type: "text",
+  },
+
   {
     name: "level",
     label: "Level",
@@ -45,14 +88,23 @@ export const classSchema = [
     ],
   },
 
-  { name: "startDate", label: "Start Date", type: "date" },
-  { name: "endDate", label: "End Date", type: "date" },
+  {
+    name: "startDate",
+    label: "Start Date",
+    type: "date",
+  },
 
   {
-    name: "mentorId",
+    name: "endDate",
+    label: "End Date",
+    type: "date",
+  },
+
+  {
+    name: "MentorId",
     label: "Mentor",
     type: "select",
-    options: [], // <- akan diisi dari API
+    options: [],
   },
 
   {
@@ -60,27 +112,12 @@ export const classSchema = [
     label: "Status",
     type: "select",
     options: [
-      { label: "Active", value: "active" },
-      { label: "Inactive", value: "inactive" },
+      { label: "Draft", value: "Draft" },
+      { label: "Active", value: "Active" },
+      { label: "Archived", value: "Archived" },
     ],
   },
 
-  { name: "imageUrl", label: "Image URL", type: "text" },
-];
-
-export const meetingSchema = [
-  { name: "name", label: "Meeting Name", type: "text" },
-  { name: "meetingNumber", label: "Meeting Number", type: "number" },
-  { name: "description", label: "Description", type: "textarea" },
-  { name: "meetingDate", label: "Meeting Date", type: "date" },
-  { name: "startHour", label: "Start Hour", type: "time" },
-  { name: "finishHour", label: "Finish Hour", type: "time" },
-  {
-    name: "classId",
-    label: "Class Code",
-    type: "select",
-    options: [],
-  },
   {
     name: "imageUrl",
     label: "Image URL",
@@ -88,61 +125,272 @@ export const meetingSchema = [
   },
 ];
 
-export const noteSchema = [
-  { name: "name", label: "Note Title", type: "text" },
-  { name: "description", label: "Description", type: "textarea" },
+// MEETING
+
+export const meetingSchema = [
   {
-    name: "classId",
+    name: "meetingNumber",
+    label: "Meeting Number",
+    type: "number",
+  },
+
+  {
+    name: "name",
+    label: "Meeting Name",
+    type: "text",
+  },
+
+  {
+    name: "description",
+    label: "Description",
+    type: "textarea",
+  },
+
+  {
+    name: "meetingDate",
+    label: "Meeting Date",
+    type: "date",
+  },
+
+  {
+    name: "startHour",
+    label: "Start Hour",
+    type: "time",
+  },
+
+  {
+    name: "finishHour",
+    label: "Finish Hour",
+    type: "time",
+  },
+
+  {
+    name: "ClassId",
     label: "Class",
     type: "select",
     options: [],
   },
-  {
-    name: "meetingId",
-    label: "Meeting",
-    type: "select",
-    options: [],
-  },
 
-  { name: "fileUrl", label: "File URL", type: "text" },
+  {
+    name: "imageUrl",
+    label: "Image URL",
+    type: "text",
+  },
 ];
+
+// TASK
 
 export const taskSchema = [
-  { name: "name", label: "Task Title", type: "text" },
-  { name: "maxScore", label: "Max Score", type: "number" },
-  { name: "description", label: "Description", type: "textarea" },
-  { name: "dueDate", label: "Due Date", type: "date" },
   {
-    name: "classId",
+    name: "name",
+    label: "Task Title",
+    type: "text",
+  },
+
+  {
+    name: "description",
+    label: "Description",
+    type: "textarea",
+  },
+
+  {
+    name: "maxScore",
+    label: "Max Score",
+    type: "number",
+  },
+
+  {
+    name: "dueDate",
+    label: "Due Date",
+    type: "date",
+  },
+
+  {
+    name: "status",
+    label: "Status",
+    type: "select",
+    options: [
+      { label: "Draft", value: "Draft" },
+      { label: "Published", value: "Published" },
+      { label: "Archived", value: "Archived" },
+    ],
+  },
+
+  {
+    name: "ClassId",
     label: "Class",
     type: "select",
     options: [],
   },
+
   {
-    name: "meetingId",
+    name: "MeetingId",
     label: "Meeting",
     type: "select",
     options: [],
   },
 
-  { name: "fileUrl", label: "File URL", type: "text" },
+  {
+    name: "fileUrl",
+    label: "File URL",
+    type: "text",
+  },
 ];
 
-export const materialSchema = [
-  { name: "name", label: "Material Title", type: "text" },
-  { name: "description", label: "Description", type: "textarea" },
+// NOTE
+
+export const noteSchema = [
   {
-    name: "classId",
+    name: "name",
+    label: "Note Title",
+    type: "text",
+  },
+
+  {
+    name: "description",
+    label: "Description",
+    type: "textarea",
+  },
+
+  {
+    name: "ClassId",
     label: "Class",
     type: "select",
     options: [],
   },
+
   {
-    name: "meetingId",
+    name: "MeetingId",
     label: "Meeting",
     type: "select",
     options: [],
   },
 
-  { name: "fileUrl", label: "File URL", type: "text" },
+  {
+    name: "fileUrl",
+    label: "File URL",
+    type: "text",
+  },
+];
+
+// MATERIAL
+
+export const materialSchema = [
+  {
+    name: "name",
+    label: "Material Title",
+    type: "text",
+  },
+
+  {
+    name: "description",
+    label: "Description",
+    type: "textarea",
+  },
+
+  {
+    name: "type",
+    label: "Material Type",
+    type: "select",
+    options: [
+      { label: "PDF", value: "PDF" },
+      { label: "Video", value: "Video" },
+      { label: "URL", value: "URL" },
+      { label: "Document", value: "Document" },
+    ],
+  },
+
+  {
+    name: "ClassId",
+    label: "Class",
+    type: "select",
+    options: [],
+  },
+
+  {
+    name: "MeetingId",
+    label: "Meeting",
+    type: "select",
+    options: [],
+  },
+
+  {
+    name: "fileUrl",
+    label: "File URL",
+    type: "text",
+  },
+];
+
+// PROFILE
+
+export const profileSchema = [
+  {
+    name: "name",
+    label: "Full Name",
+    type: "text",
+    disabled: true,
+  },
+
+  {
+    name: "email",
+    label: "Email",
+    type: "email",
+    disabled: true,
+  },
+
+  {
+    name: "role",
+    label: "Role",
+    type: "text",
+    disabled: true,
+  },
+
+  {
+    name: "isActive",
+    label: "Status",
+    type: "text",
+    disabled: true,
+  },
+
+  {
+    name: "age",
+    label: "Age",
+    type: "number",
+    disabled: true,
+  },
+
+  {
+    name: "phoneNumber",
+    label: "Phone Number",
+    type: "text",
+    disabled: true,
+  },
+
+  {
+    name: "city",
+    label: "City",
+    type: "text",
+    disabled: true,
+  },
+
+  {
+    name: "country",
+    label: "Country",
+    type: "text",
+    disabled: true,
+  },
+
+  {
+    name: "address",
+    label: "Address",
+    type: "textarea",
+    disabled: true,
+  },
+
+  {
+    name: "background",
+    label: "Professional Background",
+    type: "textarea",
+    disabled: true,
+  },
 ];

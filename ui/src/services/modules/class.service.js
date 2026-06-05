@@ -21,6 +21,19 @@ class ClassService {
   static delete(id) {
     return api.delete(`${ENDPOINTS.CLASSES}/${id}`);
   }
+
+  static enrollMentee(id, payload) {
+    return api.post(`${ENDPOINTS.CLASSES}/${id}/enrollMentee`, payload);
+  }
+
+  // Bulk Insert Mentees
+  static enrollMentees(id, payload) {
+    return api.post(`${ENDPOINTS.CLASSES}/${id}/enrollMentees`, payload);
+  }
+
+  static removeMentee(classId, userId) {
+    return api.delete(`${ENDPOINTS.CLASSES}/${classId}/mentees/${userId}`);
+  }
 }
 
 export default ClassService;

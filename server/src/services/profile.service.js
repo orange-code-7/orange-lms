@@ -7,14 +7,7 @@ class ProfileService {
     });
   }
 
-  static async create({ UserId, ...data }) {
-    return Profile.create({
-      UserId,
-      ...data,
-    });
-  }
-
-  static async createOrUpdate(UserId, data) {
+  static async upsert(UserId, data) {
     const profile = await Profile.findOne({
       where: { UserId },
     });

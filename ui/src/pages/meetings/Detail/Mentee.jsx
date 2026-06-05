@@ -1,0 +1,337 @@
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+
+import MeetingService from "@/services/modules/meeting.service";
+
+import {
+  Calendar,
+  CheckSquare,
+  FileText,
+  Archive,
+  Download,
+  Eye,
+  Upload,
+} from "lucide-react";
+
+import { formatDate } from "@/helpers";
+
+const tabs = ["Tasks", "Notes", "Materials", "Attendance"];
+
+const Mentee = () => {
+  const { id } = useParams();
+
+  const [meeting, setMeeting] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const [activeTab, setActiveTab] = useState("Tasks");
+
+  const fetchMeeting = async () => {
+    try {
+      setLoading(true);
+
+      const res = await MeetingService.getById(id);
+
+      setMeeting(res.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMeeting();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="rounded-sm border border-gray-200 bg-white p-6">
+        Loading meeting...
+      </div>
+    );
+  }
+
+  if (!meeting) {
+    return (
+      <div className="rounded-sm border border-red-200 bg-red-50 p-6 text-red-600">
+        Meeting not found
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-5 lg:grid-cols-12">
+      <div className="lg:col-span-4">
+        <Hero meeting={meeting} />
+
+        <div className="mt-5">
+          <Statistics meeting={meeting} />
+        </div>
+      </div>
+
+      <div className="lg:col-span-8">
+        <TabsHeader activeTab={activeTab} setActiveTab={setActiveTab} />
+
+        <div className="mt-5">
+          <TabsContent activeTab={activeTab} meeting={meeting} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Mentee;
+
+const Hero = ({ meeting }) => {
+  return (
+    <div className="rounded-sm border border-gray-200 bg-white p-6">
+      <div className="mb-3 flex flex-wrap gap-2">
+        <span className="rounded-sm bg-orange-100 px-2 py-1 text-xs font-medium text-orange-700">
+          Meeting #{meeting.meetingNumber}
+        </span>
+
+        <span className="rounded-sm bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
+          {meeting.class?.code}
+        </span>
+      </div>
+
+      <h1 className="text-2xl font-bold">{meeting.name}</h1>
+
+      <p className="mt-3 text-sm text-gray-600">{meeting.description}</p>
+
+      <div className="mt-5 grid grid-cols-2 gap-4">
+        <div>
+          <p className="text-xs text-gray-500">Class</p>
+          <p className="font-medium">{meeting.class?.name}</p>
+        </div>
+
+        <div>
+          <p className="text-xs text-gray-500">Date</p>
+          <p className="font-medium">{formatDate(meeting.meetingDate)}</p>
+        </div>
+
+        <div>
+          <p className="text-xs text-gray-500">Start</p>
+          <p className="font-medium">{meeting.startHour}</p>
+        </div>
+
+        <div>
+          <p className="text-xs text-gray-500">Finish</p>
+          <p className="font-medium">{meeting.finishHour}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Statistics = ({ meeting }) => {
+  return (
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <StatCard
+        icon={<CheckSquare size={20} />}
+        label="Tasks"
+        value={meeting.tasks?.length || 0}
+      />
+
+      <StatCard
+        icon={<FileText size={20} />}
+        label="Notes"
+        value={meeting.notes?.length || 0}
+      />
+
+      <StatCard
+        icon={<Archive size={20} />}
+        label="Materials"
+        value={meeting.materials?.length || 0}
+      />
+    </div>
+  );
+};
+
+const StatCard = ({ icon, label, value }) => {
+  return (
+    <div className="rounded-sm border border-gray-200 bg-white p-5">
+      <div className="flex items-center justify-between">
+        {icon}
+        <span className="text-2xl font-bold">{value}</span>
+      </div>
+
+      <p className="mt-2 text-sm text-gray-500">{label}</p>
+    </div>
+  );
+};
+
+const TabsHeader = ({ activeTab, setActiveTab }) => {
+  const icons = {
+    Tasks: CheckSquare,
+    Notes: FileText,
+    Materials: Archive,
+    Attendance: Calendar,
+  };
+
+  return (
+    <div className="rounded-sm border border-gray-200 bg-white px-5">
+      <div className="flex flex-wrap gap-6">
+        {tabs.map((tab) => {
+          const Icon = icons[tab];
+
+          return (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`flex items-center gap-2 py-4 text-sm font-medium ${
+                activeTab === tab
+                  ? "border-b-2 border-orange-500 text-orange-600"
+                  : "text-gray-500"
+              }`}
+            >
+              <Icon size={16} />
+              {tab}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+const TabsContent = ({ activeTab, meeting }) => {
+  return (
+    <div className="rounded-sm border border-gray-200 bg-white p-5">
+      {activeTab === "Tasks" && (
+        <div className="space-y-4">
+          {meeting.tasks?.length > 0 ? (
+            meeting.tasks.map((task) => (
+              <div
+                key={task.id}
+                className="rounded-sm border border-gray-200 p-4"
+              >
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <h3 className="font-semibold">{task.name}</h3>
+
+                    <p className="mt-1 text-sm text-gray-500">
+                      {task.description}
+                    </p>
+
+                    <p className="mt-2 text-xs text-gray-500">
+                      Due Date: {formatDate(task.dueDate)}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    <button className="flex items-center gap-1 rounded-sm bg-sky-100 px-2 py-1 text-xs font-medium text-sky-700 hover:bg-sky-200">
+                      <Download size={16} />
+                      Download
+                    </button>
+
+                    <button
+                      onClick={() => alert("Submission Module Coming Soon")}
+                      className="flex items-center gap-1 rounded-sm bg-sky-100 px-2 py-1 text-xs font-medium text-sky-700 hover:bg-sky-200"
+                    >
+                      <Eye size={16} />
+                      View
+                    </button>
+
+                    <button
+                      onClick={() => alert("Submission Module Coming Soon")}
+                      className="flex items-center gap-2 rounded-sm bg-orange-500 px-3 py-2 text-sm text-white"
+                    >
+                      <Upload size={16} />
+                      Submit
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <EmptyState text="No tasks available" />
+          )}
+        </div>
+      )}
+
+      {activeTab === "Notes" && (
+        <div className="space-y-4">
+          {meeting.notes?.length > 0 ? (
+            meeting.notes.map((note) => (
+              <div
+                key={note.id}
+                className="rounded-sm border border-gray-200 p-4"
+              >
+                <h3 className="font-semibold">{note.name}</h3>
+
+                <p className="mt-2 text-sm text-gray-500">{note.description}</p>
+
+                <div className="mt-4 flex gap-2">
+                  <button className="flex items-center gap-1 rounded-sm bg-sky-100 px-2 py-1 text-xs font-medium text-sky-700 hover:bg-sky-200">
+                    <Eye size={16} />
+                    View
+                  </button>
+
+                  <button
+                    c
+                    className="flex items-center gap-1 rounded-sm bg-sky-100 px-2 py-1 text-xs font-medium text-sky-700 hover:bg-sky-200"
+                  >
+                    <Download size={16} />
+                    Download
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <EmptyState text="No notes available" />
+          )}
+        </div>
+      )}
+
+      {activeTab === "Materials" && (
+        <div className="space-y-4">
+          {meeting.materials?.length > 0 ? (
+            meeting.materials.map((material) => (
+              <div
+                key={material.id}
+                className="rounded-sm border border-gray-200 p-4"
+              >
+                <h3 className="font-semibold">{material.name}</h3>
+
+                <p className="mt-1 text-sm text-gray-500">{material.type}</p>
+
+                <p className="mt-2 text-sm text-gray-500">
+                  {material.description}
+                </p>
+
+                <div className="mt-4 flex gap-2">
+                  <button className="flex items-center gap-1 rounded-sm bg-sky-100 px-2 py-1 text-xs font-medium text-sky-700 hover:bg-sky-200">
+                    <Eye size={16} />
+                    View
+                  </button>
+
+                  <button className="flex items-center gap-1 rounded-sm bg-sky-100 px-2 py-1 text-xs font-medium text-sky-700 hover:bg-sky-200">
+                    <Download size={16} />
+                    Download
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <EmptyState text="No materials available" />
+          )}
+        </div>
+      )}
+
+      {activeTab === "Attendance" && (
+        <div className="rounded-sm border border-dashed border-gray-300 p-8 text-center text-gray-500">
+          Attendance Module Coming Soon
+        </div>
+      )}
+    </div>
+  );
+};
+
+const EmptyState = ({ text }) => {
+  return (
+    <div className="rounded-sm border border-dashed border-gray-300 p-8 text-center text-gray-500">
+      {text}
+    </div>
+  );
+};

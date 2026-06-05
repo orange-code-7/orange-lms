@@ -70,9 +70,30 @@ class MenteeService {
   static async update(id, data) {
     const user = await User.findByPk(id);
 
-    if (!user) throw new Error("Mentee not found");
+    if (!user) {
+      throw new Error("Mentee not found");
+    }
 
-    return user.update(data);
+    await user.update({
+      name: data.name,
+      email: data.email,
+      avatarUrl: data.avatarUrl,
+    });
+
+    const profile = await Profile.findOne({
+      where: {
+        UserId: id,
+      },
+    });
+
+    if (profile) {
+      await profile.update({
+        age: data.age,
+        city: data.city,
+        background: data.background,
+        phoneNumber: data.phoneNumber,
+      });
+    }
   }
 
   static async delete(id) {

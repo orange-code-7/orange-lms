@@ -25,17 +25,9 @@ class UserController {
     try {
       const user = await userService.create(req.body);
 
-      const profile = await profileService.create({
-        UserId: user.id,
-      });
+      await profileService.upsert(user.id, {});
 
-      res.status(201).json({
-        message: "User created successfully",
-        data: {
-          user,
-          profile,
-        },
-      });
+      res.status(201).json(user);
     } catch (error) {
       next(error);
     }

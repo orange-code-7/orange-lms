@@ -7,9 +7,11 @@ import {
   Calendar,
   Hash,
   Clock,
+  FileInputIcon,
 } from "lucide-react";
 import TextInput from "../inputs/TextInput";
 import EmailInput from "../inputs/EmailInput";
+import FileInput from "../inputs/FileInput";
 import NumberInput from "../inputs/NumberInput";
 import TextArea from "../inputs/TextArea";
 import Select from "../inputs/Select";
@@ -28,6 +30,7 @@ const icons = {
   address: MapPin,
   date: Calendar,
   time: Clock,
+  file: FileInputIcon,
   id: Hash,
 };
 
@@ -42,6 +45,7 @@ const inputMap = {
   radio: RadioButton,
   time: TimeInput,
   date: DateInput, // <- add date type
+  file: FileInput,
 };
 
 const FormField = ({ field, value, onChange }) => {

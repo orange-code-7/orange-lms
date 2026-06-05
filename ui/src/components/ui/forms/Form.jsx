@@ -18,7 +18,7 @@ const Form = ({
         e.preventDefault();
         onSubmit(values);
       }}
-      className="bg-surface rounded-2xl shadow-lg border border-app transition-all"
+      className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
     >
       {/* Header */}
       <div className="flex items-center gap-3 px-6 py-4 border-b border-app">
@@ -56,7 +56,7 @@ const Form = ({
       </div>
 
       {/* Actions */}
-      <FormActions submitLabel={submitLabel} />
+      {submitLabel === "" ? <></> : <FormActions submitLabel={submitLabel} />}
     </form>
   );
 };

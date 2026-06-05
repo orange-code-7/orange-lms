@@ -8,15 +8,17 @@ const MainLayout = () => {
   return (
     <div className="flex h-screen bg-app text-app transition-all">
       {/* Sidebar */}
-      <Sidebar />
+      <aside className="h-screen w-[18%] border-r border-gray-200 bg-[var(--color-surface)] shadow-sm">
+        <Sidebar />
+      </aside>
 
       {/* Main Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex flex-1 flex-col overflow-hidden">
         {/* TopBar */}
-        <TopBar username="Vincent" />
+        <TopBar />
 
-        {/* Main Content */}
-        <main className="flex-1 bg-app p-6 overflow-auto transition-all">
+        {/* Content */}
+        <main className="flex-1 overflow-auto bg-app p-3 transition-all">
           <Outlet />
         </main>
       </div>

@@ -21,6 +21,6 @@ router.delete(
 
 router.get("/:id/profile", ProfileController.getByUser);
 
-router.post("/:id/profile", ProfileController.createOrUpdate);
+router.put("/:id/profile", ProfileController.update);
 
 module.exports = router;

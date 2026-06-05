@@ -1,66 +1,141 @@
-// src/pages/Notes/Edit.jsx
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+
 import Form from "@/components/ui/forms/Form";
+
+import SuccessPopup from "@/components/ui/popup/SuccessPopup";
+import ErrorPopup from "@/components/ui/popup/ErrorPopup";
+
 import useForm from "@/hooks/useForm";
 import useClassMeetingOptions from "@/hooks/useClassMeetingOptions";
-import { materialSchema } from "@/schemas/";
+
+import { materialSchema } from "@/schemas";
+
 import MaterialService from "@/services/modules/material.service";
 
 const Edit = () => {
   const { id } = useParams();
-  const { values, handleChange, setValues } = useForm(materialSchema);
+
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(true);
 
-  const schema = useClassMeetingOptions(values, setValues, materialSchema);
+  const [error, setError] = useState("");
 
-  // load note data
+  const [openSuccess, setOpenSuccess] = useState(false);
+  const [openError, setOpenError] = useState(false);
+
+  const { values, handleChange, setValues } = useForm(materialSchema);
+
+  const schema = useClassMeetingOptions(
+    values,
+    setValues,
+    materialSchema,
+    true,
+  );
+
   useEffect(() => {
-    const fetchTask = async () => {
-      const note = await MaterialService.getById(id);
-      setValues(flattenNote(note));
-      setLoading(false);
+    const fetchMaterial = async () => {
+      try {
+        setLoading(true);
+
+        const res = await MaterialService.getById(id);
+
+        setValues(flattenMaterial(res.data));
+      } catch (err) {
+        console.error(err);
+
+        setError(
+          err?.response?.data?.message ||
+            err?.message ||
+            "Failed to load material",
+        );
+
+        setOpenError(true);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    fetchTask();
-  }, [id]);
+    fetchMaterial();
+  }, [id, setValues]);
 
   const handleSubmit = async (payload) => {
-    // await TaskService.update(id, {
-    //   ...payload,
-    //   classId: Number(payload.classId),
-    //   meetingId: Number(payload.meetingId),
-    // });
-    alert(
-      JSON.stringify({
+    try {
+      setLoading(true);
+
+      await MaterialService.update(id, {
         ...payload,
-        classId: Number(payload.classId),
-        meetingId: Number(payload.meetingId),
-      }),
-    );
+        ClassId: Number(payload.ClassId),
+        MeetingId: Number(payload.MeetingId),
+      });
+
+      setOpenSuccess(true);
+    } catch (err) {
+      console.error(err);
+
+      setError(
+        err?.response?.data?.message ||
+          err?.message ||
+          "Failed to update material",
+      );
+
+      setOpenError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (loading) return <div>Loading...</div>;
+  const handleCloseSuccess = () => {
+    setOpenSuccess(false);
+
+    navigate("/materials");
+  };
+
+  if (loading) {
+    return (
+      <div className="rounded-sm border border-gray-200 bg-white p-4">
+        Loading material...
+      </div>
+    );
+  }
 
   return (
-    <Form
-      title="Edit Material"
-      description="Update material information"
-      schema={schema}
-      values={values}
-      onChange={handleChange}
-      onSubmit={handleSubmit}
-      submitLabel="Update Material"
-    />
+    <>
+      <Form
+        title="Edit Material"
+        description="Update material information"
+        schema={schema}
+        values={values}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+        submitLabel="Update Material"
+      />
+
+      <SuccessPopup
+        open={openSuccess}
+        onClose={handleCloseSuccess}
+        title="Material Updated"
+        message="Material has been updated successfully."
+      />
+
+      <ErrorPopup
+        open={openError}
+        onClose={() => setOpenError(false)}
+        title="Update Material Failed"
+        message={error}
+      />
+    </>
   );
 };
 
-const flattenNote = (note) => ({
-  classId: note?.classId || "",
-  meetingId: note?.meetingId || "",
-  name: note?.name || "",
-  description: note?.description || "",
-  fileUrl: note?.fileUrl || "",
+const flattenMaterial = (material) => ({
+  ClassId: material?.ClassId || material?.Class?.id || "",
+  MeetingId: material?.MeetingId || material?.Meeting?.id || "",
+  name: material?.name || "",
+  description: material?.description || "",
+  type: material?.type || "",
+  fileUrl: material?.fileUrl || "",
 });
 
 export default Edit;

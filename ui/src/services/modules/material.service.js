@@ -13,7 +13,9 @@ class MaterialService {
   static create(payload) {
     return api.post(ENDPOINTS.MATERIALS, payload);
   }
-
+  static createMaterialByMeeting(meetingId, payload) {
+    return api.post(`/meetings/${meetingId}/materials`, payload);
+  }
   static update(id, payload) {
     return api.put(`${ENDPOINTS.MATERIALS}/${id}`, payload);
   }

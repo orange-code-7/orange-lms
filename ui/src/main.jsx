@@ -8,7 +8,7 @@ import "@/styles/global.css";
 import App from "./app/App.jsx";
 import store from "@/app/store";
 
-import { useThemeStore } from "@/features/theme/theme.store";
+import { useThemeStore } from "@/app/store/theme";
 
 /**
  * Bootstrap theme saat app load

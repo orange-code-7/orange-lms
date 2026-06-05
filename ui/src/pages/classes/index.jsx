@@ -14,6 +14,8 @@ import {
 
 import ClassService from "@/services/modules/class.service";
 import { Eye, Pencil, Trash2 } from "lucide-react";
+import { useSelector } from "react-redux";
+import { can } from "@/helpers";
 
 const columns = [
   {
@@ -45,21 +47,18 @@ const columns = [
   {
     key: "mentor",
     label: "Mentor",
-    render: (row) =>
-      row.Users?.find((u) => u.ClassUser?.roleInClass === "Mentor")?.name ||
-      "-",
+    render: (row) => row.mentor?.name || "-",
+    // row.Users?.find((u) => u.ClassUser?.roleInClass === "Mentor")?.name ||"-",
   },
   {
     key: "mentees",
     label: "Total Mentees",
-    render: (row) =>
-      row.Users?.filter((u) => u.ClassUser?.roleInClass === "Mentee").length ||
-      0,
+    render: (row) => row.mentees?.length || 0,
   },
   {
     key: "meetings",
     label: "Meetings",
-    render: (row) => row.Meetings?.length || 0,
+    render: (row) => row.meetings?.length || 0,
   },
   {
     key: "actions",
@@ -70,13 +69,17 @@ const columns = [
 const List = () => {
   const breadcrumbs = useBreadcrumbs();
 
+  const user = useSelector((state) => state.auth.user);
+
+  const role = user?.role;
+
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchClasses = async () => {
     try {
       const res = await ClassService.getAll();
-      setData(res.data || []);
+      setData(res.data);
     } catch (error) {
       console.error(error);
     } finally {
@@ -125,28 +128,32 @@ const List = () => {
     actions: (
       <div className="flex items-center gap-2">
         <Link
-          to={`/meetings/${row.id}`}
+          to={`/classes/${row.id}`}
           className="flex items-center gap-1 rounded-sm bg-sky-100 px-2 py-1 text-xs font-medium text-sky-700 hover:bg-sky-200"
         >
           <Eye size={14} />
           Details
         </Link>
 
-        <Link
-          to={`/meetings/edit/${row.id}`}
-          className="flex items-center gap-1 rounded-sm bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-200"
-        >
-          <Pencil size={14} />
-          Edit
-        </Link>
+        {can(role, "class", "update") && (
+          <Link
+            to={`/classes/edit/${row.id}`}
+            className="flex items-center gap-1 rounded-sm bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-200"
+          >
+            <Pencil size={14} />
+            Edit
+          </Link>
+        )}
 
-        <button
-          onClick={() => handleRemove(row.id)}
-          className="flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium text-[var(--color-text-muted)] transition-colors hover:bg-rose-50 hover:text-rose-600"
-        >
-          <Trash2 size={14} />
-          Remove
-        </button>
+        {can(role, "class", "delete") && (
+          <button
+            onClick={() => handleRemove(row.id)}
+            className="flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium text-[var(--color-text-muted)] hover:bg-rose-50 hover:text-rose-600"
+          >
+            <Trash2 size={14} />
+            Remove
+          </button>
+        )}
       </div>
     ),
   }));
@@ -158,7 +165,19 @@ const List = () => {
       </div>
     );
   }
+  const pageTitle =
+    role === "Mentor"
+      ? "My Classes"
+      : role === "Mentee"
+        ? "My Learning Classes"
+        : "Class Management";
 
+  const pageDescription =
+    role === "Mentor"
+      ? "View classes assigned to you and manage learning activities."
+      : role === "Mentee"
+        ? "View enrolled classes, meetings, assignments, notes, and learning materials."
+        : "Manage all Orange LMS classes and learning activities.";
   return (
     <div className="p-4 space-y-4 bg-[var(--color-background)] min-h-screen">
       {/* Header */}
@@ -173,11 +192,10 @@ const List = () => {
         </p>
 
         <h1 className="text-2xl font-bold text-[var(--color-text)]">
-          Class Management
+          {pageTitle}
         </h1>
         <p className="max-w-3xl text-sm leading-6 text-[var(--color-text-muted)]">
-          Manage all Orange LMS classes, monitor learning progress, organize
-          mentor assignments, and oversee educational activities.
+          {pageDescription}
         </p>
       </div>
 
