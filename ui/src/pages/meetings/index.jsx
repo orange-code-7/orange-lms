@@ -1,35 +1,36 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import {
-  Eye,
-  Pencil,
-  Trash2,
-  CheckSquare,
-  FileText,
-  Archive,
-} from "lucide-react";
 
-import Table from "@/components/ui/tables/Table";
-import TableControls from "@/components/ui/tables/TableControls";
+import { useSelector } from "react-redux";
+
+import { Archive, CheckSquare, FileText } from "lucide-react";
 
 import {
   useBreadcrumbs,
   useFilter,
-  useSearch,
   usePagination,
+  useSearch,
   useSort,
 } from "@/hooks";
 
+import usePopupStore from "@/app/store/popupStore";
+
 import MeetingService from "@/services/modules/meeting.service";
-import { useSelector } from "react-redux";
-import { can } from "@/helpers/can";
+
+import { PAGE_META } from "@/constants/pageMeta";
+
+import PageHeader from "@/components/ui/page/PageHeader";
+
+import Table from "@/components/ui/tables/Table";
+import TableActions from "@/components/ui/tables/TableActions";
+import TableControls from "@/components/ui/tables/TableControls";
+import Pagination from "@/components/ui/tables/Pagination";
 
 const columns = [
   {
     key: "classCode",
-    label: "Class Code",
+    label: "Class",
     render: (row) => (
-      <div className="space-y-1 max-w-md">
+      <div className="max-w-md space-y-1">
         <p>
           <span className="rounded-sm bg-orange-100 px-2 py-1 text-xs font-medium text-orange-700">
             {row.class?.code || "-"}
@@ -42,11 +43,12 @@ const columns = [
       </div>
     ),
   },
+
   {
     key: "name",
     label: "Topic",
     render: (row) => (
-      <div className="space-y-1 max-w-md">
+      <div className="max-w-md space-y-1">
         <p className="font-semibold text-[var(--color-text)]">
           {row.name || "-"}
         </p>
@@ -66,6 +68,7 @@ const columns = [
         ? new Date(row.meetingDate).toLocaleDateString("id-ID")
         : "-",
   },
+
   {
     key: "resources",
     label: "Resources",
@@ -88,6 +91,7 @@ const columns = [
       </div>
     ),
   },
+
   {
     key: "startHour",
     label: "Start Hour",
@@ -113,14 +117,25 @@ const List = () => {
 
   const role = user?.role;
 
+  const page = PAGE_META.meetings?.[role] || PAGE_META.meetings?.Admin;
+
+  const { openConfirm, openError, openSuccess } = usePopupStore();
+
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   const fetchMeetings = async () => {
     try {
       const res = await MeetingService.getAll();
+
       setData(res.data || []);
+    } catch (error) {
+      console.error(error);
+
+      openError({
+        title: "Load Failed",
+        message: error?.response?.data?.message || "Failed to load meetings.",
+      });
     } finally {
       setLoading(false);
     }
@@ -145,53 +160,47 @@ const List = () => {
   const { paginatedData, currentPage, totalPages, nextPage, prevPage } =
     usePagination(sortedData, 10);
 
-  const handleRemove = async (id) => {
-    const confirmed = confirm("Are you sure you want to delete this meeting?");
+  const handleRemove = (id) => {
+    openConfirm({
+      title: "Delete Meeting",
+      message:
+        "Are you sure you want to delete this meeting? This action cannot be undone.",
 
-    if (!confirmed) return;
+      action: async () => {
+        try {
+          await MeetingService.delete(id);
 
-    try {
-      await MeetingService.delete(id);
+          setData((prev) => prev.filter((item) => item.id !== id));
 
-      setData((prev) => prev.filter((item) => item.id !== id));
-    } catch (error) {
-      console.error(error);
-    }
+          openSuccess({
+            title: "Success",
+            message: "Meeting deleted successfully.",
+          });
+        } catch (error) {
+          console.error(error);
+
+          openError({
+            title: "Delete Failed",
+            message:
+              error?.response?.data?.message || "Failed to delete meeting.",
+          });
+        }
+      },
+    });
   };
 
   const dataWithActions = paginatedData.map((row) => ({
     ...row,
 
     actions: (
-      <div className="flex items-center gap-2">
-        <Link
-          to={`/meetings/${row.id}`}
-          className="flex items-center gap-1 rounded-sm bg-sky-100 px-2 py-1 text-xs font-medium text-sky-700 hover:bg-sky-200"
-        >
-          <Eye size={14} />
-          Details
-        </Link>
-
-        {can(role, "meeting", "update") && (
-          <Link
-            to={`/meetings/edit/${row.id}`}
-            className="flex items-center gap-1 rounded-sm bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-200"
-          >
-            <Pencil size={14} />
-            Edit
-          </Link>
-        )}
-
-        {can(role, "meeting", "delete") && (
-          <button
-            onClick={() => handleRemove(row.id)}
-            className="flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium text-[var(--color-text-muted)] hover:bg-rose-50 hover:text-rose-600"
-          >
-            <Trash2 size={14} />
-            Remove
-          </button>
-        )}
-      </div>
+      <TableActions
+        id={row.id}
+        role={role}
+        resource="meeting"
+        detailUrl={`/meetings/${row.id}`}
+        editUrl={`/meetings/edit/${row.id}`}
+        onDelete={handleRemove}
+      />
     ),
   }));
 
@@ -203,44 +212,16 @@ const List = () => {
     );
   }
 
-  const pageTitle =
-    role === "Mentor"
-      ? "My Meetings"
-      : role === "Mentee"
-        ? "Learning Meetings"
-        : "Meeting Management";
-
-  const pageDescription =
-    role === "Mentor"
-      ? "View meetings from classes assigned to you."
-      : role === "Mentee"
-        ? "View your learning schedules, assignments, notes, and materials."
-        : "Manage all learning sessions, schedules, class meetings, and mentoring activities across Orange LMS.";
-
   return (
-    <div className="p-4 space-y-4 bg-[var(--color-background)] min-h-screen">
-      {/* Header */}
-      <div className="space-y-1">
-        <p className="text-xs text-[var(--color-text-muted)]">
-          {breadcrumbs.map((b, i) => (
-            <span key={b.to}>
-              {b.label}
-              {i < breadcrumbs.length - 1 && " / "}
-            </span>
-          ))}
-        </p>
-
-        <h1 className="text-2xl font-bold text-[var(--color-text)]">
-          {pageTitle}
-        </h1>
-
-        <p className="max-w-3xl text-sm leading-6 text-[var(--color-text-muted)]">
-          {pageDescription}
-        </p>
-      </div>
+    <div className="min-h-screen space-y-4 bg-[var(--color-background)] p-4">
+      <PageHeader
+        breadcrumbs={breadcrumbs}
+        title={page.title}
+        description={page.description}
+      />
 
       {/* Summary */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+      {/* <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         <div className="rounded-sm border border-gray-200 bg-white p-4">
           <p className="text-xs text-gray-500">Meetings</p>
 
@@ -270,7 +251,7 @@ const List = () => {
             {data.reduce((acc, item) => acc + (item.materials?.length || 0), 0)}
           </h3>
         </div>
-      </div>
+      </div> */}
 
       <div className="rounded-sm border border-gray-200 bg-[var(--color-surface)] p-4">
         <TableControls
@@ -306,27 +287,13 @@ const List = () => {
         </div>
       </div>
 
-      <div className="flex items-center justify-end gap-1">
-        <button
-          onClick={prevPage}
-          disabled={currentPage === 1}
-          className="rounded-sm border border-gray-200 px-4 py-2 hover:bg-gray-50 disabled:opacity-50"
-        >
-          Prev
-        </button>
-
-        <span className="px-3 text-sm text-[var(--color-text-muted)]">
-          {currentPage} / {totalPages || 1}
-        </span>
-
-        <button
-          onClick={nextPage}
-          disabled={currentPage === totalPages}
-          className="rounded-sm bg-[var(--color-primary)] px-4 py-2 text-white hover:opacity-90 disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
+      {/* Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        prevPage={prevPage}
+        nextPage={nextPage}
+      />
     </div>
   );
 };

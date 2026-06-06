@@ -1,23 +1,32 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { Eye, Pencil, Trash2, Download } from "lucide-react";
 
-import Table from "@/components/ui/tables/Table";
-import TableControls from "@/components/ui/tables/TableControls";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Download, Eye, Pencil, Trash2 } from "lucide-react";
+
+import usePopupStore from "@/app/store/popupStore";
+
+import { PAGE_META } from "@/constants/pageMeta";
 
 import {
   useBreadcrumbs,
   useFilter,
-  useSearch,
   usePagination,
+  useSearch,
   useSort,
 } from "@/hooks";
 
 import TaskService from "@/services/modules/task.service";
-import PopUp from "../../components/ui/popup/PopUp";
+
+import PageHeader from "@/components/ui/page/PageHeader";
+import PopUp from "@/components/ui/popup/PopUp";
+import Table from "@/components/ui/tables/Table";
+import TableControls from "@/components/ui/tables/TableControls";
+import Pagination from "@/components/ui/tables/Pagination";
+
 import TaskDetail from "./Detail";
-import { useSelector } from "react-redux";
 import { can } from "@/helpers";
+import StatsCard from "@/components/ui/cards/StatsCard";
 
 const columns = [
   {
@@ -116,6 +125,10 @@ const List = () => {
 
   const role = user?.role;
 
+  const page = PAGE_META.tasks?.[role] || PAGE_META.tasks?.Admin;
+
+  const { openConfirm, openError, openSuccess } = usePopupStore();
+
   // PopUp
   const [selectedTask, setSelectedTask] = useState(null);
   const [openDetail, setOpenDetail] = useState(false);
@@ -127,6 +140,11 @@ const List = () => {
       setData(res.data || []);
     } catch (error) {
       console.error(error);
+
+      openError({
+        title: "Load Failed",
+        message: error?.response?.data?.message || "Failed to load tasks.",
+      });
     } finally {
       setLoading(false);
     }
@@ -153,20 +171,33 @@ const List = () => {
   const { paginatedData, currentPage, totalPages, nextPage, prevPage } =
     usePagination(sortedData, 10);
 
-  const handleRemove = async (id) => {
-    const confirmed = confirm("Are you sure you want to delete this task?");
+  const handleRemove = (id) => {
+    openConfirm({
+      title: "Delete Task",
+      message:
+        "Are you sure you want to delete this task? This action cannot be undone.",
 
-    if (!confirmed) return;
+      action: async () => {
+        try {
+          await TaskService.delete(id);
 
-    try {
-      await TaskService.delete(id);
+          setData((prev) => prev.filter((item) => item.id !== id));
 
-      setData((prev) => prev.filter((item) => item.id !== id));
-    } catch (error) {
-      console.error(error);
-    }
+          openSuccess({
+            title: "Success",
+            message: "Task deleted successfully.",
+          });
+        } catch (error) {
+          console.error(error);
+
+          openError({
+            title: "Delete Failed",
+            message: error?.response?.data?.message || "Failed to delete task.",
+          });
+        }
+      },
+    });
   };
-
   const dataWithActions = paginatedData.map((row) => ({
     ...row,
 
@@ -206,20 +237,6 @@ const List = () => {
     ),
   }));
 
-  const pageTitle =
-    role === "Mentor"
-      ? "My Tasks"
-      : role === "Mentee"
-        ? "Learning Tasks"
-        : "Task Management";
-
-  const pageDescription =
-    role === "Mentor"
-      ? "Manage assignments from your classes."
-      : role === "Mentee"
-        ? "View assignments and learning activities from your enrolled classes."
-        : "Manage assignments, learning activities, downloadable resources, and task submissions across all Orange LMS classes.";
-
   if (loading) {
     return (
       <div className="p-4 text-[var(--color-text-muted)]">Loading tasks...</div>
@@ -229,54 +246,32 @@ const List = () => {
   return (
     <div className="p-4 space-y-4 bg-[var(--color-background)] min-h-screen">
       {/* Header */}
-      <div className="space-y-1">
-        <p className="text-xs text-[var(--color-text-muted)]">
-          {breadcrumbs.map((b, i) => (
-            <span key={b.to}>
-              {b.label}
-              {i < breadcrumbs.length - 1 && " / "}
-            </span>
-          ))}
-        </p>
+      <div className="grid grid-cols-2">
+        {/* Page Header */}
+        <PageHeader
+          breadcrumbs={breadcrumbs}
+          title={page.title}
+          description={page.description}
+        />
 
-        <h1 className="text-2xl font-bold text-[var(--color-text)]">
-          {pageTitle}
-        </h1>
+        {/* Stats Card */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+          <StatsCard title="Tasks" value={data.length} />
 
-        <p className="max-w-3xl text-sm leading-6 text-[var(--color-text-muted)]">
-          {pageDescription}
-        </p>
-      </div>
+          <StatsCard
+            title="Published"
+            value={data.filter((item) => item.status === "Published").length}
+          />
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <div className="rounded-sm border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">Tasks</p>
+          <StatsCard
+            title="Draft"
+            value={data.filter((item) => item.status === "Draft").length}
+          />
 
-          <h3 className="mt-1 text-2xl font-bold">{data.length}</h3>
-        </div>
-
-        <div className="rounded-sm border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">Published</p>
-
-          <h3 className="mt-1 text-2xl font-bold">
-            {data.filter((item) => item.status === "Published").length}
-          </h3>
-        </div>
-
-        <div className="rounded-sm border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">Draft</p>
-
-          <h3 className="mt-1 text-2xl font-bold">
-            {data.filter((item) => item.status === "Draft").length}
-          </h3>
-        </div>
-
-        <div className="rounded-sm border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">Archived</p>
-
-          <h3 className="mt-1 text-2xl font-bold">
-            {data.filter((item) => item.status === "Archived").length}
-          </h3>
+          <StatsCard
+            title="Archived"
+            value={data.filter((item) => item.status === "Archived").length}
+          />
         </div>
       </div>
 
@@ -321,27 +316,12 @@ const List = () => {
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-end gap-1">
-        <button
-          onClick={prevPage}
-          disabled={currentPage === 1}
-          className="rounded-sm border border-gray-200 px-4 py-2 hover:bg-gray-50 disabled:opacity-50"
-        >
-          Prev
-        </button>
-
-        <span className="px-3 text-sm text-[var(--color-text-muted)]">
-          {currentPage} / {totalPages || 1}
-        </span>
-
-        <button
-          onClick={nextPage}
-          disabled={currentPage === totalPages}
-          className="rounded-sm bg-[var(--color-primary)] px-4 py-2 text-white hover:opacity-90 disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        prevPage={prevPage}
+        nextPage={nextPage}
+      />
       <PopUp
         open={openDetail}
         onClose={() => setOpenDetail(false)}

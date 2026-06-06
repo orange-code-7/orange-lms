@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 
 import TabTable from "@/components/ui/tables/TabTable";
 
+import useBreadcrumbs from "@/hooks/useBreadcrumbs";
 import ClassService from "@/services/modules/class.service";
 
 import {
@@ -21,6 +22,7 @@ const tabs = ["Meetings", "Mentees", "Tasks", "Notes", "Materials"];
 
 const Mentor = () => {
   const { id } = useParams();
+  const breadcrumbs = useBreadcrumbs([{ label: "Classes", to: "/classes" }]);
 
   const [classData, setClassData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -52,6 +54,13 @@ const Mentor = () => {
 
   return (
     <div className="space-y-4 p-4">
+      {/* Breadcrumb */}
+      <div className="text-sm text-gray-500">
+        {breadcrumbs.map((b) => (
+          <span key={b.to}>{b.label} / </span>
+        ))}
+        <span className="font-medium">{classData.code}</span>
+      </div>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* LEFT */}
         <div className="rounded-sm border border-gray-200 bg-white p-5 lg:col-span-1">

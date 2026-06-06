@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import MeetingService from "@/services/modules/meeting.service";
+import useBreadcrumbs from "@/hooks/useBreadcrumbs";
 
 import {
   Calendar,
@@ -19,7 +20,12 @@ const tabs = ["Tasks", "Notes", "Materials", "Attendance"];
 
 const Mentee = () => {
   const { id } = useParams();
-
+  const breadcrumbs = useBreadcrumbs([
+    {
+      label: "Meetings",
+      to: "/meetings",
+    },
+  ]);
   const [meeting, setMeeting] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -60,19 +66,35 @@ const Mentee = () => {
   }
 
   return (
-    <div className="grid gap-5 lg:grid-cols-12">
-      <div className="lg:col-span-4">
-        <Hero meeting={meeting} />
+    <div className="space-y-5 p-4">
+      {/* Breadcrumb */}
+      <div className="text-sm text-gray-500">
+        {breadcrumbs.map((b, i) => (
+          <span key={b.to}>
+            {b.label}
+            {i < breadcrumbs.length - 1 && " / "}
+          </span>
+        ))}
 
-        <div className="mt-5">
-          <Statistics meeting={meeting} />
-        </div>
+        <span className="font-medium text-gray-700">
+          {" / "}
+          {meeting.name}
+        </span>
       </div>
 
-      <div className="lg:col-span-8">
-        <TabsHeader activeTab={activeTab} setActiveTab={setActiveTab} />
+      {/* Content */}
+      <div className="grid gap-5 lg:grid-cols-12">
+        {/* Left */}
+        <div className="space-y-5 lg:col-span-4">
+          <Hero meeting={meeting} />
 
-        <div className="mt-5">
+          <Statistics meeting={meeting} />
+        </div>
+
+        {/* Right */}
+        <div className="space-y-5 lg:col-span-8">
+          <TabsHeader activeTab={activeTab} setActiveTab={setActiveTab} />
+
           <TabsContent activeTab={activeTab} meeting={meeting} />
         </div>
       </div>

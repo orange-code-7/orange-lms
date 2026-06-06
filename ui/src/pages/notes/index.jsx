@@ -1,22 +1,39 @@
+// React
 import React, { useEffect, useState } from "react";
+
+// External
 import { Link } from "react-router-dom";
-import { Eye, Pencil, Trash2, Download } from "lucide-react";
+import { useSelector } from "react-redux";
+import { Download, Eye, Pencil, Trash2 } from "lucide-react";
 
-import Table from "@/components/ui/tables/Table";
-import TableControls from "@/components/ui/tables/TableControls";
+// Store
+import usePopupStore from "@/app/store/popupStore";
 
+// Constants
+import { PAGE_META } from "@/constants/pageMeta";
+
+// Hooks
 import {
   useBreadcrumbs,
   useFilter,
-  useSearch,
   usePagination,
+  useSearch,
   useSort,
 } from "@/hooks";
 
+// Services
 import NoteService from "@/services/modules/note.service";
-import PopUp from "../../components/ui/popup/PopUp";
+
+// Components
+import StatsCard from "@/components/ui/cards/StatsCard";
+import PageHeader from "@/components/ui/page/PageHeader";
+import PopUp from "@/components/ui/popup/PopUp";
+import Pagination from "@/components/ui/tables/Pagination";
+import Table from "@/components/ui/tables/Table";
+import TableControls from "@/components/ui/tables/TableControls";
+
+// Local
 import NoteDetail from "./Detail";
-import { useSelector } from "react-redux";
 import { can } from "@/helpers";
 
 const columns = [
@@ -24,7 +41,7 @@ const columns = [
     key: "note",
     label: "Note",
     render: (row) => (
-      <div className="space-y-1 max-w-md">
+      <div className="max-w-md space-y-1">
         <p className="font-semibold text-[var(--color-text)]">
           {row.name || "-"}
         </p>
@@ -52,7 +69,7 @@ const columns = [
     key: "class",
     label: "Class",
     render: (row) => (
-      <div className="space-y-1 max-w-xs">
+      <div className="max-w-xs space-y-1">
         <span className="inline-block rounded-sm bg-orange-100 px-2 py-1 text-xs font-medium text-orange-700">
           {row.Class?.code || "-"}
         </span>
@@ -80,30 +97,39 @@ const columns = [
 const List = () => {
   const breadcrumbs = useBreadcrumbs();
 
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-
   const user = useSelector((state) => state.auth.user);
 
   const role = user?.role;
 
-  // PopUp
+  const page = PAGE_META.notes?.[role] || PAGE_META.notes?.Admin;
+
+  const { openConfirm, openError, openSuccess } = usePopupStore();
+
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const [selectedNote, setSelectedNote] = useState(null);
   const [openDetail, setOpenDetail] = useState(false);
 
-  const fetchTasks = async () => {
+  const fetchNotes = async () => {
     try {
       const res = await NoteService.getAll();
+
       setData(res.data || []);
     } catch (error) {
       console.error(error);
+
+      openError({
+        title: "Load Failed",
+        message: error?.response?.data?.message || "Failed to load notes.",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchTasks();
+    fetchNotes();
   }, []);
 
   const { query, setQuery, searchedData } = useSearch(data, [
@@ -121,18 +147,32 @@ const List = () => {
   const { paginatedData, currentPage, totalPages, nextPage, prevPage } =
     usePagination(sortedData, 10);
 
-  const handleRemove = async (id) => {
-    const confirmed = confirm("Are you sure you want to delete this task?");
+  const handleRemove = (id) => {
+    openConfirm({
+      title: "Delete Note",
+      message:
+        "Are you sure you want to delete this note? This action cannot be undone.",
 
-    if (!confirmed) return;
+      action: async () => {
+        try {
+          await NoteService.delete(id);
 
-    try {
-      await NoteService.delete(id);
+          setData((prev) => prev.filter((item) => item.id !== id));
 
-      setData((prev) => prev.filter((item) => item.id !== id));
-    } catch (error) {
-      console.error(error);
-    }
+          openSuccess({
+            title: "Success",
+            message: "Note deleted successfully.",
+          });
+        } catch (error) {
+          console.error(error);
+
+          openError({
+            title: "Delete Failed",
+            message: error?.response?.data?.message || "Failed to delete note.",
+          });
+        }
+      },
+    });
   };
 
   const dataWithActions = paginatedData.map((row) => ({
@@ -150,6 +190,7 @@ const List = () => {
           <Eye size={14} />
           Details
         </button>
+
         {can(role, "note", "update") && (
           <Link
             to={`/notes/edit/${row.id}`}
@@ -173,20 +214,6 @@ const List = () => {
     ),
   }));
 
-  const pageTitle =
-    role === "Mentor"
-      ? "My Notes"
-      : role === "Mentee"
-        ? "Learning Notes"
-        : "Note Management";
-
-  const pageDescription =
-    role === "Mentor"
-      ? "Manage learning notes and documentation from your classes."
-      : role === "Mentee"
-        ? "View notes, summaries, and learning references from your enrolled classes."
-        : "Manage learning notes, meeting documentation, summaries, and educational references across all Orange LMS classes.";
-
   if (loading) {
     return (
       <div className="p-4 text-[var(--color-text-muted)]">Loading notes...</div>
@@ -194,79 +221,33 @@ const List = () => {
   }
 
   return (
-    <div className="p-4 space-y-4 bg-[var(--color-background)] min-h-screen">
+    <div className="min-h-screen space-y-4 bg-[var(--color-background)] p-4">
       {/* Header */}
-      <div className="space-y-1">
-        <p className="text-xs text-[var(--color-text-muted)]">
-          {breadcrumbs.map((b, i) => (
-            <span key={b.to}>
-              {b.label}
-              {i < breadcrumbs.length - 1 && " / "}
-            </span>
-          ))}
-        </p>
+      <div className="grid grid-cols-2">
+        {/* Page Header */}
+        <PageHeader
+          breadcrumbs={breadcrumbs}
+          title={page.title}
+          description={page.description}
+        />
 
-        <h1 className="text-2xl font-bold text-[var(--color-text)]">
-          {pageTitle}
-        </h1>
-
-        <p className="max-w-3xl text-sm leading-6 text-[var(--color-text-muted)]">
-          {pageDescription}
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <div className="rounded-sm border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">Tasks</p>
-
-          <h3 className="mt-1 text-2xl font-bold">{data.length}</h3>
-        </div>
-
-        <div className="rounded-sm border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">Published</p>
-
-          <h3 className="mt-1 text-2xl font-bold">
-            {data.filter((item) => item.status === "Published").length}
-          </h3>
-        </div>
-
-        <div className="rounded-sm border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">Draft</p>
-
-          <h3 className="mt-1 text-2xl font-bold">
-            {data.filter((item) => item.status === "Draft").length}
-          </h3>
-        </div>
-
-        <div className="rounded-sm border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">Archived</p>
-
-          <h3 className="mt-1 text-2xl font-bold">
-            {data.filter((item) => item.status === "Archived").length}
-          </h3>
+        {/* Stats Card */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-1">
+          <StatsCard title="Notes" value={data.length} />
         </div>
       </div>
 
-      {/* Controls */}
       <div className="rounded-sm border border-gray-200 bg-[var(--color-surface)] p-4">
         <TableControls
           searchQuery={query}
           setSearchQuery={setQuery}
-          filterOptions={["Published", "Draft", "Archived"]}
+          filterOptions={[]}
           filterValue={filterValue}
           setFilterValue={setFilterValue}
           sortOptions={[
             {
               key: "name",
-              label: "Task Name",
-            },
-            {
-              key: "maxScore",
-              label: "Max Score",
-            },
-            {
-              key: "status",
-              label: "Status",
+              label: "Note Name",
             },
           ]}
           sortKey={sortKey}
@@ -274,11 +255,10 @@ const List = () => {
         />
       </div>
 
-      {/* Table */}
       <div className="overflow-hidden rounded-sm border border-gray-200 bg-[var(--color-surface)]">
         <div className="border-b border-gray-200 px-4 py-3">
           <p className="text-sm font-medium text-[var(--color-text-muted)]">
-            Total {sortedData.length} Tasks
+            Total {sortedData.length} Notes
           </p>
         </div>
 
@@ -287,28 +267,13 @@ const List = () => {
         </div>
       </div>
 
-      {/* Pagination */}
-      <div className="flex items-center justify-end gap-1">
-        <button
-          onClick={prevPage}
-          disabled={currentPage === 1}
-          className="rounded-sm border border-gray-200 px-4 py-2 hover:bg-gray-50 disabled:opacity-50"
-        >
-          Prev
-        </button>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        prevPage={prevPage}
+        nextPage={nextPage}
+      />
 
-        <span className="px-3 text-sm text-[var(--color-text-muted)]">
-          {currentPage} / {totalPages || 1}
-        </span>
-
-        <button
-          onClick={nextPage}
-          disabled={currentPage === totalPages}
-          className="rounded-sm bg-[var(--color-primary)] px-4 py-2 text-white hover:opacity-90 disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
       <PopUp
         open={openDetail}
         onClose={() => setOpenDetail(false)}
