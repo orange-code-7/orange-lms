@@ -56,7 +56,7 @@ const Form = ({
       </div>
 
       {/* Actions */}
-      {submitLabel === "" ? <></> : <FormActions submitLabel={submitLabel} />}
+      {submitLabel && <FormActions submitLabel={submitLabel} />}
     </form>
   );
 };
