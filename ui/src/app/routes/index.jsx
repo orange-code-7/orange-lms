@@ -28,6 +28,7 @@ import assessmentRoutes from "./modules/assessment.routes.jsx";
 
 import profileRoutes from "./modules/profile.routes";
 import settingRoutes from "./modules/setting.routes";
+import adminRoutes from "./modules/admin.routes.jsx";
 
 const router = createBrowserRouter([
   authRoutes,
@@ -54,6 +55,7 @@ const router = createBrowserRouter([
       taskRoutes,
       noteRoutes,
       materialRoutes,
+      adminRoutes,
       mentorRoutes,
       menteeRoutes,
       // V3

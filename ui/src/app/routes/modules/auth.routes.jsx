@@ -6,7 +6,6 @@ import PublicRoute from "../guards/PublicRoute";
 import AuthLayout from "@/layouts/AuthLayout";
 
 import Login from "@/pages/auth/login";
-import Register from "@/pages/auth/register";
 
 const authRoutes = {
   path: "/auth",
@@ -21,10 +20,6 @@ const authRoutes = {
     {
       path: "login",
       element: <Login />,
-    },
-    {
-      path: "register",
-      element: <Register />,
     },
     {
       index: true,
