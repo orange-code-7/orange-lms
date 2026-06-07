@@ -25,6 +25,8 @@ const Create = () => {
 
   const handleSubmit = async (payload) => {
     try {
+      setError("");
+
       await MentorService.create(payload);
 
       setOpenSuccess(true);
