@@ -294,7 +294,7 @@ export const materialSchema = [
     type: "select",
     options: [
       { label: "PDF", value: "PDF" },
-      { label: "Video", value: "Video" },
+      { label: "JPG", value: "JPG" },
       { label: "URL", value: "URL" },
       { label: "Document", value: "Document" },
     ],

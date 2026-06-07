@@ -20,7 +20,7 @@ const DateInput = ({
           disabled={disabled}
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full rounded-lg border border-gray-200 bg-white py-2.5 pl-10 pr-3 text-sm outline-none transition focus:border-orange-400 focus:ring-1 focus:ring-orange-200 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
+          className="w-full rounded-sm border border-gray-200 bg-white py-2.5 pl-10 pr-3 text-sm outline-none transition focus:border-orange-400 focus:ring-1 focus:ring-orange-200 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
         />
       </div>
     </div>

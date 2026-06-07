@@ -7,6 +7,7 @@ import useBreadcrumbs from "@/hooks/useBreadcrumbs";
 import PopUp from "@/components/ui/popup/PopUp";
 import ClassService from "@/services/modules/class.service";
 import MenteeService from "@/services/modules/mentee.service";
+import ConfirmPopUp from "@/components/ui/popup/ConfirmPopUp";
 
 import {
   Trash2,
@@ -40,6 +41,26 @@ const Detail = () => {
   const [openEnrollPopupBulk, setOpenEnrollPopupBulk] = useState(false);
   const [availableBulkMentees, setAvailableBulkMentees] = useState([]);
   const [selectedBulkMentees, setSelectedBulkMentees] = useState([]);
+
+  // Confirm PopUp
+  const [openConfirm, setOpenConfirm] = useState(false);
+
+  const [confirmConfig, setConfirmConfig] = useState({
+    title: "",
+    message: "",
+    action: null,
+  });
+  // Open Confirm
+  const openDeleteConfirm = ({ title, message, action }) => {
+    setConfirmConfig({
+      title,
+      message,
+      action,
+    });
+
+    setOpenConfirm(true);
+  };
+  // =====
 
   const handleOpenEnrollPopup = async () => {
     try {
@@ -605,6 +626,22 @@ const Detail = () => {
           </div>
         </div>
       </PopUp>
+      {/* Confirm PopUp */}
+      <ConfirmPopUp
+        open={openConfirm}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        onClose={() => setOpenConfirm(false)}
+        onConfirm={async () => {
+          try {
+            await confirmConfig.action?.();
+          } catch (error) {
+            console.error(error);
+          } finally {
+            setOpenConfirm(false);
+          }
+        }}
+      />
     </div>
   );
 };

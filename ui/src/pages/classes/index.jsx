@@ -1,21 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 
-import Table from "@/components/ui/tables/Table";
-import TableControls from "@/components/ui/tables/TableControls";
+import { useSelector } from "react-redux";
+
+import usePopupStore from "@/app/store/popupStore";
+
+import { PAGE_META } from "@/constants/pageMeta";
 
 import {
   useBreadcrumbs,
   useFilter,
-  useSearch,
   usePagination,
+  useSearch,
   useSort,
 } from "@/hooks";
 
 import ClassService from "@/services/modules/class.service";
-import { Eye, Pencil, Trash2 } from "lucide-react";
-import { useSelector } from "react-redux";
-import { can } from "@/helpers";
+
+import PageHeader from "@/components/ui/page/PageHeader";
+
+import Table from "@/components/ui/tables/Table";
+import TableActions from "@/components/ui/tables/TableActions";
+import TableControls from "@/components/ui/tables/TableControls";
+import Pagination from "@/components/ui/tables/Pagination";
 
 const columns = [
   {
@@ -48,7 +54,6 @@ const columns = [
     key: "mentor",
     label: "Mentor",
     render: (row) => row.mentor?.name || "-",
-    // row.Users?.find((u) => u.ClassUser?.roleInClass === "Mentor")?.name ||"-",
   },
   {
     key: "mentees",
@@ -73,15 +78,25 @@ const List = () => {
 
   const role = user?.role;
 
+  const page = PAGE_META.classes[role];
+
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const { openConfirm, openError, openSuccess } = usePopupStore();
 
   const fetchClasses = async () => {
     try {
       const res = await ClassService.getAll();
+
       setData(res.data);
     } catch (error) {
       console.error(error);
+
+      openError({
+        title: "Load Failed",
+        message: error?.response?.data?.message || "Failed to load classes.",
+      });
     } finally {
       setLoading(false);
     }
@@ -108,53 +123,47 @@ const List = () => {
   const { paginatedData, currentPage, totalPages, nextPage, prevPage } =
     usePagination(sortedData, 5);
 
-  const handleRemove = async (id) => {
-    const confirmed = confirm("Are you sure you want to delete this class?");
+  const handleRemove = (id) => {
+    openConfirm({
+      title: "Delete Class",
+      message:
+        "Are you sure you want to delete this class? This action cannot be undone.",
 
-    if (!confirmed) return;
+      action: async () => {
+        try {
+          await ClassService.delete(id);
 
-    try {
-      await ClassService.delete(id);
+          setData((prev) => prev.filter((item) => item.id !== id));
 
-      setData((prev) => prev.filter((item) => item.id !== id));
-    } catch (error) {
-      console.error(error);
-    }
+          openSuccess({
+            title: "Success",
+            message: "Class deleted successfully.",
+          });
+        } catch (error) {
+          console.error(error);
+
+          openError({
+            title: "Delete Failed",
+            message:
+              error?.response?.data?.message || "Failed to delete class.",
+          });
+        }
+      },
+    });
   };
 
   const dataWithActions = paginatedData.map((row) => ({
     ...row,
 
     actions: (
-      <div className="flex items-center gap-2">
-        <Link
-          to={`/classes/${row.id}`}
-          className="flex items-center gap-1 rounded-sm bg-sky-100 px-2 py-1 text-xs font-medium text-sky-700 hover:bg-sky-200"
-        >
-          <Eye size={14} />
-          Details
-        </Link>
-
-        {can(role, "class", "update") && (
-          <Link
-            to={`/classes/edit/${row.id}`}
-            className="flex items-center gap-1 rounded-sm bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-200"
-          >
-            <Pencil size={14} />
-            Edit
-          </Link>
-        )}
-
-        {can(role, "class", "delete") && (
-          <button
-            onClick={() => handleRemove(row.id)}
-            className="flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium text-[var(--color-text-muted)] hover:bg-rose-50 hover:text-rose-600"
-          >
-            <Trash2 size={14} />
-            Remove
-          </button>
-        )}
-      </div>
+      <TableActions
+        id={row.id}
+        role={role}
+        resource="class"
+        detailUrl={`/classes/${row.id}`}
+        editUrl={`/classes/edit/${row.id}`}
+        onDelete={handleRemove}
+      />
     ),
   }));
 
@@ -165,41 +174,15 @@ const List = () => {
       </div>
     );
   }
-  const pageTitle =
-    role === "Mentor"
-      ? "My Classes"
-      : role === "Mentee"
-        ? "My Learning Classes"
-        : "Class Management";
 
-  const pageDescription =
-    role === "Mentor"
-      ? "View classes assigned to you and manage learning activities."
-      : role === "Mentee"
-        ? "View enrolled classes, meetings, assignments, notes, and learning materials."
-        : "Manage all Orange LMS classes and learning activities.";
   return (
-    <div className="p-4 space-y-4 bg-[var(--color-background)] min-h-screen">
-      {/* Header */}
-      <div className="space-y-1">
-        <p className="text-xs text-[var(--color-text-muted)]">
-          {breadcrumbs.map((b, i) => (
-            <span key={b.to}>
-              {b.label}
-              {i < breadcrumbs.length - 1 && " / "}
-            </span>
-          ))}
-        </p>
+    <div className="min-h-screen space-y-4 bg-[var(--color-background)] p-4">
+      <PageHeader
+        breadcrumbs={breadcrumbs}
+        title={page.title}
+        description={page.description}
+      />
 
-        <h1 className="text-2xl font-bold text-[var(--color-text)]">
-          {pageTitle}
-        </h1>
-        <p className="max-w-3xl text-sm leading-6 text-[var(--color-text-muted)]">
-          {pageDescription}
-        </p>
-      </div>
-
-      {/* Controls */}
       <div className="rounded-sm border border-gray-200 bg-[var(--color-surface)] p-4">
         <TableControls
           searchQuery={query}
@@ -228,7 +211,6 @@ const List = () => {
         />
       </div>
 
-      {/* Table */}
       <div className="overflow-hidden rounded-sm border border-gray-200 bg-[var(--color-surface)]">
         <div className="border-b border-gray-200 px-4 py-3">
           <p className="text-sm font-medium text-[var(--color-text-muted)]">
@@ -242,27 +224,12 @@ const List = () => {
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-end gap-1">
-        <button
-          onClick={prevPage}
-          disabled={currentPage === 1}
-          className="rounded-sm border border-gray-200 px-4 py-2 hover:bg-gray-50 disabled:opacity-50"
-        >
-          Prev
-        </button>
-
-        <span className="px-3 text-sm text-[var(--color-text-muted)]">
-          {currentPage} / {totalPages || 1}
-        </span>
-
-        <button
-          onClick={nextPage}
-          disabled={currentPage === totalPages}
-          className="rounded-sm bg-[var(--color-primary)] px-4 py-2 text-white hover:opacity-90 disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        prevPage={prevPage}
+        nextPage={nextPage}
+      />
     </div>
   );
 };

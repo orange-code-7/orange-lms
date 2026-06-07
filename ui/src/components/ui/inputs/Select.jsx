@@ -10,7 +10,7 @@ const Select = ({ label, value, onChange, options = [], disabled = false }) => {
           value={value || ""}
           disabled={disabled}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full appearance-none rounded-lg border border-gray-200 bg-white py-2.5 pl-3 pr-10 text-sm outline-none transition focus:border-orange-400 focus:ring-1 focus:ring-orange-200 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
+          className="w-full appearance-none rounded-sm border border-gray-200 bg-white py-2.5 pl-3 pr-10 text-sm outline-none transition focus:border-orange-400 focus:ring-1 focus:ring-orange-200 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
         >
           <option value="">Select</option>
 
