@@ -1,24 +1,52 @@
-const Pagination = ({ currentPage, totalPages, prevPage, nextPage }) => {
+import React from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+const Pagination = ({
+  currentPage = 1,
+  totalPages = 1,
+  prevPage,
+  nextPage,
+}) => {
+  if (totalPages <= 1) return null;
+
   return (
-    <div className="flex items-center justify-end gap-1">
+    <div className="flex items-center justify-end gap-2">
       <button
         onClick={prevPage}
         disabled={currentPage === 1}
-        className="rounded-sm border border-gray-200 px-4 py-2 hover:bg-gray-50 disabled:opacity-50"
+        className="
+          inline-flex items-center gap-1
+          rounded-sm border border-gray-200
+          px-4 py-2 text-sm
+          transition-colors
+          hover:bg-gray-50
+          disabled:cursor-not-allowed
+          disabled:opacity-50
+        "
       >
+        <ChevronLeft size={16} />
         Prev
       </button>
 
-      <span className="px-3 text-sm text-[var(--color-text-muted)]">
-        {currentPage} / {totalPages || 1}
+      <span className="px-3 text-sm font-medium text-[var(--color-text-muted)]">
+        {currentPage} / {totalPages}
       </span>
 
       <button
         onClick={nextPage}
         disabled={currentPage === totalPages}
-        className="rounded-sm bg-[var(--color-primary)] px-4 py-2 text-white hover:opacity-90 disabled:opacity-50"
+        className="
+          inline-flex items-center gap-1
+          rounded-sm bg-[var(--color-primary)]
+          px-4 py-2 text-sm text-white
+          transition-opacity
+          hover:opacity-90
+          disabled:cursor-not-allowed
+          disabled:opacity-50
+        "
       >
         Next
+        <ChevronRight size={16} />
       </button>
     </div>
   );

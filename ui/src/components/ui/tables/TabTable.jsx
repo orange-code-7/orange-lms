@@ -1,79 +1,70 @@
 import React from "react";
-import Table from "./Table";
-import TableControls from "./TableControls";
+
 import useSearch from "@/hooks/useSearch";
 import useFilter from "@/hooks/useFilter";
 import useSort from "@/hooks/useSort";
 import usePagination from "@/hooks/usePagination";
 
-/**
- * TabTable Component
- * @param {Array} data - array of objects (rows)
- * @param {Array} columns - array of objects { key, label, render? }
- * @param {Number} pageSize - optional, default 5
- */
-const TabTable = ({ data, columns, pageSize = 5 }) => {
-  // default columns if not provided
+import Table from "./Table";
+import TableControls from "./TableControls";
+import Pagination from "./Pagination";
+
+const TabTable = ({
+  data = [],
+  columns = [],
+  pageSize = 5,
+
+  filterOptions = [],
+}) => {
   const finalColumns =
-    columns && columns.length > 0
+    columns.length > 0
       ? columns
       : data[0]
-        ? Object.keys(data[0]).map((key) => ({ key, label: key }))
+        ? Object.keys(data[0]).map((key) => ({
+            key,
+            label: key,
+          }))
         : [];
 
-  // SEARCH
   const { query, setQuery, searchedData } = useSearch(
     data,
-    finalColumns.map((c) => c.key),
+    finalColumns.map((col) => col.key),
   );
 
-  // FILTER (optional: bisa kasih column pertama sebagai default filter)
   const { filterValue, setFilterValue, filteredData } = useFilter(
     searchedData,
     finalColumns[0]?.key || "",
   );
 
-  // SORT
   const { sortedData, sortKey, toggleSort } = useSort(filteredData);
 
-  // PAGINATION
   const { paginatedData, currentPage, totalPages, nextPage, prevPage } =
     usePagination(sortedData, pageSize);
 
   return (
-    <div className="mt-4">
+    <div className="space-y-4">
       <TableControls
         searchQuery={query}
         setSearchQuery={setQuery}
-        filterOptions={[]} // bisa dikirim dari parent jika perlu
+        filterOptions={filterOptions}
         filterValue={filterValue}
         setFilterValue={setFilterValue}
-        sortOptions={finalColumns.map((c) => ({ key: c.key, label: c.label }))}
+        sortOptions={finalColumns.map((col) => ({
+          key: col.key,
+          label: col.label,
+        }))}
         sortKey={sortKey}
         toggleSort={toggleSort}
       />
 
       <Table columns={finalColumns} data={paginatedData} />
 
-      <div className="flex gap-2 items-center mt-2">
-        <button
-          onClick={prevPage}
-          disabled={currentPage === 1}
-          className="border border-gray-200 px-3 py-1 rounded disabled:opacity-50"
-        >
-          Prev
-        </button>
-        <span>
-          Page {currentPage} / {totalPages}
-        </span>
-        <button
-          onClick={nextPage}
-          disabled={currentPage === totalPages}
-          className="border border-gray-200 px-3 py-1 rounded disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        prevPage={prevPage}
+        nextPage={nextPage}
+      />
     </div>
   );
 };
