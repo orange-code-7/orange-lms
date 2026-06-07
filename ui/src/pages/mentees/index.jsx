@@ -1,30 +1,22 @@
-// React
-import React, { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-// External
-import { Link } from "react-router-dom";
-
-// Store
 import usePopupStore from "@/app/store/popupStore";
 
-// Hooks
-import { useBreadcrumbs, usePagination, useSearch } from "@/hooks";
-
-// Services
-import MenteeService from "@/services/modules/mentee.service";
-
-// Components
-import PageHeader from "@/components/ui/page/PageHeader";
-import StatsCard from "@/components/ui/cards/StatsCard";
-import Table from "@/components/ui/tables/Table";
-import TableControls from "@/components/ui/tables/TableControls";
-import Pagination from "@/components/ui/tables/Pagination";
-
-// Constants
 import { PAGE_META } from "@/constants/pageMeta";
 
-// Icons
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { useBreadcrumbs, usePagination, useSearch } from "@/hooks";
+
+import MenteeService from "@/services/modules/mentee.service";
+
+import LoadingPage from "@/components/ui/loading/LoadingPage";
+import PageHeader from "@/components/ui/page/PageHeader";
+
+import StatsCard from "@/components/ui/cards/StatsCard";
+
+import Table from "@/components/ui/tables/Table";
+import TableActions from "@/components/ui/tables/TableActions";
+import TableControls from "@/components/ui/tables/TableControls";
+import Pagination from "@/components/ui/tables/Pagination";
 
 const columns = [
   {
@@ -90,33 +82,33 @@ const columns = [
 const List = () => {
   const breadcrumbs = useBreadcrumbs();
 
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-
   const page = PAGE_META.mentees.Admin;
 
   const { openConfirm, openError, openSuccess } = usePopupStore();
 
-  const fetchMentees = async () => {
-    try {
-      const res = await MenteeService.getAll();
-
-      setData(res.data || []);
-    } catch (error) {
-      console.error(error);
-
-      openError({
-        title: "Load Failed",
-        message: error?.response?.data?.message || "Failed to load mentees.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchMentees = async () => {
+      try {
+        const res = await MenteeService.getAll();
+
+        setData(res.data || []);
+      } catch (error) {
+        console.error(error);
+
+        openError({
+          title: "Load Failed",
+          message: error?.response?.data?.message || "Failed to load mentees.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchMentees();
-  }, []);
+  }, [openError]);
 
   const { query, setQuery, searchedData } = useSearch(data, ["name", "email"]);
 
@@ -152,55 +144,39 @@ const List = () => {
     });
   };
 
-  const totalMentees = data.length;
-
-  const activeMentees = data.filter((item) => item.isActive).length;
-
-  const inactiveMentees = totalMentees - activeMentees;
-
-  const totalEnrollments = data.reduce(
-    (sum, item) => sum + (item.enrolledClasses?.length || 0),
-    0,
+  const stats = useMemo(
+    () => ({
+      total: data.length,
+      active: data.filter((item) => item.isActive).length,
+      inactive: data.filter((item) => !item.isActive).length,
+      enrollments: data.reduce(
+        (sum, item) => sum + (item.enrolledClasses?.length || 0),
+        0,
+      ),
+    }),
+    [data],
   );
 
-  const dataWithActions = paginatedData.map((row) => ({
-    ...row,
+  const tableData = useMemo(
+    () =>
+      paginatedData.map((row) => ({
+        ...row,
 
-    actions: (
-      <div className="flex items-center gap-2">
-        <Link
-          to={`/mentees/${row.id}`}
-          className="flex items-center gap-1 rounded-sm bg-sky-100 px-2 py-1 text-xs font-medium text-sky-700 hover:bg-sky-200"
-        >
-          <Eye size={14} />
-          Details
-        </Link>
-
-        <Link
-          to={`/mentees/edit/${row.id}`}
-          className="flex items-center gap-1 rounded-sm bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-200"
-        >
-          <Pencil size={14} />
-          Edit
-        </Link>
-
-        <button
-          onClick={() => handleRemove(row.id)}
-          className="flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium text-[var(--color-text-muted)] hover:bg-rose-50 hover:text-rose-600"
-        >
-          <Trash2 size={14} />
-          Remove
-        </button>
-      </div>
-    ),
-  }));
+        actions: (
+          <TableActions
+            id={row.id}
+            resource="mentee"
+            detailUrl={`/mentees/${row.id}`}
+            editUrl={`/mentees/edit/${row.id}`}
+            onDelete={handleRemove}
+          />
+        ),
+      })),
+    [paginatedData],
+  );
 
   if (loading) {
-    return (
-      <div className="p-4 text-[var(--color-text-muted)]">
-        Loading mentees...
-      </div>
-    );
+    return <LoadingPage title="Loading Mentees..." />;
   }
 
   return (
@@ -212,13 +188,13 @@ const List = () => {
       />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <StatsCard title="Total Mentees" value={totalMentees} />
+        <StatsCard title="Total Mentees" value={stats.total} />
 
-        <StatsCard title="Active Mentees" value={activeMentees} />
+        <StatsCard title="Active Mentees" value={stats.active} />
 
-        <StatsCard title="Inactive Mentees" value={inactiveMentees} />
+        <StatsCard title="Inactive Mentees" value={stats.inactive} />
 
-        <StatsCard title="Enrollments" value={totalEnrollments} />
+        <StatsCard title="Enrollments" value={stats.enrollments} />
       </div>
 
       <div className="rounded-sm border border-gray-200 bg-[var(--color-surface)] p-4">
@@ -242,7 +218,7 @@ const List = () => {
         </div>
 
         <div className="p-4">
-          <Table columns={columns} data={dataWithActions} />
+          <Table columns={columns} data={tableData} />
         </div>
       </div>
 
