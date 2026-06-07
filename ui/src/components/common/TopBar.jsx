@@ -10,6 +10,7 @@ import {
   FileText,
   Archive,
   UserPlus,
+  UserStarIcon,
 } from "lucide-react";
 
 import { Link } from "react-router-dom";
@@ -111,13 +112,24 @@ const TopBar = () => {
                   </div>
                 )}
 
-                {/* Mentor / Mentee */}
-                {(can(role, "mentor", "create") ||
+                {/* Admin / Mentor / Mentee */}
+                {(can(role, "admin", "create") ||
+                  can(role, "mentor", "create") ||
                   can(role, "mentee", "create")) && (
                   <div className="p-2">
                     <p className="mb-1 text-xs font-semibold text-green-600">
-                      Mentor / Mentee
+                      Admin / Mentor / Mentee
                     </p>
+
+                    {can(role, "admin", "create") && (
+                      <Link
+                        to="/admins/create"
+                        className="flex items-center gap-2 rounded px-3 py-2 hover:bg-green-100"
+                      >
+                        <UserStarIcon size={16} />
+                        Admin
+                      </Link>
+                    )}
 
                     {can(role, "mentor", "create") && (
                       <Link
