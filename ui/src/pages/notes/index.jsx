@@ -1,18 +1,12 @@
-// React
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
-// External
-import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { Download, Eye, Pencil, Trash2 } from "lucide-react";
+import { Download } from "lucide-react";
 
-// Store
 import usePopupStore from "@/app/store/popupStore";
 
-// Constants
 import { PAGE_META } from "@/constants/pageMeta";
 
-// Hooks
 import {
   useBreadcrumbs,
   useFilter,
@@ -21,20 +15,22 @@ import {
   useSort,
 } from "@/hooks";
 
-// Services
 import NoteService from "@/services/modules/note.service";
 
-// Components
-import StatsCard from "@/components/ui/cards/StatsCard";
-import PageHeader from "@/components/ui/page/PageHeader";
-import PopUp from "@/components/ui/popup/PopUp";
-import Pagination from "@/components/ui/tables/Pagination";
-import Table from "@/components/ui/tables/Table";
-import TableControls from "@/components/ui/tables/TableControls";
+import LoadingPage from "@/components/ui/loading/LoadingPage";
 
-// Local
+import StatsCard from "@/components/ui/cards/StatsCard";
+
+import PageHeader from "@/components/ui/page/PageHeader";
+
+import PopUp from "@/components/ui/popup/PopUp";
+
+import Table from "@/components/ui/tables/Table";
+import TableActions from "@/components/ui/tables/TableActions";
+import TableControls from "@/components/ui/tables/TableControls";
+import Pagination from "@/components/ui/tables/Pagination";
+
 import NoteDetail from "./Detail";
-import { can } from "@/helpers";
 
 const columns = [
   {
@@ -94,8 +90,22 @@ const columns = [
   },
 ];
 
+const SORT_OPTIONS = [
+  {
+    key: "name",
+    label: "Note Name",
+  },
+];
+
 const List = () => {
   const breadcrumbs = useBreadcrumbs();
+
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [selectedNote, setSelectedNote] = useState(null);
+
+  const [openDetail, setOpenDetail] = useState(false);
 
   const user = useSelector((state) => state.auth.user);
 
@@ -105,32 +115,26 @@ const List = () => {
 
   const { openConfirm, openError, openSuccess } = usePopupStore();
 
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const [selectedNote, setSelectedNote] = useState(null);
-  const [openDetail, setOpenDetail] = useState(false);
-
-  const fetchNotes = async () => {
-    try {
-      const res = await NoteService.getAll();
-
-      setData(res.data || []);
-    } catch (error) {
-      console.error(error);
-
-      openError({
-        title: "Load Failed",
-        message: error?.response?.data?.message || "Failed to load notes.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchNotes = async () => {
+      try {
+        const res = await NoteService.getAll();
+
+        setData(res.data || []);
+      } catch (error) {
+        console.error(error);
+
+        openError({
+          title: "Load Failed",
+          message: error?.response?.data?.message || "Failed to load notes.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchNotes();
-  }, []);
+  }, [openError]);
 
   const { query, setQuery, searchedData } = useSearch(data, [
     "name",
@@ -175,64 +179,42 @@ const List = () => {
     });
   };
 
-  const dataWithActions = paginatedData.map((row) => ({
-    ...row,
+  const tableData = useMemo(
+    () =>
+      paginatedData.map((row) => ({
+        ...row,
 
-    actions: (
-      <div className="flex items-center gap-2">
-        <button
-          onClick={() => {
-            setSelectedNote(row);
-            setOpenDetail(true);
-          }}
-          className="flex items-center gap-1 rounded-sm bg-sky-100 px-2 py-1 text-xs font-medium text-sky-700 hover:bg-sky-200"
-        >
-          <Eye size={14} />
-          Details
-        </button>
-
-        {can(role, "note", "update") && (
-          <Link
-            to={`/notes/edit/${row.id}`}
-            className="flex items-center gap-1 rounded-sm bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-200"
-          >
-            <Pencil size={14} />
-            Edit
-          </Link>
-        )}
-
-        {can(role, "note", "delete") && (
-          <button
-            onClick={() => handleRemove(row.id)}
-            className="flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium text-[var(--color-text-muted)] hover:bg-rose-50 hover:text-rose-600"
-          >
-            <Trash2 size={14} />
-            Remove
-          </button>
-        )}
-      </div>
-    ),
-  }));
+        actions: (
+          <TableActions
+            id={row.id}
+            role={role}
+            resource="note"
+            editUrl={`/notes/edit/${row.id}`}
+            onDelete={handleRemove}
+            onDetail={() => {
+              setSelectedNote(row);
+              setOpenDetail(true);
+            }}
+          />
+        ),
+      })),
+    [paginatedData, role],
+  );
 
   if (loading) {
-    return (
-      <div className="p-4 text-[var(--color-text-muted)]">Loading notes...</div>
-    );
+    return <LoadingPage title="Loading Notes..." />;
   }
 
   return (
     <div className="min-h-screen space-y-4 bg-[var(--color-background)] p-4">
-      {/* Header */}
-      <div className="grid grid-cols-2">
-        {/* Page Header */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <PageHeader
           breadcrumbs={breadcrumbs}
           title={page.title}
           description={page.description}
         />
 
-        {/* Stats Card */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-1">
+        <div className="grid grid-cols-1 gap-4">
           <StatsCard title="Notes" value={data.length} />
         </div>
       </div>
@@ -244,12 +226,7 @@ const List = () => {
           filterOptions={[]}
           filterValue={filterValue}
           setFilterValue={setFilterValue}
-          sortOptions={[
-            {
-              key: "name",
-              label: "Note Name",
-            },
-          ]}
+          sortOptions={SORT_OPTIONS}
           sortKey={sortKey}
           toggleSort={toggleSort}
         />
@@ -263,7 +240,7 @@ const List = () => {
         </div>
 
         <div className="p-4">
-          <Table columns={columns} data={dataWithActions} />
+          <Table columns={columns} data={tableData} />
         </div>
       </div>
 
@@ -279,7 +256,14 @@ const List = () => {
         onClose={() => setOpenDetail(false)}
         title={selectedNote?.name}
       >
-        <NoteDetail note={selectedNote} role={role} />
+        <NoteDetail
+          note={selectedNote}
+          role={role}
+          onDelete={(id) => {
+            setOpenDetail(false);
+            handleRemove(id);
+          }}
+        />
       </PopUp>
     </div>
   );

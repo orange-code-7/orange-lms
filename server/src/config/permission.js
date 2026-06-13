@@ -5,21 +5,21 @@ module.exports = {
     read: [ROLES.OWNER, ROLES.ADMIN],
     create: [ROLES.OWNER, ROLES.ADMIN],
     update: [ROLES.OWNER, ROLES.ADMIN],
-    delete: [ROLES.OWNER],
+    delete: [ROLES.OWNER, ROLES.ADMIN],
   },
 
   mentor: {
     read: [ROLES.OWNER, ROLES.ADMIN, ROLES.MENTOR],
     create: [ROLES.OWNER, ROLES.ADMIN],
     update: [ROLES.OWNER, ROLES.ADMIN],
-    delete: [ROLES.OWNER],
+    delete: [ROLES.OWNER, ROLES.ADMIN],
   },
 
   mentee: {
     read: [ROLES.OWNER, ROLES.ADMIN, ROLES.MENTOR],
     create: [ROLES.OWNER, ROLES.ADMIN],
     update: [ROLES.OWNER, ROLES.ADMIN],
-    delete: [ROLES.OWNER],
+    delete: [ROLES.OWNER, ROLES.ADMIN],
   },
 
   class: {

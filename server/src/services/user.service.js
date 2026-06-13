@@ -13,13 +13,23 @@ class UserService {
     });
   }
 
-  static async findAll() {
+  static async findAll(filters = {}) {
+    const where = {};
+
+    if (filters.role) {
+      where.role = filters.role;
+    }
+
     return User.findAll({
+      where,
+
       order: [["id", "ASC"]],
+
       include: {
         model: Profile,
         as: "profile",
       },
+
       attributes: {
         exclude: ["password"],
       },
@@ -32,6 +42,7 @@ class UserService {
         model: Profile,
         as: "profile",
       },
+
       attributes: {
         exclude: ["password"],
       },

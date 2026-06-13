@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Form from "@/components/ui/forms/Form";
+import LoadingPage from "@/components/ui/loading/LoadingPage";
 
 import SuccessPopup from "@/components/ui/popup/SuccessPopup";
 import ErrorPopup from "@/components/ui/popup/ErrorPopup";
@@ -13,11 +14,26 @@ import { classSchema } from "@/schemas";
 import ClassService from "@/services/modules/class.service";
 import MentorService from "@/services/modules/mentor.service";
 
+const flattenData = (cls) => ({
+  code: cls?.code || "",
+  name: cls?.name || "",
+  description: cls?.description || "",
+  category: cls?.category || "",
+  level: cls?.level || "",
+  startDate: cls?.startDate?.slice(0, 10) || "",
+  endDate: cls?.endDate?.slice(0, 10) || "",
+  status: cls?.status || "",
+  imageUrl: cls?.imageUrl || "",
+  MentorId: cls?.MentorId || cls?.mentor?.id || "",
+});
+
 const Edit = () => {
   const { id } = useParams();
+
   const navigate = useNavigate();
 
   const [schema, setSchema] = useState(classSchema);
+
   const [loading, setLoading] = useState(true);
 
   const [error, setError] = useState("");
@@ -30,8 +46,6 @@ const Edit = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true);
-
         const [classRes, mentorRes] = await Promise.all([
           ClassService.getById(id),
           MentorService.getAll(),
@@ -54,12 +68,12 @@ const Edit = () => {
         );
 
         setValues(flattenData(classRes.data));
-      } catch (err) {
-        console.error(err);
+      } catch (error) {
+        console.error(error);
 
         setError(
-          err?.response?.data?.message ||
-            err?.message ||
+          error?.response?.data?.message ||
+            error?.message ||
             "Failed to load class",
         );
 
@@ -72,25 +86,22 @@ const Edit = () => {
     fetchData();
   }, [id, setValues]);
 
-  const handleSubmit = async (data) => {
+  const handleSubmit = async (formData) => {
     try {
       setLoading(true);
-      setError("");
 
-      const payload = {
-        ...data,
-        MentorId: Number(data.MentorId),
-      };
-
-      await ClassService.update(id, payload);
+      await ClassService.update(id, {
+        ...formData,
+        MentorId: Number(formData.MentorId),
+      });
 
       setOpenSuccess(true);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
 
       setError(
-        err?.response?.data?.message ||
-          err?.message ||
+        error?.response?.data?.message ||
+          error?.message ||
           "Failed to update class",
       );
 
@@ -100,18 +111,14 @@ const Edit = () => {
     }
   };
 
-  const handleCloseSuccess = () => {
+  const handleSuccessClose = () => {
     setOpenSuccess(false);
 
     navigate("/classes");
   };
 
   if (loading) {
-    return (
-      <div className="rounded-sm border border-gray-200 bg-white p-4">
-        Loading class...
-      </div>
-    );
+    return <LoadingPage title="Loading Class..." />;
   }
 
   return (
@@ -128,7 +135,7 @@ const Edit = () => {
 
       <SuccessPopup
         open={openSuccess}
-        onClose={handleCloseSuccess}
+        onClose={handleSuccessClose}
         title="Class Updated"
         message="Class has been updated successfully."
       />
@@ -142,18 +149,5 @@ const Edit = () => {
     </>
   );
 };
-
-const flattenData = (cls) => ({
-  code: cls?.code || "",
-  name: cls?.name || "",
-  description: cls?.description || "",
-  category: cls?.category || "",
-  level: cls?.level || "",
-  startDate: cls?.startDate?.slice(0, 10) || "",
-  endDate: cls?.endDate?.slice(0, 10) || "",
-  status: cls?.status || "",
-  imageUrl: cls?.imageUrl || "",
-  MentorId: cls?.MentorId || cls?.mentor?.id || "",
-});
 
 export default Edit;

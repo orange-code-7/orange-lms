@@ -7,11 +7,20 @@ import SuccessPopup from "@/components/ui/popup/SuccessPopup";
 import ErrorPopup from "@/components/ui/popup/ErrorPopup";
 
 import useForm from "@/hooks/useForm";
-import useClassMeetingOptions from "@/hooks/useClassMeetingOptions";
 
-import { materialSchema } from "@/schemas";
+import UserService from "@/services/modules/user.service";
 
-import MaterialService from "@/services/modules/material.service";
+import { userSchema } from "@/schemas";
+
+const flattenAdmin = (admin) => ({
+  name: admin?.name || "",
+  email: admin?.email || "",
+  avatarUrl: admin?.avatarUrl || "",
+  age: admin?.profile?.age || "",
+  phoneNumber: admin?.profile?.phoneNumber || "",
+  city: admin?.profile?.city || "",
+  background: admin?.profile?.background || "",
+});
 
 const Edit = () => {
   const { id } = useParams();
@@ -23,33 +32,23 @@ const Edit = () => {
   const [error, setError] = useState("");
 
   const [openSuccess, setOpenSuccess] = useState(false);
-
   const [openError, setOpenError] = useState(false);
 
-  const { values, handleChange, setValues } = useForm(materialSchema);
-
-  const schema = useClassMeetingOptions(
-    values,
-    setValues,
-    materialSchema,
-    true,
-  );
+  const { values, handleChange, setValues } = useForm(userSchema);
 
   useEffect(() => {
-    const fetchMaterial = async () => {
+    const fetchAdmin = async () => {
       try {
-        setLoading(true);
+        const res = await UserService.getById(id);
 
-        const res = await MaterialService.getById(id);
-
-        setValues(flattenMaterial(res.data));
+        setValues(flattenAdmin(res.data));
       } catch (err) {
         console.error(err);
 
         setError(
           err?.response?.data?.message ||
             err?.message ||
-            "Failed to load material",
+            "Failed to load admin",
         );
 
         setOpenError(true);
@@ -58,18 +57,14 @@ const Edit = () => {
       }
     };
 
-    fetchMaterial();
+    fetchAdmin();
   }, [id, setValues]);
 
   const handleSubmit = async (payload) => {
     try {
-      setLoading(true);
-      setError("");
-
-      await MaterialService.update(id, {
+      await UserService.update(id, {
         ...payload,
-        ClassId: Number(payload.ClassId),
-        MeetingId: Number(payload.MeetingId),
+        role: "Admin",
       });
 
       setOpenSuccess(true);
@@ -79,25 +74,23 @@ const Edit = () => {
       setError(
         err?.response?.data?.message ||
           err?.message ||
-          "Failed to update material",
+          "Failed to update admin",
       );
 
       setOpenError(true);
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleCloseSuccess = () => {
     setOpenSuccess(false);
 
-    navigate("/materials");
+    navigate("/admins");
   };
 
   if (loading) {
     return (
       <div className="rounded-sm border border-gray-200 bg-white p-4">
-        Loading material...
+        Loading admin...
       </div>
     );
   }
@@ -105,44 +98,30 @@ const Edit = () => {
   return (
     <>
       <Form
-        title="Edit Material"
-        description="Update material information"
-        schema={schema}
+        title="Edit Admin"
+        description="Update admin information"
+        schema={userSchema}
         values={values}
         onChange={handleChange}
         onSubmit={handleSubmit}
-        submitLabel="Update Material"
+        submitLabel="Update Admin"
       />
 
       <SuccessPopup
         open={openSuccess}
         onClose={handleCloseSuccess}
-        title="Material Updated"
-        message="Material has been updated successfully."
+        title="Admin Updated"
+        message="Admin has been updated successfully."
       />
 
       <ErrorPopup
         open={openError}
         onClose={() => setOpenError(false)}
-        title="Update Material Failed"
+        title="Update Admin Failed"
         message={error}
       />
     </>
   );
 };
-
-const flattenMaterial = (material) => ({
-  ClassId: material?.ClassId || material?.Class?.id || "",
-
-  MeetingId: material?.MeetingId || material?.Meeting?.id || "",
-
-  name: material?.name || "",
-
-  description: material?.description || "",
-
-  type: material?.type || "",
-
-  fileUrl: material?.fileUrl || "",
-});
 
 export default Edit;

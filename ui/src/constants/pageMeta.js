@@ -112,6 +112,12 @@ export const PAGE_META = {
     },
   },
 
+  admins: {
+    Owner: {
+      title: "Admin Management",
+      description: "Manage administrator accounts",
+    },
+  },
   mentors: {
     Owner: {
       title: "Mentor Management",

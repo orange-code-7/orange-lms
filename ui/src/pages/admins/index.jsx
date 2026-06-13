@@ -6,9 +6,10 @@ import { PAGE_META } from "@/constants/pageMeta";
 
 import { useBreadcrumbs, usePagination, useSearch } from "@/hooks";
 
-import MenteeService from "@/services/modules/mentee.service";
+import UserService from "@/services/modules/user.service";
 
 import LoadingPage from "@/components/ui/loading/LoadingPage";
+
 import PageHeader from "@/components/ui/page/PageHeader";
 
 import StatsCard from "@/components/ui/cards/StatsCard";
@@ -20,8 +21,8 @@ import Pagination from "@/components/ui/tables/Pagination";
 
 const columns = [
   {
-    key: "mentee",
-    label: "Mentee",
+    key: "admin",
+    label: "Admin",
     render: (row) => (
       <div className="flex items-center gap-3">
         <img
@@ -52,9 +53,9 @@ const columns = [
   },
 
   {
-    key: "classes",
-    label: "Enrolled Classes",
-    render: (row) => row.enrolledClasses?.length || 0,
+    key: "phone",
+    label: "Phone",
+    render: (row) => row.profile?.phoneNumber || "-",
   },
 
   {
@@ -82,7 +83,10 @@ const columns = [
 const List = () => {
   const breadcrumbs = useBreadcrumbs();
 
-  const page = PAGE_META.mentees.Admin;
+  const page = PAGE_META.admins?.Owner || {
+    title: "Admin Management",
+    description: "Manage administrator accounts",
+  };
 
   const { openConfirm, openError, openSuccess } = usePopupStore();
 
@@ -90,9 +94,11 @@ const List = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchMentees = async () => {
+    const fetchAdmins = async () => {
       try {
-        const res = await MenteeService.getAll();
+        const res = await UserService.getAll({
+          role: "Admin",
+        });
 
         setData(res.data || []);
       } catch (error) {
@@ -100,14 +106,14 @@ const List = () => {
 
         openError({
           title: "Load Failed",
-          message: error?.response?.data?.message || "Failed to load mentees.",
+          message: error?.response?.data?.message || "Failed to load admins.",
         });
       } finally {
         setLoading(false);
       }
     };
 
-    fetchMentees();
+    fetchAdmins();
   }, [openError]);
 
   const { query, setQuery, searchedData } = useSearch(data, ["name", "email"]);
@@ -117,19 +123,19 @@ const List = () => {
 
   const handleRemove = (id) => {
     openConfirm({
-      title: "Delete Mentee",
+      title: "Delete Admin",
       message:
-        "Are you sure you want to delete this mentee? This action cannot be undone.",
+        "Are you sure you want to delete this admin? This action cannot be undone.",
 
       action: async () => {
         try {
-          await MenteeService.delete(id);
+          await UserService.delete(id);
 
           setData((prev) => prev.filter((item) => item.id !== id));
 
           openSuccess({
             title: "Success",
-            message: "Mentee deleted successfully.",
+            message: "Admin deleted successfully.",
           });
         } catch (error) {
           console.error(error);
@@ -137,25 +143,12 @@ const List = () => {
           openError({
             title: "Delete Failed",
             message:
-              error?.response?.data?.message || "Failed to delete mentee.",
+              error?.response?.data?.message || "Failed to delete admin.",
           });
         }
       },
     });
   };
-
-  const stats = useMemo(
-    () => ({
-      total: data.length,
-      active: data.filter((item) => item.isActive).length,
-      inactive: data.filter((item) => !item.isActive).length,
-      enrollments: data.reduce(
-        (sum, item) => sum + (item.enrolledClasses?.length || 0),
-        0,
-      ),
-    }),
-    [data],
-  );
 
   const tableData = useMemo(
     () =>
@@ -165,9 +158,9 @@ const List = () => {
         actions: (
           <TableActions
             id={row.id}
-            resource="mentee"
-            detailUrl={`/mentees/${row.id}`}
-            editUrl={`/mentees/edit/${row.id}`}
+            resource="admin"
+            detailUrl={`/admins/${row.id}`}
+            editUrl={`/admins/edit/${row.id}`}
             onDelete={handleRemove}
           />
         ),
@@ -175,8 +168,14 @@ const List = () => {
     [paginatedData],
   );
 
+  const totalAdmins = data.length;
+
+  const activeAdmins = data.filter((item) => item.isActive).length;
+
+  const inactiveAdmins = totalAdmins - activeAdmins;
+
   if (loading) {
-    return <LoadingPage title="Loading Mentees..." />;
+    return <LoadingPage title="Loading Admins..." />;
   }
 
   return (
@@ -187,14 +186,12 @@ const List = () => {
         description={page.description}
       />
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <StatsCard title="Total Mentees" value={stats.total} />
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <StatsCard title="Total Admins" value={totalAdmins} />
 
-        <StatsCard title="Active Mentees" value={stats.active} />
+        <StatsCard title="Active Admins" value={activeAdmins} />
 
-        <StatsCard title="Inactive Mentees" value={stats.inactive} />
-
-        <StatsCard title="Enrollments" value={stats.enrollments} />
+        <StatsCard title="Inactive Admins" value={inactiveAdmins} />
       </div>
 
       <div className="rounded-sm border border-gray-200 bg-[var(--color-surface)] p-4">
@@ -213,7 +210,7 @@ const List = () => {
       <div className="overflow-hidden rounded-sm border border-gray-200 bg-[var(--color-surface)]">
         <div className="border-b border-gray-200 px-4 py-3">
           <p className="text-sm font-medium text-[var(--color-text-muted)]">
-            Total {searchedData.length} Mentees
+            Total {searchedData.length} Admins
           </p>
         </div>
 

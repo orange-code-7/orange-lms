@@ -1,18 +1,12 @@
-// React
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
-// External
-import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { Download, Eye, Pencil, Trash2 } from "lucide-react";
+import { Download } from "lucide-react";
 
-// Store
 import usePopupStore from "@/app/store/popupStore";
 
-// Constants
 import { PAGE_META } from "@/constants/pageMeta";
 
-// Hooks
 import {
   useBreadcrumbs,
   useFilter,
@@ -21,21 +15,21 @@ import {
   useSort,
 } from "@/hooks";
 
-// Helpers
-import { can } from "@/helpers";
-
-// Services
 import MaterialService from "@/services/modules/material.service";
 
-// Components
-import StatsCard from "@/components/ui/cards/StatsCard";
-import PageHeader from "@/components/ui/page/PageHeader";
-import PopUp from "@/components/ui/popup/PopUp";
-import Pagination from "@/components/ui/tables/Pagination";
-import Table from "@/components/ui/tables/Table";
-import TableControls from "@/components/ui/tables/TableControls";
+import LoadingPage from "@/components/ui/loading/LoadingPage";
 
-// Local
+import StatsCard from "@/components/ui/cards/StatsCard";
+
+import PageHeader from "@/components/ui/page/PageHeader";
+
+import PopUp from "@/components/ui/popup/PopUp";
+
+import Table from "@/components/ui/tables/Table";
+import TableActions from "@/components/ui/tables/TableActions";
+import TableControls from "@/components/ui/tables/TableControls";
+import Pagination from "@/components/ui/tables/Pagination";
+
 import MaterialDetail from "./Detail";
 
 const columns = [
@@ -106,8 +100,28 @@ const columns = [
   },
 ];
 
+const FILTER_OPTIONS = ["PDF", "VIDEO", "LINK", "DOC", "PPT"];
+
+const SORT_OPTIONS = [
+  {
+    key: "name",
+    label: "Material Name",
+  },
+  {
+    key: "type",
+    label: "Type",
+  },
+];
+
 const List = () => {
   const breadcrumbs = useBreadcrumbs();
+
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [selectedMaterial, setSelectedMaterial] = useState(null);
+
+  const [openDetail, setOpenDetail] = useState(false);
 
   const user = useSelector((state) => state.auth.user);
 
@@ -117,32 +131,27 @@ const List = () => {
 
   const { openConfirm, openError, openSuccess } = usePopupStore();
 
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const [selectedMaterial, setSelectedMaterial] = useState(null);
-  const [openDetail, setOpenDetail] = useState(false);
-
-  const fetchMaterials = async () => {
-    try {
-      const res = await MaterialService.getAll();
-
-      setData(res.data || []);
-    } catch (error) {
-      console.error(error);
-
-      openError({
-        title: "Load Failed",
-        message: error?.response?.data?.message || "Failed to load materials.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchMaterials = async () => {
+      try {
+        const res = await MaterialService.getAll();
+
+        setData(res.data || []);
+      } catch (error) {
+        console.error(error);
+
+        openError({
+          title: "Load Failed",
+          message:
+            error?.response?.data?.message || "Failed to load materials.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchMaterials();
-  }, []);
+  }, [openError]);
 
   const { query, setQuery, searchedData } = useSearch(data, [
     "name",
@@ -189,73 +198,50 @@ const List = () => {
     });
   };
 
-  const dataWithActions = paginatedData.map((row) => ({
-    ...row,
+  const tableData = useMemo(
+    () =>
+      paginatedData.map((row) => ({
+        ...row,
 
-    actions: (
-      <div className="flex items-center gap-2">
-        <button
-          onClick={() => {
-            setSelectedMaterial(row);
-            setOpenDetail(true);
-          }}
-          className="flex items-center gap-1 rounded-sm bg-sky-100 px-2 py-1 text-xs font-medium text-sky-700 hover:bg-sky-200"
-        >
-          <Eye size={14} />
-          Details
-        </button>
-
-        {can(role, "material", "update") && (
-          <Link
-            to={`/materials/edit/${row.id}`}
-            className="flex items-center gap-1 rounded-sm bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-200"
-          >
-            <Pencil size={14} />
-            Edit
-          </Link>
-        )}
-
-        {can(role, "material", "delete") && (
-          <button
-            onClick={() => handleRemove(row.id)}
-            className="flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium text-[var(--color-text-muted)] hover:bg-rose-50 hover:text-rose-600"
-          >
-            <Trash2 size={14} />
-            Remove
-          </button>
-        )}
-      </div>
-    ),
-  }));
+        actions: (
+          <TableActions
+            id={row.id}
+            role={role}
+            resource="material"
+            editUrl={`/materials/edit/${row.id}`}
+            onDelete={handleRemove}
+            onDetail={() => {
+              setSelectedMaterial(row);
+              setOpenDetail(true);
+            }}
+          />
+        ),
+      })),
+    [paginatedData, role],
+  );
 
   if (loading) {
-    return (
-      <div className="p-4 text-[var(--color-text-muted)]">
-        Loading materials...
-      </div>
-    );
+    return <LoadingPage title="Loading Materials..." />;
   }
 
   return (
     <div className="min-h-screen space-y-4 bg-[var(--color-background)] p-4">
-      {/* Header */}
-      <div className="grid grid-cols-2">
-        {/* Page Header */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <PageHeader
           breadcrumbs={breadcrumbs}
           title={page.title}
           description={page.description}
         />
 
-        {/* Stats Card */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <StatsCard title="Materials" value={data.length} />
 
           <StatsCard
             title="Document"
             value={
-              data.filter((item) => item.type === "PDF").length +
-              data.filter((item) => item.type === "Document").length
+              data.filter(
+                (item) => item.type === "PDF" || item.type === "Document",
+              ).length
             }
           />
 
@@ -275,19 +261,10 @@ const List = () => {
         <TableControls
           searchQuery={query}
           setSearchQuery={setQuery}
-          filterOptions={["PDF", "VIDEO", "LINK", "DOC", "PPT"]}
+          filterOptions={FILTER_OPTIONS}
           filterValue={filterValue}
           setFilterValue={setFilterValue}
-          sortOptions={[
-            {
-              key: "name",
-              label: "Material Name",
-            },
-            {
-              key: "type",
-              label: "Type",
-            },
-          ]}
+          sortOptions={SORT_OPTIONS}
           sortKey={sortKey}
           toggleSort={toggleSort}
         />
@@ -301,7 +278,7 @@ const List = () => {
         </div>
 
         <div className="p-4">
-          <Table columns={columns} data={dataWithActions} />
+          <Table columns={columns} data={tableData} />
         </div>
       </div>
 
@@ -317,7 +294,14 @@ const List = () => {
         onClose={() => setOpenDetail(false)}
         title={selectedMaterial?.name}
       >
-        <MaterialDetail material={selectedMaterial} role={role} />
+        <MaterialDetail
+          material={selectedMaterial}
+          role={role}
+          onDelete={(id) => {
+            setOpenDetail(false);
+            handleRemove(id);
+          }}
+        />
       </PopUp>
     </div>
   );

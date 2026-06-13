@@ -1,19 +1,12 @@
-import {
-  Download,
-  Edit2,
-  Trash2,
-  Calendar,
-  Award,
-  BookOpen,
-  Users,
-  Archive,
-  Pencil,
-} from "lucide-react";
+import { Award, BookOpen, Calendar, Users, Archive } from "lucide-react";
 
-import { formatDate, can } from "@/helpers";
 import { Link } from "react-router-dom";
 
-const MaterialDetail = ({ material, role, onEdit, onDelete }) => {
+import { can, formatDate } from "@/helpers";
+
+import ActionButton from "@/components/ui/buttons/ActionButton";
+
+const MaterialDetail = ({ material, role, onDelete }) => {
   if (!material) return null;
 
   return (
@@ -30,41 +23,32 @@ const MaterialDetail = ({ material, role, onEdit, onDelete }) => {
               {material.name}
             </h2>
 
-            <span
-              className={`mt-3 rounded-sm px-3 py-1 text-xs font-medium ${
-                material.status === "Published"
-                  ? "bg-green-100 text-green-700"
-                  : "bg-gray-100 text-gray-700"
-              }`}
-            ></span>
-
             <div className="mt-5 w-full space-y-4 text-sm">
               <div>
-                <p className="text-xs text-gray-500">Created By</p>
+                <p className="text-xs text-gray-500">Uploaded By</p>
 
                 <p>{material.uploader?.name || "-"}</p>
+              </div>
+
+              <div>
+                <p className="text-xs text-gray-500">Type</p>
+
+                <p>{material.type || "-"}</p>
               </div>
             </div>
 
             <div className="mt-5 flex w-full gap-2">
               {can(role, "material", "update") && (
-                <Link
-                  to={`/materials/edit/${material.id}`}
-                  className="flex items-center gap-1 rounded-sm bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-200"
-                >
-                  <Pencil size={14} />
-                  Edit
+                <Link to={`/materials/edit/${material.id}`}>
+                  <ActionButton action="edit" />
                 </Link>
               )}
 
               {can(role, "material", "delete") && (
-                <button
-                  onClick={() => handleRemove(material.id)}
-                  className="flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium text-[var(--color-text-muted)] hover:bg-rose-50 hover:text-rose-600"
-                >
-                  <Trash2 size={14} />
-                  Remove
-                </button>
+                <ActionButton
+                  action="delete"
+                  onClick={() => onDelete?.(material.id)}
+                />
               )}
             </div>
           </div>
@@ -106,7 +90,7 @@ const MaterialDetail = ({ material, role, onEdit, onDelete }) => {
             </div>
 
             <p className="font-semibold">
-              Meeting #{material.Meeting?.meetingNumber}
+              Meeting #{material.Meeting?.meetingNumber || "-"}
             </p>
 
             <p className="text-sm text-gray-500">
@@ -135,7 +119,7 @@ const MaterialDetail = ({ material, role, onEdit, onDelete }) => {
               <span className="font-medium">Material Uploaded</span>
             </div>
 
-            <p>{formatDate(material.createdAt) || "-"}</p>
+            <p>{material.createdAt ? formatDate(material.createdAt) : "-"}</p>
           </div>
         </div>
 
@@ -151,15 +135,9 @@ const MaterialDetail = ({ material, role, onEdit, onDelete }) => {
             </div>
 
             {material.fileUrl ? (
-              <a
-                href={material.fileUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-sm bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600"
-              >
-                <Download size={16} />
+              <ActionButton action="download" href={material.fileUrl}>
                 Download File
-              </a>
+              </ActionButton>
             ) : (
               <span className="text-sm text-gray-500">No attachment</span>
             )}

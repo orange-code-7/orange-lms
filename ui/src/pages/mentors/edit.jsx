@@ -6,6 +6,8 @@ import Form from "@/components/ui/forms/Form";
 import SuccessPopup from "@/components/ui/popup/SuccessPopup";
 import ErrorPopup from "@/components/ui/popup/ErrorPopup";
 
+import LoadingPage from "@/components/ui/loading/LoadingPage";
+
 import useForm from "@/hooks/useForm";
 
 import MentorService from "@/services/modules/mentor.service";
@@ -62,6 +64,8 @@ const Edit = () => {
 
   const handleSubmit = async (payload) => {
     try {
+      setError("");
+
       await MentorService.update(id, payload);
 
       setOpenSuccess(true);
@@ -85,11 +89,7 @@ const Edit = () => {
   };
 
   if (loading) {
-    return (
-      <div className="rounded-sm border border-gray-200 bg-white p-4">
-        Loading mentor...
-      </div>
-    );
+    return <LoadingPage title="Loading Mentor..." />;
   }
 
   return (

@@ -25,7 +25,7 @@ const Sidebar = () => {
 
   return (
     <>
-      <div className="flex h-20 items-center justify-center border-b border-gray-200 px-4">
+      <div className="flex items-center justify-center border-b border-gray-200 px-4">
         <AppLogo />
       </div>
 

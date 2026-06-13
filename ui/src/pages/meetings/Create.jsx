@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Form from "@/components/ui/forms/Form";
+import LoadingPage from "@/components/ui/loading/LoadingPage";
 
 import SuccessPopup from "@/components/ui/popup/SuccessPopup";
 import ErrorPopup from "@/components/ui/popup/ErrorPopup";
@@ -47,12 +48,12 @@ const Create = () => {
               : field,
           ),
         );
-      } catch (err) {
-        console.error(err);
+      } catch (error) {
+        console.error(error);
 
         setError(
-          err?.response?.data?.message ||
-            err?.message ||
+          error?.response?.data?.message ||
+            error?.message ||
             "Failed to load classes",
         );
 
@@ -63,26 +64,25 @@ const Create = () => {
     fetchClasses();
   }, []);
 
-  const handleSubmit = async (data) => {
+  const handleSubmit = async (formData) => {
     try {
       setLoading(true);
-      setError("");
 
-      const classId = Number(data.ClassId);
+      const classId = Number(formData.ClassId);
 
-      const payload = { ...data };
+      const payload = { ...formData };
 
       delete payload.ClassId;
 
       await MeetingService.create(classId, payload);
 
       setOpenSuccess(true);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
 
       setError(
-        err?.response?.data?.message ||
-          err?.message ||
+        error?.response?.data?.message ||
+          error?.message ||
           "Failed to create meeting",
       );
 
@@ -92,18 +92,14 @@ const Create = () => {
     }
   };
 
-  const handleCloseSuccess = () => {
+  const handleSuccessClose = () => {
     setOpenSuccess(false);
 
     navigate("/meetings");
   };
 
   if (loading) {
-    return (
-      <div className="rounded-sm border border-gray-200 bg-white p-4">
-        Creating meeting...
-      </div>
-    );
+    return <LoadingPage title="Creating Meeting..." />;
   }
 
   return (
@@ -120,7 +116,7 @@ const Create = () => {
 
       <SuccessPopup
         open={openSuccess}
-        onClose={handleCloseSuccess}
+        onClose={handleSuccessClose}
         title="Meeting Created"
         message="Meeting has been created successfully."
       />

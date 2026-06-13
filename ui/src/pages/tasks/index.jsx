@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
-import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { Download, Eye, Pencil, Trash2 } from "lucide-react";
+import { Download } from "lucide-react";
 
 import usePopupStore from "@/app/store/popupStore";
 
@@ -19,21 +18,26 @@ import {
 import TaskService from "@/services/modules/task.service";
 
 import PageHeader from "@/components/ui/page/PageHeader";
+
+import LoadingPage from "@/components/ui/loading/LoadingPage";
+
 import PopUp from "@/components/ui/popup/PopUp";
+
+import StatsCard from "@/components/ui/cards/StatsCard";
+
 import Table from "@/components/ui/tables/Table";
+import TableActions from "@/components/ui/tables/TableActions";
 import TableControls from "@/components/ui/tables/TableControls";
 import Pagination from "@/components/ui/tables/Pagination";
 
 import TaskDetail from "./Detail";
-import { can } from "@/helpers";
-import StatsCard from "@/components/ui/cards/StatsCard";
 
 const columns = [
   {
     key: "task",
     label: "Task",
     render: (row) => (
-      <div className="space-y-1 max-w-md">
+      <div className="max-w-md space-y-1">
         <p className="font-semibold text-[var(--color-text)]">
           {row.name || "-"}
         </p>
@@ -61,7 +65,7 @@ const columns = [
     key: "class",
     label: "Class",
     render: (row) => (
-      <div className="space-y-1 max-w-xs">
+      <div className="max-w-xs space-y-1">
         <span className="inline-block rounded-sm bg-orange-100 px-2 py-1 text-xs font-medium text-orange-700">
           {row.Class?.code || "-"}
         </span>
@@ -106,12 +110,29 @@ const columns = [
   {
     key: "creator",
     label: "Creator",
-    render: (row) => row.creator.name ?? "-",
+    render: (row) => row.creator?.name ?? "-",
   },
 
   {
     key: "actions",
     label: "Actions",
+  },
+];
+
+const FILTER_OPTIONS = ["Published", "Draft", "Archived"];
+
+const SORT_OPTIONS = [
+  {
+    key: "name",
+    label: "Task Name",
+  },
+  {
+    key: "maxScore",
+    label: "Max Score",
+  },
+  {
+    key: "status",
+    label: "Status",
   },
 ];
 
@@ -121,6 +142,9 @@ const List = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [openDetail, setOpenDetail] = useState(false);
+
   const user = useSelector((state) => state.auth.user);
 
   const role = user?.role;
@@ -129,30 +153,26 @@ const List = () => {
 
   const { openConfirm, openError, openSuccess } = usePopupStore();
 
-  // PopUp
-  const [selectedTask, setSelectedTask] = useState(null);
-  const [openDetail, setOpenDetail] = useState(false);
-
-  const fetchTasks = async () => {
-    try {
-      const res = await TaskService.getAll();
-
-      setData(res.data || []);
-    } catch (error) {
-      console.error(error);
-
-      openError({
-        title: "Load Failed",
-        message: error?.response?.data?.message || "Failed to load tasks.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const res = await TaskService.getAll();
+
+        setData(res.data || []);
+      } catch (error) {
+        console.error(error);
+
+        openError({
+          title: "Load Failed",
+          message: error?.response?.data?.message || "Failed to load tasks.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchTasks();
-  }, []);
+  }, [openError]);
 
   const { query, setQuery, searchedData } = useSearch(data, [
     "name",
@@ -198,64 +218,43 @@ const List = () => {
       },
     });
   };
-  const dataWithActions = paginatedData.map((row) => ({
-    ...row,
 
-    actions: (
-      <div className="flex items-center gap-2">
-        <button
-          onClick={() => {
-            setSelectedTask(row);
-            setOpenDetail(true);
-          }}
-          className="flex items-center gap-1 rounded-sm bg-sky-100 px-2 py-1 text-xs font-medium text-sky-700 hover:bg-sky-200"
-        >
-          <Eye size={14} />
-          Details
-        </button>
+  const tableData = useMemo(
+    () =>
+      paginatedData.map((row) => ({
+        ...row,
 
-        {can(role, "task", "update") && (
-          <Link
-            to={`/tasks/edit/${row.id}`}
-            className="flex items-center gap-1 rounded-sm bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-200"
-          >
-            <Pencil size={14} />
-            Edit
-          </Link>
-        )}
-
-        {can(role, "task", "delete") && (
-          <button
-            onClick={() => handleRemove(row.id)}
-            className="flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium text-[var(--color-text-muted)] hover:bg-rose-50 hover:text-rose-600"
-          >
-            <Trash2 size={14} />
-            Remove
-          </button>
-        )}
-      </div>
-    ),
-  }));
+        actions: (
+          <TableActions
+            id={row.id}
+            role={role}
+            resource="task"
+            editUrl={`/tasks/edit/${row.id}`}
+            onDelete={handleRemove}
+            onDetail={() => {
+              setSelectedTask(row);
+              setOpenDetail(true);
+            }}
+          />
+        ),
+      })),
+    [paginatedData, role],
+  );
 
   if (loading) {
-    return (
-      <div className="p-4 text-[var(--color-text-muted)]">Loading tasks...</div>
-    );
+    return <LoadingPage title="Loading Tasks..." />;
   }
 
   return (
-    <div className="p-4 space-y-4 bg-[var(--color-background)] min-h-screen">
-      {/* Header */}
-      <div className="grid grid-cols-2">
-        {/* Page Header */}
+    <div className="min-h-screen space-y-4 bg-[var(--color-background)] p-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <PageHeader
           breadcrumbs={breadcrumbs}
           title={page.title}
           description={page.description}
         />
 
-        {/* Stats Card */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <StatsCard title="Tasks" value={data.length} />
 
           <StatsCard
@@ -275,34 +274,19 @@ const List = () => {
         </div>
       </div>
 
-      {/* Controls */}
       <div className="rounded-sm border border-gray-200 bg-[var(--color-surface)] p-4">
         <TableControls
           searchQuery={query}
           setSearchQuery={setQuery}
-          filterOptions={["Published", "Draft", "Archived"]}
+          filterOptions={FILTER_OPTIONS}
           filterValue={filterValue}
           setFilterValue={setFilterValue}
-          sortOptions={[
-            {
-              key: "name",
-              label: "Task Name",
-            },
-            {
-              key: "maxScore",
-              label: "Max Score",
-            },
-            {
-              key: "status",
-              label: "Status",
-            },
-          ]}
+          sortOptions={SORT_OPTIONS}
           sortKey={sortKey}
           toggleSort={toggleSort}
         />
       </div>
 
-      {/* Table */}
       <div className="overflow-hidden rounded-sm border border-gray-200 bg-[var(--color-surface)]">
         <div className="border-b border-gray-200 px-4 py-3">
           <p className="text-sm font-medium text-[var(--color-text-muted)]">
@@ -311,23 +295,30 @@ const List = () => {
         </div>
 
         <div className="p-4">
-          <Table columns={columns} data={dataWithActions} />
+          <Table columns={columns} data={tableData} />
         </div>
       </div>
 
-      {/* Pagination */}
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
         prevPage={prevPage}
         nextPage={nextPage}
       />
+
       <PopUp
         open={openDetail}
         onClose={() => setOpenDetail(false)}
         title={selectedTask?.name}
       >
-        <TaskDetail task={selectedTask} role={role} />
+        <TaskDetail
+          task={selectedTask}
+          role={role}
+          onDelete={(id) => {
+            setOpenDetail(false);
+            handleRemove(id);
+          }}
+        />
       </PopUp>
     </div>
   );

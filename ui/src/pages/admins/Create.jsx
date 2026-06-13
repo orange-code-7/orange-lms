@@ -8,9 +8,9 @@ import ErrorPopup from "@/components/ui/popup/ErrorPopup";
 
 import useForm from "@/hooks/useForm";
 
-import { userSchema } from "@/schemas";
+import UserService from "@/services/modules/user.service";
 
-import MentorService from "@/services/modules/mentor.service";
+import { userSchema } from "@/schemas";
 
 const Create = () => {
   const navigate = useNavigate();
@@ -20,14 +20,14 @@ const Create = () => {
   const [error, setError] = useState("");
 
   const [openError, setOpenError] = useState(false);
-
   const [openSuccess, setOpenSuccess] = useState(false);
 
   const handleSubmit = async (payload) => {
     try {
-      setError("");
-
-      await MentorService.create(payload);
+      await UserService.create({
+        ...payload,
+        role: "Admin",
+      });
 
       setOpenSuccess(true);
     } catch (err) {
@@ -36,7 +36,7 @@ const Create = () => {
       setError(
         err?.response?.data?.message ||
           err?.message ||
-          "Failed to create mentor",
+          "Failed to create admin",
       );
 
       setOpenError(true);
@@ -46,32 +46,32 @@ const Create = () => {
   const handleCloseSuccess = () => {
     setOpenSuccess(false);
 
-    navigate("/mentors");
+    navigate("/admins");
   };
 
   return (
     <>
       <Form
-        title="Create Mentor"
-        description="Fill mentor personal information"
+        title="Create Admin"
+        description="Fill admin personal information"
         schema={userSchema}
         values={values}
         onChange={handleChange}
         onSubmit={handleSubmit}
-        submitLabel="Create Mentor"
+        submitLabel="Create Admin"
       />
 
       <SuccessPopup
         open={openSuccess}
         onClose={handleCloseSuccess}
-        title="Mentor Created"
-        message="Mentor has been created successfully."
+        title="Admin Created"
+        message="Admin has been created successfully."
       />
 
       <ErrorPopup
         open={openError}
         onClose={() => setOpenError(false)}
-        title="Create Mentor Failed"
+        title="Create Admin Failed"
         message={error}
       />
     </>

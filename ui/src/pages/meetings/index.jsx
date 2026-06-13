@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from "react";
-
+import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 
 import { Archive, CheckSquare, FileText } from "lucide-react";
+
+import usePopupStore from "@/app/store/popupStore";
+
+import { PAGE_META } from "@/constants/pageMeta";
 
 import {
   useBreadcrumbs,
@@ -12,13 +15,11 @@ import {
   useSort,
 } from "@/hooks";
 
-import usePopupStore from "@/app/store/popupStore";
-
 import MeetingService from "@/services/modules/meeting.service";
 
-import { PAGE_META } from "@/constants/pageMeta";
-
 import PageHeader from "@/components/ui/page/PageHeader";
+
+import LoadingPage from "@/components/ui/loading/LoadingPage";
 
 import Table from "@/components/ui/tables/Table";
 import TableActions from "@/components/ui/tables/TableActions";
@@ -110,6 +111,17 @@ const columns = [
   },
 ];
 
+const SORT_OPTIONS = [
+  {
+    key: "name",
+    label: "Topic",
+  },
+  {
+    key: "meetingDate",
+    label: "Meeting Date",
+  },
+];
+
 const List = () => {
   const breadcrumbs = useBreadcrumbs();
 
@@ -124,26 +136,26 @@ const List = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchMeetings = async () => {
-    try {
-      const res = await MeetingService.getAll();
-
-      setData(res.data || []);
-    } catch (error) {
-      console.error(error);
-
-      openError({
-        title: "Load Failed",
-        message: error?.response?.data?.message || "Failed to load meetings.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchMeetings = async () => {
+      try {
+        const res = await MeetingService.getAll();
+
+        setData(res.data || []);
+      } catch (error) {
+        console.error(error);
+
+        openError({
+          title: "Load Failed",
+          message: error?.response?.data?.message || "Failed to load meetings.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchMeetings();
-  }, []);
+  }, [openError]);
 
   const { query, setQuery, searchedData } = useSearch(data, [
     "name",
@@ -189,27 +201,27 @@ const List = () => {
     });
   };
 
-  const dataWithActions = paginatedData.map((row) => ({
-    ...row,
+  const tableData = useMemo(
+    () =>
+      paginatedData.map((row) => ({
+        ...row,
 
-    actions: (
-      <TableActions
-        id={row.id}
-        role={role}
-        resource="meeting"
-        detailUrl={`/meetings/${row.id}`}
-        editUrl={`/meetings/edit/${row.id}`}
-        onDelete={handleRemove}
-      />
-    ),
-  }));
+        actions: (
+          <TableActions
+            id={row.id}
+            role={role}
+            resource="meeting"
+            detailUrl={`/meetings/${row.id}`}
+            editUrl={`/meetings/edit/${row.id}`}
+            onDelete={handleRemove}
+          />
+        ),
+      })),
+    [paginatedData, role],
+  );
 
   if (loading) {
-    return (
-      <div className="p-4 text-[var(--color-text-muted)]">
-        Loading meetings...
-      </div>
-    );
+    return <LoadingPage title="Loading Meetings..." />;
   }
 
   return (
@@ -220,39 +232,6 @@ const List = () => {
         description={page.description}
       />
 
-      {/* Summary */}
-      {/* <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <div className="rounded-sm border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">Meetings</p>
-
-          <h3 className="mt-1 text-2xl font-bold">{data.length}</h3>
-        </div>
-
-        <div className="rounded-sm border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">Tasks</p>
-
-          <h3 className="mt-1 text-2xl font-bold">
-            {data.reduce((acc, item) => acc + (item.tasks?.length || 0), 0)}
-          </h3>
-        </div>
-
-        <div className="rounded-sm border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">Notes</p>
-
-          <h3 className="mt-1 text-2xl font-bold">
-            {data.reduce((acc, item) => acc + (item.notes?.length || 0), 0)}
-          </h3>
-        </div>
-
-        <div className="rounded-sm border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">Materials</p>
-
-          <h3 className="mt-1 text-2xl font-bold">
-            {data.reduce((acc, item) => acc + (item.materials?.length || 0), 0)}
-          </h3>
-        </div>
-      </div> */}
-
       <div className="rounded-sm border border-gray-200 bg-[var(--color-surface)] p-4">
         <TableControls
           searchQuery={query}
@@ -260,16 +239,7 @@ const List = () => {
           filterOptions={[]}
           filterValue={filterValue}
           setFilterValue={setFilterValue}
-          sortOptions={[
-            {
-              key: "name",
-              label: "Topic",
-            },
-            {
-              key: "meetingDate",
-              label: "Meeting Date",
-            },
-          ]}
+          sortOptions={SORT_OPTIONS}
           sortKey={sortKey}
           toggleSort={toggleSort}
         />
@@ -283,11 +253,10 @@ const List = () => {
         </div>
 
         <div className="p-4">
-          <Table columns={columns} data={dataWithActions} />
+          <Table columns={columns} data={tableData} />
         </div>
       </div>
 
-      {/* Pagination */}
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}

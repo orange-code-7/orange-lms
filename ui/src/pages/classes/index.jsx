@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-
+import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 
 import usePopupStore from "@/app/store/popupStore";
@@ -22,6 +21,7 @@ import Table from "@/components/ui/tables/Table";
 import TableActions from "@/components/ui/tables/TableActions";
 import TableControls from "@/components/ui/tables/TableControls";
 import Pagination from "@/components/ui/tables/Pagination";
+import LoadingPage from "@/components/ui/loading/LoadingPage";
 
 const columns = [
   {
@@ -71,6 +71,25 @@ const columns = [
   },
 ];
 
+const CATEGORY_OPTIONS = [
+  "Full Stack",
+  "Front End",
+  "Back End",
+  "JS Basic",
+  "Web Design",
+];
+
+const SORT_OPTIONS = [
+  {
+    key: "name",
+    label: "Name",
+  },
+  {
+    key: "level",
+    label: "Level",
+  },
+];
+
 const List = () => {
   const breadcrumbs = useBreadcrumbs();
 
@@ -85,26 +104,26 @@ const List = () => {
 
   const { openConfirm, openError, openSuccess } = usePopupStore();
 
-  const fetchClasses = async () => {
-    try {
-      const res = await ClassService.getAll();
-
-      setData(res.data);
-    } catch (error) {
-      console.error(error);
-
-      openError({
-        title: "Load Failed",
-        message: error?.response?.data?.message || "Failed to load classes.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        const res = await ClassService.getAll();
+
+        setData(res.data);
+      } catch (error) {
+        console.error(error);
+
+        openError({
+          title: "Load Failed",
+          message: error?.response?.data?.message || "Failed to load classes.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchClasses();
-  }, []);
+  }, [openError]);
 
   const { query, setQuery, searchedData } = useSearch(data, [
     "code",
@@ -121,7 +140,7 @@ const List = () => {
   const { sortedData, sortKey, toggleSort } = useSort(filteredData);
 
   const { paginatedData, currentPage, totalPages, nextPage, prevPage } =
-    usePagination(sortedData, 5);
+    usePagination(sortedData, 10);
 
   const handleRemove = (id) => {
     openConfirm({
@@ -152,27 +171,27 @@ const List = () => {
     });
   };
 
-  const dataWithActions = paginatedData.map((row) => ({
-    ...row,
+  const tableData = useMemo(
+    () =>
+      paginatedData.map((row) => ({
+        ...row,
 
-    actions: (
-      <TableActions
-        id={row.id}
-        role={role}
-        resource="class"
-        detailUrl={`/classes/${row.id}`}
-        editUrl={`/classes/edit/${row.id}`}
-        onDelete={handleRemove}
-      />
-    ),
-  }));
+        actions: (
+          <TableActions
+            id={row.id}
+            role={role}
+            resource="class"
+            detailUrl={`/classes/${row.id}`}
+            editUrl={`/classes/edit/${row.id}`}
+            onDelete={handleRemove}
+          />
+        ),
+      })),
+    [paginatedData, role],
+  );
 
   if (loading) {
-    return (
-      <div className="p-4 text-[var(--color-text-muted)]">
-        Loading classes...
-      </div>
-    );
+    return <LoadingPage title="Loading Classes..." />;
   }
 
   return (
@@ -187,25 +206,10 @@ const List = () => {
         <TableControls
           searchQuery={query}
           setSearchQuery={setQuery}
-          filterOptions={[
-            "Full Stack",
-            "Front End",
-            "Back End",
-            "JS Basic",
-            "Web Design",
-          ]}
+          filterOptions={CATEGORY_OPTIONS}
           filterValue={filterValue}
           setFilterValue={setFilterValue}
-          sortOptions={[
-            {
-              key: "name",
-              label: "Name",
-            },
-            {
-              key: "level",
-              label: "Level",
-            },
-          ]}
+          sortOptions={SORT_OPTIONS}
           sortKey={sortKey}
           toggleSort={toggleSort}
         />
@@ -219,11 +223,10 @@ const List = () => {
         </div>
 
         <div className="p-4">
-          <Table columns={columns} data={dataWithActions} />
+          <Table columns={columns} data={tableData} />
         </div>
       </div>
 
-      {/* Pagination */}
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}

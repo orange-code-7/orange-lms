@@ -1,59 +1,61 @@
-// React
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
-// External
-import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { GraduationCap, MapPin } from "lucide-react";
 
-// Store
 import usePopupStore from "@/app/store/popupStore";
 
-// Hooks
-import { useBreadcrumbs, useSearch } from "@/hooks";
-
-// Services
-import MentorService from "@/services/modules/mentor.service";
-
-// Components
-import PageHeader from "@/components/ui/page/PageHeader";
-import StatsCard from "@/components/ui/cards/StatsCard";
-import TableControls from "@/components/ui/tables/TableControls";
-
-// Constants
 import { PAGE_META } from "@/constants/pageMeta";
 
-// Icons
-import { Eye, Pencil, Trash2, GraduationCap, MapPin } from "lucide-react";
+import { useBreadcrumbs, useSearch } from "@/hooks";
+
+import MentorService from "@/services/modules/mentor.service";
+
+import LoadingPage from "@/components/ui/loading/LoadingPage";
+
+import PageHeader from "@/components/ui/page/PageHeader";
+
+import StatsCard from "@/components/ui/cards/StatsCard";
+
+import TableControls from "@/components/ui/tables/TableControls";
+
+import TableActions from "@/components/ui/tables/TableActions";
 
 const List = () => {
   const breadcrumbs = useBreadcrumbs();
 
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const user = useSelector((state) => state.auth.user);
 
-  const page = PAGE_META.mentors.Admin;
+  const role = user?.role;
+
+  const page = PAGE_META.mentors?.[role] || PAGE_META.mentors?.Admin;
 
   const { openConfirm, openError, openSuccess } = usePopupStore();
 
-  const fetchMentors = async () => {
-    try {
-      const res = await MentorService.getAll();
+  const [data, setData] = useState([]);
 
-      setData(res.data || []);
-    } catch (error) {
-      console.error(error);
-
-      openError({
-        title: "Load Failed",
-        message: error?.response?.data?.message || "Failed to load mentors.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchMentors = async () => {
+      try {
+        const res = await MentorService.getAll();
+
+        setData(res.data || []);
+      } catch (error) {
+        console.error(error);
+
+        openError({
+          title: "Load Failed",
+          message: error?.response?.data?.message || "Failed to load mentors.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchMentors();
-  }, []);
+  }, [openError]);
 
   const { query, setQuery, searchedData } = useSearch(data, ["name", "email"]);
 
@@ -86,23 +88,28 @@ const List = () => {
     });
   };
 
-  const totalMentors = data.length;
+  const stats = useMemo(() => {
+    const totalMentors = data.length;
 
-  const activeMentors = data.filter((mentor) => mentor.isActive).length;
+    const activeMentors = data.filter((mentor) => mentor.isActive).length;
 
-  const inactiveMentors = totalMentors - activeMentors;
+    const inactiveMentors = totalMentors - activeMentors;
 
-  const totalClasses = data.reduce(
-    (sum, mentor) => sum + (mentor.mentoredClasses?.length || 0),
-    0,
-  );
+    const totalClasses = data.reduce(
+      (sum, mentor) => sum + (mentor.mentoredClasses?.length || 0),
+      0,
+    );
+
+    return {
+      totalMentors,
+      activeMentors,
+      inactiveMentors,
+      totalClasses,
+    };
+  }, [data]);
 
   if (loading) {
-    return (
-      <div className="p-4 text-[var(--color-text-muted)]">
-        Loading mentors...
-      </div>
-    );
+    return <LoadingPage title="Loading Mentors..." />;
   }
 
   return (
@@ -114,13 +121,13 @@ const List = () => {
       />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <StatsCard title="Total Mentors" value={totalMentors} />
+        <StatsCard title="Total Mentors" value={stats.totalMentors} />
 
-        <StatsCard title="Active Mentors" value={activeMentors} />
+        <StatsCard title="Active Mentors" value={stats.activeMentors} />
 
-        <StatsCard title="Inactive Mentors" value={inactiveMentors} />
+        <StatsCard title="Inactive Mentors" value={stats.inactiveMentors} />
 
-        <StatsCard title="Assigned Classes" value={totalClasses} />
+        <StatsCard title="Assigned Classes" value={stats.totalClasses} />
       </div>
 
       <div className="rounded-sm border border-gray-200 bg-[var(--color-surface)] p-4">
@@ -166,6 +173,7 @@ const List = () => {
 
               <p className="flex items-center gap-2 text-sm">
                 <MapPin size={14} />
+
                 {mentor.profile?.city || "-"}
               </p>
             </div>
@@ -217,30 +225,15 @@ const List = () => {
               </div>
             </div>
 
-            <div className="mt-5 flex items-center gap-2">
-              <Link
-                to={`/mentors/${mentor.id}`}
-                className="flex items-center gap-1 rounded-sm bg-sky-100 px-2 py-1 text-xs font-medium text-sky-700 hover:bg-sky-200"
-              >
-                <Eye size={14} />
-                Details
-              </Link>
-
-              <Link
-                to={`/mentors/edit/${mentor.id}`}
-                className="flex items-center gap-1 rounded-sm bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-200"
-              >
-                <Pencil size={14} />
-                Edit
-              </Link>
-
-              <button
-                onClick={() => handleRemove(mentor.id)}
-                className="flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium text-[var(--color-text-muted)] hover:bg-rose-50 hover:text-rose-600"
-              >
-                <Trash2 size={14} />
-                Remove
-              </button>
+            <div className="mt-5">
+              <TableActions
+                id={mentor.id}
+                role={role}
+                resource="mentor"
+                detailUrl={`/mentors/${mentor.id}`}
+                editUrl={`/mentors/edit/${mentor.id}`}
+                onDelete={handleRemove}
+              />
             </div>
           </div>
         ))}
