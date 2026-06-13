@@ -3,7 +3,7 @@ import ENDPOINTS from "../api/endpoints";
 
 class UserService {
   static getAll(params) {
-    return api.get(`${ENDPOINTS.USERS}/all`, { params });
+    return api.get(`${ENDPOINTS.USERS}`, { params });
   }
 
   static getById(id) {

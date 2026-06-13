@@ -10,11 +10,27 @@ class MeetingService {
         {
           model: Class,
           as: "class",
+          attributes: ["id", "name", "code", "description"],
         },
         {
           model: User,
           as: "creator",
           attributes: ["id", "name", "email"],
+        },
+        {
+          model: Task,
+          as: "tasks",
+          attributes: ["id", "name"],
+        },
+        {
+          model: Note,
+          as: "notes",
+          attributes: ["id", "name"],
+        },
+        {
+          model: Material,
+          as: "materials",
+          attributes: ["id", "name"],
         },
       ],
     });
@@ -30,11 +46,27 @@ class MeetingService {
           {
             model: Class,
             as: "class",
+            attributes: ["id", "name", "code", "description"],
           },
           {
             model: User,
             as: "creator",
             attributes: ["id", "name", "email"],
+          },
+          {
+            model: Task,
+            as: "tasks",
+            attributes: ["id", "name"],
+          },
+          {
+            model: Note,
+            as: "notes",
+            attributes: ["id", "name"],
+          },
+          {
+            model: Material,
+            as: "materials",
+            attributes: ["id", "name"],
           },
         ],
       });
@@ -52,11 +84,27 @@ class MeetingService {
             where: {
               MentorId: currentUser.id,
             },
+            attributes: ["id", "name", "code", "description"],
           },
           {
             model: User,
             as: "creator",
             attributes: ["id", "name", "email"],
+          },
+          {
+            model: Task,
+            as: "tasks",
+            attributes: ["id", "name"],
+          },
+          {
+            model: Note,
+            as: "notes",
+            attributes: ["id", "name"],
+          },
+          {
+            model: Material,
+            as: "materials",
+            attributes: ["id", "name"],
           },
         ],
       });
@@ -72,6 +120,7 @@ class MeetingService {
             model: Class,
             as: "class",
             required: true,
+            attributes: ["id", "name", "code", "description"],
             include: [
               {
                 model: User,
@@ -91,6 +140,21 @@ class MeetingService {
             as: "creator",
             attributes: ["id", "name", "email"],
           },
+          {
+            model: Task,
+            as: "tasks",
+            attributes: ["id", "name"],
+          },
+          {
+            model: Note,
+            as: "notes",
+            attributes: ["id", "name"],
+          },
+          {
+            model: Material,
+            as: "materials",
+            attributes: ["id", "name"],
+          },
         ],
       });
     }
@@ -104,6 +168,14 @@ class MeetingService {
         {
           model: Class,
           as: "class",
+          attributes: ["id", "name", "code"],
+          include: [
+            {
+              model: User,
+              as: "mentor",
+              attributes: ["id", "name"],
+            },
+          ],
         },
         {
           model: User,
@@ -113,14 +185,17 @@ class MeetingService {
         {
           model: Task,
           as: "tasks",
+          attributes: ["id", "name"],
         },
         {
           model: Note,
           as: "notes",
+          attributes: ["id", "name"],
         },
         {
           model: Material,
           as: "materials",
+          attributes: ["id", "name"],
         },
       ],
     });

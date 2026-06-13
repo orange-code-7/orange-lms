@@ -1,25 +1,26 @@
-import Popup from "./PopUp";
+import PopUp from "./PopUp";
 
-const ErrorPopup = ({
+import Button from "../buttons/Button";
+
+const ErrorPopUp = ({
   open,
   onClose,
+
   title = "Error",
+
   message = "Something went wrong.",
 }) => {
   return (
-    <Popup open={open} onClose={onClose} title={title} width="max-w-md">
+    <PopUp open={open} onClose={onClose} title={title} width="max-w-md">
       <div className="space-y-4">
         <p className="text-sm text-red-600">{message}</p>
 
-        <button
-          onClick={onClose}
-          className="w-full rounded-sm bg-red-600 px-4 py-2 text-white hover:bg-red-700"
-        >
+        <Button variant="danger" className="w-full" onClick={onClose}>
           Close
-        </button>
+        </Button>
       </div>
-    </Popup>
+    </PopUp>
   );
 };
 
-export default ErrorPopup;
+export default ErrorPopUp;

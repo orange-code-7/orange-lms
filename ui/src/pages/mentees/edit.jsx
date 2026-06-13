@@ -6,6 +6,8 @@ import Form from "@/components/ui/forms/Form";
 import SuccessPopup from "@/components/ui/popup/SuccessPopup";
 import ErrorPopup from "@/components/ui/popup/ErrorPopup";
 
+import LoadingPage from "@/components/ui/loading/LoadingPage";
+
 import useForm from "@/hooks/useForm";
 
 import MenteeService from "@/services/modules/mentee.service";
@@ -42,12 +44,12 @@ const Edit = () => {
         const res = await MenteeService.getById(id);
 
         setValues(flattenMentee(res.data));
-      } catch (err) {
-        console.error(err);
+      } catch (error) {
+        console.error(error);
 
         setError(
-          err?.response?.data?.message ||
-            err?.message ||
+          error?.response?.data?.message ||
+            error?.message ||
             "Failed to load mentee",
         );
 
@@ -65,12 +67,12 @@ const Edit = () => {
       await MenteeService.update(id, payload);
 
       setOpenSuccess(true);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
 
       setError(
-        err?.response?.data?.message ||
-          err?.message ||
+        error?.response?.data?.message ||
+          error?.message ||
           "Failed to update mentee",
       );
 
@@ -85,11 +87,7 @@ const Edit = () => {
   };
 
   if (loading) {
-    return (
-      <div className="rounded-sm border border-gray-200 bg-white p-4">
-        Loading mentee...
-      </div>
-    );
+    return <LoadingPage title="Loading Mentee..." />;
   }
 
   return (

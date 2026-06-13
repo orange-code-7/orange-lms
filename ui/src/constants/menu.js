@@ -60,6 +60,11 @@ export const MENU_BY_ROLE = {
       title: "PEOPLE",
       items: [
         {
+          name: "Admins",
+          icon: User,
+          path: ROUTES.ADMINS,
+        },
+        {
           name: "Mentors",
           icon: User,
           path: ROUTES.MENTORS,

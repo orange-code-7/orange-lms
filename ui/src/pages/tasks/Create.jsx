@@ -2,7 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Form from "@/components/ui/forms/Form";
+
 import SuccessPopup from "@/components/ui/popup/SuccessPopup";
+import ErrorPopup from "@/components/ui/popup/ErrorPopup";
+
+import LoadingPage from "@/components/ui/loading/LoadingPage";
 
 import useForm from "@/hooks/useForm";
 import useClassMeetingOptions from "@/hooks/useClassMeetingOptions";
@@ -18,25 +22,46 @@ const Create = () => {
 
   const schema = useClassMeetingOptions(values, setValues, taskSchema);
 
-  const [openSuccessPopup, setOpenSuccessPopup] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (payload) => {
+  const [error, setError] = useState("");
+
+  const [openError, setOpenError] = useState(false);
+  const [openSuccess, setOpenSuccess] = useState(false);
+
+  const handleSubmit = async (formData) => {
     try {
-      const { MeetingId, ClassId, ...taskData } = payload;
+      setLoading(true);
+
+      const { MeetingId, ClassId, ...taskData } = formData;
 
       await TaskService.createTaskByMeeting(MeetingId, taskData);
 
-      setOpenSuccessPopup(true);
+      setOpenSuccess(true);
     } catch (error) {
       console.error(error);
+
+      setError(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Failed to create task",
+      );
+
+      setOpenError(true);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleCloseSuccessPopup = () => {
-    setOpenSuccessPopup(false);
+  const handleSuccessClose = () => {
+    setOpenSuccess(false);
 
     navigate("/tasks");
   };
+
+  if (loading) {
+    return <LoadingPage title="Creating Task..." />;
+  }
 
   return (
     <>
@@ -51,10 +76,17 @@ const Create = () => {
       />
 
       <SuccessPopup
-        open={openSuccessPopup}
-        onClose={handleCloseSuccessPopup}
+        open={openSuccess}
+        onClose={handleSuccessClose}
         title="Task Created"
         message="Task has been created successfully."
+      />
+
+      <ErrorPopup
+        open={openError}
+        onClose={() => setOpenError(false)}
+        title="Create Task Failed"
+        message={error}
       />
     </>
   );

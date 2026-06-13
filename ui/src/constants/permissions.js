@@ -2,6 +2,7 @@ const UI_PERMISSIONS = {
   Owner: {
     dashboard: ["read"],
 
+    admin: ["read", "create", "update", "delete"],
     mentor: ["read", "create", "update", "delete"],
     mentee: ["read", "create", "update", "delete"],
 

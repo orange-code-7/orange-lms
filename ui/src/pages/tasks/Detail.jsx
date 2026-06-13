@@ -1,24 +1,24 @@
 import {
-  Download,
-  Edit2,
-  Trash2,
-  Calendar,
   Award,
   BookOpen,
-  Users,
+  Calendar,
   CheckSquare,
-  Pencil,
+  Download,
+  Users,
 } from "lucide-react";
 
-import { formatDate, can } from "@/helpers";
 import { Link } from "react-router-dom";
 
-const Detail = ({ task, role, onEdit, onDelete }) => {
+import { formatDate, can } from "@/helpers";
+
+import ActionButton from "@/components/ui/buttons/ActionButton";
+
+const Detail = ({ task, role, onDelete }) => {
   if (!task) return null;
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
-      {/* LEFT */}
+      {/* Sidebar */}
       <div className="lg:col-span-1">
         <div className="rounded-sm border border-gray-200 bg-white p-5">
           <div className="flex flex-col items-center">
@@ -60,30 +60,23 @@ const Detail = ({ task, role, onEdit, onDelete }) => {
 
             <div className="mt-5 flex w-full gap-2">
               {can(role, "task", "update") && (
-                <Link
-                  to={`/tasks/edit/${task.id}`}
-                  className="flex items-center gap-1 rounded-sm bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-200"
-                >
-                  <Pencil size={14} />
-                  Edit
+                <Link to={`/tasks/edit/${task.id}`}>
+                  <ActionButton action="edit" />
                 </Link>
               )}
 
               {can(role, "task", "delete") && (
-                <button
-                  onClick={() => handleRemove(task.id)}
-                  className="flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium text-[var(--color-text-muted)] hover:bg-rose-50 hover:text-rose-600"
-                >
-                  <Trash2 size={14} />
-                  Remove
-                </button>
+                <ActionButton
+                  action="delete"
+                  onClick={() => onDelete?.(task.id)}
+                />
               )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* RIGHT */}
+      {/* Content */}
       <div className="space-y-4 lg:col-span-3">
         {/* Description */}
         <div className="rounded-sm border border-gray-200 bg-white p-5">
@@ -116,7 +109,7 @@ const Detail = ({ task, role, onEdit, onDelete }) => {
             </div>
 
             <p className="font-semibold">
-              Meeting #{task.Meeting?.meetingNumber}
+              Meeting #{task.Meeting?.meetingNumber || "-"}
             </p>
 
             <p className="text-sm text-gray-500">{task.Meeting?.name || "-"}</p>
@@ -143,7 +136,7 @@ const Detail = ({ task, role, onEdit, onDelete }) => {
               <span className="font-medium">Task Created</span>
             </div>
 
-            <p>{formatDate(task.createdAt) || "-"}</p>
+            <p>{task.createdAt ? formatDate(task.createdAt) : "-"}</p>
           </div>
         </div>
 
@@ -159,15 +152,9 @@ const Detail = ({ task, role, onEdit, onDelete }) => {
             </div>
 
             {task.fileUrl ? (
-              <a
-                href={task.fileUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-sm bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600"
-              >
-                <Download size={16} />
+              <ActionButton action="download" href={task.fileUrl}>
                 Download File
-              </a>
+              </ActionButton>
             ) : (
               <span className="text-sm text-gray-500">No attachment</span>
             )}

@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 
 import TabTable from "@/components/ui/tables/TabTable";
 import Popup from "@/components/ui/popup/PopUp";
+import useBreadcrumbs from "@/hooks/useBreadcrumbs";
 
 import MeetingService from "@/services/modules/meeting.service";
 
@@ -32,7 +33,12 @@ const tabs = ["Tasks", "Notes", "Materials", "Attendance", "Submission"];
 
 const Mentor = () => {
   const { id } = useParams();
-
+  const breadcrumbs = useBreadcrumbs([
+    {
+      label: "Meetings",
+      to: "/meetings",
+    },
+  ]);
   const [meeting, setMeeting] = useState(null);
 
   const [loading, setLoading] = useState(true);
@@ -159,16 +165,29 @@ const Mentor = () => {
     );
   }
   return (
-    <div className="space-y-5 p-4">
-      return (
-      <div className="grid gap-5 p-4 lg:grid-cols-12">
+    <div className="space-y-4 p-4">
+      {/* Breadcrumb */}
+      <div className="text-sm text-gray-500">
+        {breadcrumbs.map((b, i) => (
+          <span key={b.to}>
+            {b.label}
+            {i < breadcrumbs.length - 1 && " / "}
+          </span>
+        ))}
+
+        <span className="font-medium text-gray-700">
+          {" / "}
+          {meeting.name}
+        </span>
+      </div>
+
+      {/* Content */}
+      <div className="grid gap-5 lg:grid-cols-12">
         {/* LEFT */}
         <div className="space-y-5 lg:col-span-4">
-          <div className="lg:sticky lg:top-5 space-y-5">
-            <Hero meeting={meeting} />
+          <Hero meeting={meeting} />
 
-            <Statistics meeting={meeting} />
-          </div>
+          <Statistics meeting={meeting} />
         </div>
 
         {/* RIGHT */}
@@ -186,60 +205,59 @@ const Mentor = () => {
             handleDeleteMaterial={handleDeleteMaterial}
           />
         </div>
-
-        {/* Popups */}
-        <Popup
-          open={openTaskPopup}
-          onClose={() => setOpenTaskPopup(false)}
-          title="Create Task"
-        >
-          <Form
-            title=""
-            schema={taskSchema.filter(
-              (field) => !["ClassId", "MeetingId"].includes(field.name),
-            )}
-            values={taskValues}
-            onChange={handleTaskChange}
-            onSubmit={handleCreateTask}
-            submitLabel="Create Task"
-          />
-        </Popup>
-
-        <Popup
-          open={openNotePopup}
-          onClose={() => setOpenNotePopup(false)}
-          title="Create Note"
-        >
-          <Form
-            title=""
-            schema={noteSchema.filter(
-              (field) => !["ClassId", "MeetingId"].includes(field.name),
-            )}
-            values={noteValues}
-            onChange={handleNoteChange}
-            onSubmit={handleCreateNote}
-            submitLabel="Create Note"
-          />
-        </Popup>
-
-        <Popup
-          open={openMaterialPopup}
-          onClose={() => setOpenMaterialPopup(false)}
-          title="Create Material"
-        >
-          <Form
-            title=""
-            schema={materialSchema.filter(
-              (field) => !["ClassId", "MeetingId"].includes(field.name),
-            )}
-            values={materialValues}
-            onChange={handleMaterialChange}
-            onSubmit={handleCreateMaterial}
-            submitLabel="Create Material"
-          />
-        </Popup>
       </div>
-      );
+
+      {/* Popups */}
+      <Popup
+        open={openTaskPopup}
+        onClose={() => setOpenTaskPopup(false)}
+        title="Create Task"
+      >
+        <Form
+          title=""
+          schema={taskSchema.filter(
+            (field) => !["ClassId", "MeetingId"].includes(field.name),
+          )}
+          values={taskValues}
+          onChange={handleTaskChange}
+          onSubmit={handleCreateTask}
+          submitLabel="Create Task"
+        />
+      </Popup>
+
+      <Popup
+        open={openNotePopup}
+        onClose={() => setOpenNotePopup(false)}
+        title="Create Note"
+      >
+        <Form
+          title=""
+          schema={noteSchema.filter(
+            (field) => !["ClassId", "MeetingId"].includes(field.name),
+          )}
+          values={noteValues}
+          onChange={handleNoteChange}
+          onSubmit={handleCreateNote}
+          submitLabel="Create Note"
+        />
+      </Popup>
+
+      <Popup
+        open={openMaterialPopup}
+        onClose={() => setOpenMaterialPopup(false)}
+        title="Create Material"
+      >
+        <Form
+          title=""
+          schema={materialSchema.filter(
+            (field) => !["ClassId", "MeetingId"].includes(field.name),
+          )}
+          values={materialValues}
+          onChange={handleMaterialChange}
+          onSubmit={handleCreateMaterial}
+          submitLabel="Create Material"
+        />
+      </Popup>
     </div>
   );
 };

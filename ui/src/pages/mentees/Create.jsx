@@ -19,21 +19,20 @@ const Create = () => {
 
   const [error, setError] = useState("");
 
-  const [openError, setOpenError] = useState(false);
-
   const [openSuccess, setOpenSuccess] = useState(false);
+  const [openError, setOpenError] = useState(false);
 
   const handleSubmit = async (payload) => {
     try {
       await MenteeService.create(payload);
 
       setOpenSuccess(true);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
 
       setError(
-        err?.response?.data?.message ||
-          err?.message ||
+        error?.response?.data?.message ||
+          error?.message ||
           "Failed to create mentee",
       );
 

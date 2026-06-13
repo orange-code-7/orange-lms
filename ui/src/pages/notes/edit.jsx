@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import Form from "@/components/ui/forms/Form";
 
+import LoadingPage from "@/components/ui/loading/LoadingPage";
+
 import SuccessPopup from "@/components/ui/popup/SuccessPopup";
 import ErrorPopup from "@/components/ui/popup/ErrorPopup";
 
@@ -23,6 +25,7 @@ const Edit = () => {
   const [error, setError] = useState("");
 
   const [openSuccess, setOpenSuccess] = useState(false);
+
   const [openError, setOpenError] = useState(false);
 
   const { values, handleChange, setValues } = useForm(noteSchema);
@@ -37,11 +40,13 @@ const Edit = () => {
         const res = await NoteService.getById(id);
 
         setValues(flattenNote(res.data));
-      } catch (err) {
-        console.error(err);
+      } catch (error) {
+        console.error(error);
 
         setError(
-          err?.response?.data?.message || err?.message || "Failed to load note",
+          error?.response?.data?.message ||
+            error?.message ||
+            "Failed to load note",
         );
 
         setOpenError(true);
@@ -64,11 +69,13 @@ const Edit = () => {
       });
 
       setOpenSuccess(true);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
 
       setError(
-        err?.response?.data?.message || err?.message || "Failed to update note",
+        error?.response?.data?.message ||
+          error?.message ||
+          "Failed to update note",
       );
 
       setOpenError(true);
@@ -77,18 +84,14 @@ const Edit = () => {
     }
   };
 
-  const handleCloseSuccess = () => {
+  const handleSuccessClose = () => {
     setOpenSuccess(false);
 
     navigate("/notes");
   };
 
   if (loading) {
-    return (
-      <div className="rounded-sm border border-gray-200 bg-white p-4">
-        Loading note...
-      </div>
-    );
+    return <LoadingPage title="Loading Note..." />;
   }
 
   return (
@@ -105,7 +108,7 @@ const Edit = () => {
 
       <SuccessPopup
         open={openSuccess}
-        onClose={handleCloseSuccess}
+        onClose={handleSuccessClose}
         title="Note Updated"
         message="Note has been updated successfully."
       />
@@ -122,9 +125,13 @@ const Edit = () => {
 
 const flattenNote = (note) => ({
   ClassId: note?.ClassId || note?.Class?.id || "",
+
   MeetingId: note?.MeetingId || note?.Meeting?.id || "",
+
   name: note?.name || "",
+
   description: note?.description || "",
+
   fileUrl: note?.fileUrl || "",
 });
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Form from "@/components/ui/forms/Form";
+import LoadingPage from "@/components/ui/loading/LoadingPage";
 
 import SuccessPopup from "@/components/ui/popup/SuccessPopup";
 import ErrorPopup from "@/components/ui/popup/ErrorPopup";
@@ -47,12 +48,12 @@ const Create = () => {
               : field,
           ),
         );
-      } catch (err) {
-        console.error(err);
+      } catch (error) {
+        console.error(error);
 
         setError(
-          err?.response?.data?.message ||
-            err?.message ||
+          error?.response?.data?.message ||
+            error?.message ||
             "Failed to load mentors",
         );
 
@@ -63,25 +64,22 @@ const Create = () => {
     fetchMentors();
   }, []);
 
-  const handleSubmit = async (data) => {
+  const handleSubmit = async (formData) => {
     try {
       setLoading(true);
-      setError("");
 
-      const payload = {
-        ...data,
-        MentorId: Number(data.MentorId),
-      };
-
-      await ClassService.create(payload);
+      await ClassService.create({
+        ...formData,
+        MentorId: Number(formData.MentorId),
+      });
 
       setOpenSuccess(true);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
 
       setError(
-        err?.response?.data?.message ||
-          err?.message ||
+        error?.response?.data?.message ||
+          error?.message ||
           "Failed to create class",
       );
 
@@ -91,18 +89,14 @@ const Create = () => {
     }
   };
 
-  const handleCloseSuccess = () => {
+  const handleSuccessClose = () => {
     setOpenSuccess(false);
 
     navigate("/classes");
   };
 
   if (loading) {
-    return (
-      <div className="rounded-sm border border-gray-200 bg-white p-4">
-        Creating class...
-      </div>
-    );
+    return <LoadingPage title="Creating Class..." />;
   }
 
   return (
@@ -119,7 +113,7 @@ const Create = () => {
 
       <SuccessPopup
         open={openSuccess}
-        onClose={handleCloseSuccess}
+        onClose={handleSuccessClose}
         title="Class Created"
         message="Class has been created successfully."
       />

@@ -160,7 +160,7 @@ const MentorDashboard = () => {
       </div>
 
       {/* Content */}
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+      <div className="grid grid-cols-2 gap-5 xl:grid-cols-2">
         {/* My Classes */}
         <div className="rounded-sm border border-gray-200 bg-white p-5">
           <div className="mb-4 flex items-center gap-2">

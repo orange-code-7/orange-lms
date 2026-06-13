@@ -3,7 +3,7 @@ const { userService, profileService } = require("../services");
 class UserController {
   static async getAll(req, res, next) {
     try {
-      const users = await userService.findAll();
+      const users = await userService.findAll(req.query);
 
       res.status(200).json(users);
     } catch (error) {
@@ -25,7 +25,15 @@ class UserController {
     try {
       const user = await userService.create(req.body);
 
-      await profileService.upsert(user.id, {});
+      await profileService.upsert(user.id, {
+        age: req.body.age,
+        gender: req.body.gender,
+        address: req.body.address,
+        city: req.body.city,
+        country: req.body.country,
+        phoneNumber: req.body.phoneNumber,
+        background: req.body.background,
+      });
 
       res.status(201).json(user);
     } catch (error) {
@@ -40,7 +48,15 @@ class UserController {
         req.body,
         req.user,
       );
-
+      await profileService.upsert(req.params.id, {
+        age: req.body.age,
+        gender: req.body.gender,
+        address: req.body.address,
+        city: req.body.city,
+        country: req.body.country,
+        phoneNumber: req.body.phoneNumber,
+        background: req.body.background,
+      });
       res.status(200).json({
         message: "User updated successfully",
         data: updatedUser,

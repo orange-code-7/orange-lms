@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Form from "@/components/ui/forms/Form";
+import LoadingPage from "@/components/ui/loading/LoadingPage";
 
 import SuccessPopup from "@/components/ui/popup/SuccessPopup";
 import ErrorPopup from "@/components/ui/popup/ErrorPopup";
@@ -12,6 +13,17 @@ import { meetingSchema } from "@/schemas";
 
 import ClassService from "@/services/modules/class.service";
 import MeetingService from "@/services/modules/meeting.service";
+
+const flattenData = (meeting) => ({
+  ClassId: meeting?.ClassId || meeting?.class?.id || "",
+  meetingNumber: meeting?.meetingNumber || "",
+  name: meeting?.name || "",
+  description: meeting?.description || "",
+  meetingDate: meeting?.meetingDate?.slice(0, 10) || "",
+  startHour: meeting?.startHour?.slice(0, 5) || "",
+  finishHour: meeting?.finishHour?.slice(0, 5) || "",
+  imageUrl: meeting?.imageUrl || "",
+});
 
 const Edit = () => {
   const { id } = useParams();
@@ -32,8 +44,6 @@ const Edit = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true);
-
         const [meetingRes, classRes] = await Promise.all([
           MeetingService.getById(id),
           ClassService.getAll(),
@@ -56,12 +66,12 @@ const Edit = () => {
         );
 
         setValues(flattenData(meetingRes.data));
-      } catch (err) {
-        console.error(err);
+      } catch (error) {
+        console.error(error);
 
         setError(
-          err?.response?.data?.message ||
-            err?.message ||
+          error?.response?.data?.message ||
+            error?.message ||
             "Failed to load meeting",
         );
 
@@ -74,24 +84,22 @@ const Edit = () => {
     fetchData();
   }, [id, setValues]);
 
-  const handleSubmit = async (data) => {
+  const handleSubmit = async (formData) => {
     try {
       setLoading(true);
 
-      const payload = {
-        ...data,
-        ClassId: Number(data.ClassId),
-      };
-
-      await MeetingService.update(id, payload);
+      await MeetingService.update(id, {
+        ...formData,
+        ClassId: Number(formData.ClassId),
+      });
 
       setOpenSuccess(true);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
 
       setError(
-        err?.response?.data?.message ||
-          err?.message ||
+        error?.response?.data?.message ||
+          error?.message ||
           "Failed to update meeting",
       );
 
@@ -101,18 +109,14 @@ const Edit = () => {
     }
   };
 
-  const handleCloseSuccess = () => {
+  const handleSuccessClose = () => {
     setOpenSuccess(false);
 
     navigate("/meetings");
   };
 
   if (loading) {
-    return (
-      <div className="rounded-sm border border-gray-200 bg-white p-4">
-        Loading meeting...
-      </div>
-    );
+    return <LoadingPage title="Loading Meeting..." />;
   }
 
   return (
@@ -129,7 +133,7 @@ const Edit = () => {
 
       <SuccessPopup
         open={openSuccess}
-        onClose={handleCloseSuccess}
+        onClose={handleSuccessClose}
         title="Meeting Updated"
         message="Meeting has been updated successfully."
       />
@@ -143,16 +147,5 @@ const Edit = () => {
     </>
   );
 };
-
-const flattenData = (meeting) => ({
-  ClassId: meeting?.ClassId || meeting?.class?.id || "",
-  meetingNumber: meeting?.meetingNumber || "",
-  name: meeting?.name || "",
-  description: meeting?.description || "",
-  meetingDate: meeting?.meetingDate?.slice(0, 10) || "",
-  startHour: meeting?.startHour?.slice(0, 5) || "",
-  finishHour: meeting?.finishHour?.slice(0, 5) || "",
-  imageUrl: meeting?.imageUrl || "",
-});
 
 export default Edit;

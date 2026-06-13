@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import Form from "@/components/ui/forms/Form";
 
+import LoadingPage from "@/components/ui/loading/LoadingPage";
+
 import SuccessPopup from "@/components/ui/popup/SuccessPopup";
 import ErrorPopup from "@/components/ui/popup/ErrorPopup";
 
@@ -12,6 +14,17 @@ import useClassMeetingOptions from "@/hooks/useClassMeetingOptions";
 import { taskSchema } from "@/schemas";
 
 import TaskService from "@/services/modules/task.service";
+
+const flattenTask = (task) => ({
+  ClassId: task?.ClassId || task?.Class?.id || "",
+  MeetingId: task?.MeetingId || task?.Meeting?.id || "",
+  name: task?.name || "",
+  description: task?.description || "",
+  dueDate: task?.dueDate?.slice(0, 10) || "",
+  maxScore: task?.maxScore || "",
+  status: task?.status || "",
+  fileUrl: task?.fileUrl || "",
+});
 
 const Edit = () => {
   const { id } = useParams();
@@ -32,16 +45,16 @@ const Edit = () => {
   useEffect(() => {
     const fetchTask = async () => {
       try {
-        setLoading(true);
-
         const res = await TaskService.getById(id);
 
         setValues(flattenTask(res.data));
-      } catch (err) {
-        console.error(err);
+      } catch (error) {
+        console.error(error);
 
         setError(
-          err?.response?.data?.message || err?.message || "Failed to load task",
+          error?.response?.data?.message ||
+            error?.message ||
+            "Failed to load task",
         );
 
         setOpenError(true);
@@ -53,23 +66,25 @@ const Edit = () => {
     fetchTask();
   }, [id, setValues]);
 
-  const handleSubmit = async (payload) => {
+  const handleSubmit = async (formData) => {
     try {
       setLoading(true);
 
       await TaskService.update(id, {
-        ...payload,
-        ClassId: Number(payload.ClassId),
-        MeetingId: Number(payload.MeetingId),
-        maxScore: Number(payload.maxScore),
+        ...formData,
+        ClassId: Number(formData.ClassId),
+        MeetingId: Number(formData.MeetingId),
+        maxScore: Number(formData.maxScore),
       });
 
       setOpenSuccess(true);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
 
       setError(
-        err?.response?.data?.message || err?.message || "Failed to update task",
+        error?.response?.data?.message ||
+          error?.message ||
+          "Failed to update task",
       );
 
       setOpenError(true);
@@ -78,18 +93,14 @@ const Edit = () => {
     }
   };
 
-  const handleCloseSuccess = () => {
+  const handleSuccessClose = () => {
     setOpenSuccess(false);
 
     navigate("/tasks");
   };
 
   if (loading) {
-    return (
-      <div className="rounded-sm border border-gray-200 bg-white p-4">
-        Loading task...
-      </div>
-    );
+    return <LoadingPage title="Loading Task..." />;
   }
 
   return (
@@ -106,7 +117,7 @@ const Edit = () => {
 
       <SuccessPopup
         open={openSuccess}
-        onClose={handleCloseSuccess}
+        onClose={handleSuccessClose}
         title="Task Updated"
         message="Task has been updated successfully."
       />
@@ -120,16 +131,5 @@ const Edit = () => {
     </>
   );
 };
-
-const flattenTask = (task) => ({
-  ClassId: task?.ClassId || task?.Class?.id || "",
-  MeetingId: task?.MeetingId || task?.Meeting?.id || "",
-  name: task?.name || "",
-  description: task?.description || "",
-  dueDate: task?.dueDate?.slice(0, 10) || "",
-  maxScore: task?.maxScore || "",
-  status: task?.status || "",
-  fileUrl: task?.fileUrl || "",
-});
 
 export default Edit;

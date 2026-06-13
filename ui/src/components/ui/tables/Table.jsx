@@ -1,49 +1,53 @@
-import { getNestedValue } from "@/helpers";
 import React from "react";
 
-const Table = ({ columns, data }) => {
+import { getNestedValue } from "@/helpers";
+
+import EmptyTable from "./EmptyTable";
+
+const Table = ({ columns = [], data = [], rowKey = "id" }) => {
+  if (!data.length) {
+    return (
+      <EmptyTable
+        title="No Data Found"
+        description="There are no records to display."
+      />
+    );
+  }
+
   return (
     <div className="w-full overflow-x-auto">
-      <table className="min-w-full border border-gray-200 text-sm">
+      <table className="min-w-full text-sm">
         <thead className="bg-orange-100/50">
           <tr>
-            {columns.map((col) => (
+            {columns.map((column) => (
               <th
-                key={col.key}
-                className="border border-gray-200 px-3 py-2 text-left font-medium whitespace-nowrap"
+                key={column.key}
+                className="whitespace-nowrap border border-gray-200 px-3 py-2 text-left font-medium"
               >
-                {col.label}
+                {column.label}
               </th>
             ))}
           </tr>
         </thead>
 
         <tbody>
-          {data.length === 0 ? (
-            <tr>
-              <td
-                colSpan={columns.length}
-                className="px-4 py-6 text-center text-gray-500"
-              >
-                No data found
-              </td>
+          {data.map((row, index) => (
+            <tr
+              key={row?.[rowKey] ?? index}
+              className="transition-colors hover:bg-gray-50"
+            >
+              {columns.map((column) => (
+                <td
+                  key={column.key}
+                  className="border border-gray-200 px-3 py-2 align-top"
+                >
+                  {column.render
+                    ? column.render(row)
+                    : (getNestedValue(row, column.key) ?? "-")}
+                </td>
+              ))}
             </tr>
-          ) : (
-            data.map((row) => (
-              <tr key={row.id} className="hover:bg-gray-50">
-                {columns.map((col) => (
-                  <td
-                    key={col.key}
-                    className="border border-gray-200 px-3 py-2 whitespace-nowrap"
-                  >
-                    {col.render
-                      ? col.render(row)
-                      : getNestedValue(row, col.key)}
-                  </td>
-                ))}
-              </tr>
-            ))
-          )}
+          ))}
         </tbody>
       </table>
     </div>

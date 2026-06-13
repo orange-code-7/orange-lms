@@ -23,6 +23,7 @@ const Edit = () => {
   const [error, setError] = useState("");
 
   const [openSuccess, setOpenSuccess] = useState(false);
+
   const [openError, setOpenError] = useState(false);
 
   const { values, handleChange, setValues } = useForm(materialSchema);
@@ -63,6 +64,7 @@ const Edit = () => {
   const handleSubmit = async (payload) => {
     try {
       setLoading(true);
+      setError("");
 
       await MaterialService.update(id, {
         ...payload,
@@ -131,10 +133,15 @@ const Edit = () => {
 
 const flattenMaterial = (material) => ({
   ClassId: material?.ClassId || material?.Class?.id || "",
+
   MeetingId: material?.MeetingId || material?.Meeting?.id || "",
+
   name: material?.name || "",
+
   description: material?.description || "",
+
   type: material?.type || "",
+
   fileUrl: material?.fileUrl || "",
 });
 

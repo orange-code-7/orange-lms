@@ -2,7 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Form from "@/components/ui/forms/Form";
+
+import LoadingPage from "@/components/ui/loading/LoadingPage";
+
 import SuccessPopup from "@/components/ui/popup/SuccessPopup";
+import ErrorPopup from "@/components/ui/popup/ErrorPopup";
 
 import useForm from "@/hooks/useForm";
 import useClassMeetingOptions from "@/hooks/useClassMeetingOptions";
@@ -18,25 +22,47 @@ const Create = () => {
 
   const schema = useClassMeetingOptions(values, setValues, noteSchema);
 
-  const [openSuccessPopup, setOpenSuccessPopup] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (payload) => {
+  const [error, setError] = useState("");
+
+  const [openSuccess, setOpenSuccess] = useState(false);
+
+  const [openError, setOpenError] = useState(false);
+
+  const handleSubmit = async (formData) => {
     try {
-      const { MeetingId, ClassId, ...noteData } = payload;
+      setLoading(true);
+
+      const { MeetingId, ClassId, ...noteData } = formData;
 
       await NoteService.createNoteByMeeting(MeetingId, noteData);
 
-      setOpenSuccessPopup(true);
+      setOpenSuccess(true);
     } catch (error) {
       console.error(error);
+
+      setError(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Failed to create note",
+      );
+
+      setOpenError(true);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleCloseSuccessPopup = () => {
-    setOpenSuccessPopup(false);
+  const handleSuccessClose = () => {
+    setOpenSuccess(false);
 
     navigate("/notes");
   };
+
+  if (loading) {
+    return <LoadingPage title="Creating Note..." />;
+  }
 
   return (
     <>
@@ -51,10 +77,17 @@ const Create = () => {
       />
 
       <SuccessPopup
-        open={openSuccessPopup}
-        onClose={handleCloseSuccessPopup}
+        open={openSuccess}
+        onClose={handleSuccessClose}
         title="Note Created"
         message="Note has been created successfully."
+      />
+
+      <ErrorPopup
+        open={openError}
+        onClose={() => setOpenError(false)}
+        title="Create Note Failed"
+        message={error}
       />
     </>
   );

@@ -1,19 +1,12 @@
-import {
-  Download,
-  Edit2,
-  Trash2,
-  Calendar,
-  Award,
-  BookOpen,
-  Users,
-  FileText,
-  Pencil,
-} from "lucide-react";
+import { Award, BookOpen, Calendar, FileText, Users } from "lucide-react";
 
-import { formatDate, can } from "@/helpers";
 import { Link } from "react-router-dom";
 
-const NoteDetail = ({ note, role, onEdit, onDelete }) => {
+import { can, formatDate } from "@/helpers";
+
+import ActionButton from "@/components/ui/buttons/ActionButton";
+
+const NoteDetail = ({ note, role, onDelete }) => {
   if (!note) return null;
 
   return (
@@ -28,14 +21,6 @@ const NoteDetail = ({ note, role, onEdit, onDelete }) => {
 
             <h2 className="mt-4 text-center text-lg font-bold">{note.name}</h2>
 
-            <span
-              className={`mt-3 rounded-sm px-3 py-1 text-xs font-medium ${
-                note.status === "Published"
-                  ? "bg-green-100 text-green-700"
-                  : "bg-gray-100 text-gray-700"
-              }`}
-            ></span>
-
             <div className="mt-5 w-full space-y-4 text-sm">
               <div>
                 <p className="text-xs text-gray-500">Created By</p>
@@ -46,23 +31,16 @@ const NoteDetail = ({ note, role, onEdit, onDelete }) => {
 
             <div className="mt-5 flex w-full gap-2">
               {can(role, "note", "update") && (
-                <Link
-                  to={`/notes/edit/${note.id}`}
-                  className="flex items-center gap-1 rounded-sm bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-200"
-                >
-                  <Pencil size={14} />
-                  Edit
+                <Link to={`/notes/edit/${note.id}`}>
+                  <ActionButton action="edit" />
                 </Link>
               )}
 
               {can(role, "note", "delete") && (
-                <button
-                  onClick={() => handleRemove(note.id)}
-                  className="flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium text-[var(--color-text-muted)] hover:bg-rose-50 hover:text-rose-600"
-                >
-                  <Trash2 size={14} />
-                  Remove
-                </button>
+                <ActionButton
+                  action="delete"
+                  onClick={() => onDelete?.(note.id)}
+                />
               )}
             </div>
           </div>
@@ -102,7 +80,7 @@ const NoteDetail = ({ note, role, onEdit, onDelete }) => {
             </div>
 
             <p className="font-semibold">
-              Meeting #{note.Meeting?.meetingNumber}
+              Meeting #{note.Meeting?.meetingNumber || "-"}
             </p>
 
             <p className="text-sm text-gray-500">{note.Meeting?.name || "-"}</p>
@@ -129,7 +107,7 @@ const NoteDetail = ({ note, role, onEdit, onDelete }) => {
               <span className="font-medium">Note Created</span>
             </div>
 
-            <p>{formatDate(note.createdAt) || "-"}</p>
+            <p>{note.createdAt ? formatDate(note.createdAt) : "-"}</p>
           </div>
         </div>
 
@@ -145,15 +123,9 @@ const NoteDetail = ({ note, role, onEdit, onDelete }) => {
             </div>
 
             {note.fileUrl ? (
-              <a
-                href={note.fileUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-sm bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600"
-              >
-                <Download size={16} />
+              <ActionButton action="download" href={note.fileUrl}>
                 Download File
-              </a>
+              </ActionButton>
             ) : (
               <span className="text-sm text-gray-500">No attachment</span>
             )}
