@@ -2,17 +2,27 @@ const express = require("express");
 const router = express.Router({ mergeParams: true });
 
 const { TaskController } = require("../controllers");
-const { authorization } = require("../middlewares");
+const { authorization, upload } = require("../middlewares");
 
 router.get("/", authorization("task", "read"), TaskController.getByMeeting);
 
-router.post("/", authorization("task", "create"), TaskController.create);
+router.post(
+  "/",
+  authorization("task", "create"),
+  upload.single("file"),
+  TaskController.create,
+);
 
 router.get("/all", authorization("task", "read"), TaskController.getAll);
 
 router.get("/:id", authorization("task", "read"), TaskController.getById);
 
-router.put("/:id", authorization("task", "update"), TaskController.update);
+router.put(
+  "/:id",
+  authorization("task", "update"),
+  upload.single("file"),
+  TaskController.update,
+);
 
 router.delete("/:id", authorization("task", "delete"), TaskController.delete);
 

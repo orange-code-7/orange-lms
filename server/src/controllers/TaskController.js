@@ -23,10 +23,15 @@ class TaskController {
 
   static async create(req, res, next) {
     try {
+      const payload = {
+        ...req.body,
+        fileUrl: req.file?.path || req.body.fileUrl,
+      };
+
       const task = await taskService.create(
         req.user,
         req.params.meetingId,
-        req.body,
+        payload,
       );
 
       res.status(201).json(task);
@@ -47,7 +52,12 @@ class TaskController {
 
   static async update(req, res, next) {
     try {
-      const task = await taskService.update(req.params.id, req.body, req.user);
+      const payload = {
+        ...req.body,
+        fileUrl: req.file?.path || req.body.fileUrl,
+      };
+
+      const task = await taskService.update(req.params.id, payload, req.user);
 
       res.json(task);
     } catch (err) {
