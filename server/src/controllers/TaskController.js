@@ -73,6 +73,9 @@ class TaskController {
         TaskId: req.params.id,
         UserId: req.user.id,
         submissionUrl: req.body.submissionUrl,
+        submissionFileUrl: req.body.submissionFileUrl,
+        submittedNote: req.body.submittedNote,
+        submittedAt: new Date(),
       });
 
       res.status(201).json(submission);
@@ -89,6 +92,57 @@ class TaskController {
       );
 
       res.json(submissions);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // tambahan untuk new features tasksubmission
+  static async getSubmissionDetail(req, res, next) {
+    try {
+      const submission = await taskSubmissionService.findById(
+        req.params.submissionId,
+        req.user,
+      );
+
+      res.json(submission);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async updateSubmission(req, res, next) {
+    try {
+      const submission = await taskSubmissionService.update(
+        req.params.submissionId,
+        {
+          submissionUrl: req.body.submissionUrl,
+          submissionFileUrl: req.body.submissionFileUrl,
+          submittedNote: req.body.submittedNote,
+        },
+        req.user,
+      );
+
+      res.json(submission);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async reviewSubmission(req, res, next) {
+    try {
+      const submission = await taskSubmissionService.update(
+        req.params.submissionId,
+        {
+          score: req.body.score,
+          feedback: req.body.feedback,
+          status: "Reviewed",
+          reviewedAt: new Date(),
+        },
+        req.user,
+      );
+
+      res.json(submission);
     } catch (err) {
       next(err);
     }

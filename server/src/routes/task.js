@@ -28,4 +28,22 @@ router.get(
   TaskController.getSubmissions,
 );
 
+// tambahan untuk new features tasksubmission
+router.get(
+  "/submissions/:submissionId",
+  authorization("task", "read"),
+  TaskController.getSubmissionDetail,
+);
+
+router.put(
+  "/submissions/:submissionId",
+  authorization("task", "submit"),
+  TaskController.updateSubmission,
+);
+
+router.put(
+  "/submissions/:submissionId/review",
+  authorization("task", "update"),
+  TaskController.reviewSubmission,
+);
 module.exports = router;
