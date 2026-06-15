@@ -31,13 +31,11 @@ const Login = () => {
 
     try {
       const response = await AuthService.login(form);
-
       const token = response.data.access_token;
 
       localStorage.setItem("access_token", token);
 
       const user = await AuthService.me();
-
       AuthService.saveSession(token, user);
 
       dispatch(
